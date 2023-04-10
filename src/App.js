@@ -1,12 +1,24 @@
-import { Link } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./App.css";
 import Signin from "./components/auth/Signin";
 import Signup from "./components/auth/Signup";
-import Dashboard from "./components/Dashboard";
-import NavBar from "./components/NavBar";
+import Layout from "./components/Layout";
+
+const queryClient = new QueryClient();
 
 function App() {
-  return <Dashboard />;
+  return (
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/*" element={<Layout />} />
+          <Route path="/signin" element={<Signin />} />
+          <Route path="/signup" element={<Signup />} />
+        </Routes>
+      </BrowserRouter>
+    </QueryClientProvider>
+  );
 }
 
 export default App;

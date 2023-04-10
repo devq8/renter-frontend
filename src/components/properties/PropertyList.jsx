@@ -1,51 +1,47 @@
-import { useQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
+import { useNavigate } from "react-router";
 import Breadcrumb from "../../utils/Breadcrumb";
 import Button from "../../utils/Button";
+import api from "../../utils/api/properties";
+import { useQuery } from "@tanstack/react-query";
+import PropertyRow from "./PropertyRow";
 import SearchBox from "../../utils/SearchBox";
-import api from "../../utils/api/tenants";
-import TenantRow from "./TenantRow";
-import { useNavigate } from "react-router";
 import Spinner from "../../utils/Spinner";
 
-function TenantList() {
+function PropertyList() {
   const navigate = useNavigate();
 
   const [search, setSearch] = useState("");
-
-  const {
-    data: tenants,
-    isLoading,
-    error,
-  } = useQuery(["tenants"], () => api.getTenants());
 
   const handleSearch = (e) => {
     setSearch(e.target.value);
   };
 
-  const tenantsList = tenants?.data
-    ?.filter((tenant) => {
+  const {
+    data: properties,
+    isLoading,
+    error,
+  } = useQuery(["properties"], () => api.getProperties());
+
+  const propertiesList = properties?.data
+    ?.filter((property) => {
       if (search === "") {
-        return tenant;
+        return property;
       } else if (
-        tenant.user.first_name?.toLowerCase().includes(search.toLowerCase()) ||
-        tenant.user.last_name?.toLowerCase().includes(search.toLowerCase()) ||
-        tenant.user.mobile?.toLowerCase().includes(search.toLowerCase()) ||
-        tenant.cid?.toLowerCase().includes(search.toLowerCase()) ||
-        tenant.user.email?.toLowerCase().includes(search.toLowerCase())
+        property.name?.toLowerCase().includes(search.toLowerCase()) ||
+        property.get_area_display?.toLowerCase().includes(search.toLowerCase())
       ) {
-        return tenant;
+        return property;
       }
     })
-    .map((tenant) => {
+    .map((property) => {
       return (
-        <TenantRow
-          firstName={tenant.user.first_name}
-          lastName={tenant.user.last_name}
-          email={tenant.user.email}
-          cid={tenant.cid}
-          status={tenant.user.is_active}
-          mobile={tenant.user.mobile}
+        <PropertyRow
+          id={property.id}
+          name={property.name}
+          area={property.get_area_display}
+          address={property.address}
+          owner={property.owner}
         />
       );
     });
@@ -54,13 +50,17 @@ function TenantList() {
     <div className="">
       <header className="bg-transparent">
         <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8 flex flex-col justify-between">
-          <Breadcrumb main={"Tenants"} sub={[]} />
+          <Breadcrumb main={"Properties"} sub={[]} />
           <div className="flex flex-row justify-between items-center">
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-              Tenants
+              Properties
             </h1>
-            <div onClick={() => navigate("/tenants/new")}>
-              <Button color="#BD9A5F" text="Add New Tenant" type="add" />
+            <div onClick={() => navigate("/properties/new")}>
+              <Button
+                text="Add New Property"
+                type="add"
+                className_="bg-primary"
+              />
             </div>
           </div>
         </div>
@@ -68,7 +68,7 @@ function TenantList() {
       <main>
         <div className="mx-auto max-w-7xl py-3 sm:px-6 lg:px-8">
           <SearchBox
-            placeholder={"Search tenant by name, mobile, civil ID or email"}
+            placeholder={"Search property by name or area"}
             onChange={handleSearch}
           />
           {isLoading ? (
@@ -85,40 +85,34 @@ function TenantList() {
                       scope="col"
                       className="px-6 py-4 font-medium text-gray-900"
                     >
-                      Name
+                      Property Name
                     </th>
                     <th
                       scope="col"
                       className="px-6 py-4 font-medium text-gray-900"
                     >
-                      Status
+                      Area
                     </th>
                     <th
                       scope="col"
                       className="px-6 py-4 font-medium text-gray-900"
                     >
-                      Mobile
+                      Address
                     </th>
                     <th
                       scope="col"
                       className="px-6 py-4 font-medium text-gray-900"
                     >
-                      Civil ID
+                      Owner
                     </th>
-                    <th
+                    {/* <th
                       scope="col"
                       className="px-6 py-4 font-medium text-gray-900"
-                    >
-                      Role
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-4 font-medium text-gray-900"
-                    ></th>
+                    ></th> */}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 border-t border-gray-100">
-                  {tenantsList}
+                  {propertiesList}
                 </tbody>
               </table>
             </div>
@@ -129,4 +123,4 @@ function TenantList() {
   );
 }
 
-export default TenantList;
+export default PropertyList;

@@ -1,16 +1,42 @@
-import React from "react";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useLogin } from "../../utils/auth";
 
 function SigninForm() {
+  const navigate = useNavigate();
+
+  const login = useLogin();
+
+  const [user, setUser] = useState();
+
+  const handleChange = (event) =>
+    setUser({ ...user, [event.target.name]: event.target.value });
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    login.mutate(user, {
+      onError: () => console.log("Invalid credentials!"),
+      onSuccess: () => {
+        console.log("Logged in successfully!");
+        navigate("/");
+      },
+    });
+  };
+
+  function handleSignUp() {
+    navigate("/signup");
+  }
+
   return (
-    <div class="flex flex-col w-full max-w-md px-4 py-8 bg-transparent rounded-lg sm:px-6 md:px-8 lg:px-10">
-      <div class="self-start mb-1 text-3xl font-bold text-[#1C1F2A] sm:text-3xl">
+    <div className="flex flex-col w-full max-w-md px-4 py-8 bg-transparent rounded-lg sm:px-6 md:px-8 lg:px-10">
+      <div className="self-start mb-1 text-3xl font-bold text-[#1C1F2A] sm:text-3xl">
         Sign In
       </div>
-      <div class="mt-8">
-        <form action="#" autoComplete="off">
-          <div class="flex flex-col mb-2">
-            <div class="flex relative ">
-              <span class="rounded-l-md inline-flex  items-center px-3 border-t bg-white border-l border-b  border-gray-300 text-gray-500 shadow-sm text-sm">
+      <div className="mt-8">
+        <form autoComplete="off" onSubmit={handleSubmit}>
+          <div className="flex flex-col mb-2">
+            <div className="flex relative ">
+              <span className="rounded-l-md inline-flex  items-center px-3 border-t bg-white border-l border-b  border-gray-300 text-gray-500 shadow-sm text-sm">
                 <svg
                   width="15"
                   height="15"
@@ -23,15 +49,17 @@ function SigninForm() {
               </span>
               <input
                 type="text"
-                id="sign-in-email"
-                class=" rounded-r-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-[#BD9A5F] focus:border-transparent"
+                id="email"
+                name="email"
+                className=" rounded-r-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-[#BD9A5F] focus:border-transparent"
                 placeholder="Your email"
+                onChange={handleChange}
               />
             </div>
           </div>
-          <div class="flex flex-col mb-6">
-            <div class="flex relative ">
-              <span class="rounded-l-md inline-flex  items-center px-3 border-t bg-white border-l border-b  border-gray-300 text-gray-500 shadow-sm text-sm">
+          <div className="flex flex-col mb-6">
+            <div className="flex relative ">
+              <span className="rounded-l-md inline-flex  items-center px-3 border-t bg-white border-l border-b  border-gray-300 text-gray-500 shadow-sm text-sm">
                 <svg
                   width="15"
                   height="15"
@@ -44,39 +72,43 @@ function SigninForm() {
               </span>
               <input
                 type="password"
-                id="sign-in-email"
-                class=" rounded-r-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-[#BD9A5F] focus:border-transparent"
+                id="password"
+                name="password"
+                className=" rounded-r-lg flex-1 appearance-none border border-gray-300 w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-sm text-base focus:outline-none focus:ring-2 focus:ring-[#BD9A5F] focus:border-transparent"
                 placeholder="Your password"
+                onChange={handleChange}
               />
             </div>
           </div>
-          <div class="flex items-center mb-6 -mt-4">
-            <div class="flex ml-auto">
+          <div className="flex items-center mb-6 -mt-4">
+            <div className="flex ml-auto">
               <a
                 href="#"
-                class="inline-flex text-sm font-light text-[#818FC2] sm:text-sm  hover:text-gray-700 "
+                className="inline-flex text-sm font-light text-[#818FC2] sm:text-sm  hover:text-gray-700 "
               >
                 Forgot Your Password?
               </a>
             </div>
           </div>
-          <div class="flex w-full">
+          <div className="flex w-full">
             <button
               type="submit"
-              class="py-3 px-4  bg-[#BD9A5F] hover:bg-[#BD9A5F] hover:opacity-90 focus:ring-[#BD9A5F] focus:ring-offset-purple-200 text-white w-full transition ease-in duration-200 text-center text-base font-semibold shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2  rounded-lg "
+              className="py-3 px-4  bg-[#BD9A5F] hover:bg-[#BD9A5F] hover:opacity-90 focus:ring-[#BD9A5F] focus:ring-offset-purple-200 text-white w-full transition ease-in duration-200 text-center text-base font-semibold shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2  rounded-lg "
             >
               Sign In
             </button>
           </div>
         </form>
       </div>
-      <div class="flex items-center justify-center mt-6">
+      <div className="flex items-center justify-center mt-6">
         <a
-          href="#"
-          target="_blank"
-          class="inline-flex items-center text-sm font-light text-center text-[#818FC2] hover:text-gray-700 "
+          onClick={handleSignUp}
+          style={{
+            cursor: "pointer",
+          }}
+          className="inline-flex items-center text-sm font-light text-center text-[#818FC2] hover:text-gray-700 "
         >
-          <span class="ml-2">You don&#x27;t have an account?</span>
+          <span className="ml-2">You don&#x27;t have an account?</span>
         </a>
       </div>
     </div>
