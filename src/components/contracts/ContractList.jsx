@@ -7,6 +7,7 @@ import api from "../../utils/api/contracts";
 import ContractRow from "./ContractRow";
 import SearchBox from "../../utils/SearchBox";
 import Spinner from "../../utils/Spinner";
+import dayjs from "dayjs";
 
 function ContractList() {
   const navigate = useNavigate();
@@ -54,16 +55,17 @@ function ContractList() {
     .map((contract) => {
       return (
         <ContractRow
+          key={contract.id}
           id={contract.id}
           unit={contract.unit}
           property={contract.unit.property_fk}
           tenant={contract.tenant}
-          status={contract.get_status_display}
+          status={contract.status}
           flexible={contract.flexible}
           start={contract.start_date}
           end={contract.end_date}
           rent={contract.rent}
-          daysToExpire={contract.days_to_expire}
+          daysToExpire={dayjs(contract.end_date).diff(dayjs(), "day")}
         />
       );
     });
@@ -72,7 +74,10 @@ function ContractList() {
     <div className="">
       <header className="bg-transparent">
         <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8 flex flex-col justify-between">
-          <Breadcrumb main={"Contracts"} sub={[]} />
+          <Breadcrumb
+            main={{ title: "Contracts", url: "/contracts" }}
+            sub={[]}
+          />
           <div className="flex flex-row justify-between items-center">
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
               Contracts

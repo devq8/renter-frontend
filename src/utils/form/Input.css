@@ -1,0 +1,10 @@
+span {
+  display: block;
+}
+
+input:invalid[focused="true"] ~ span {
+  display: block;
+}
+
+input:invalid[focused="true"] {
+}

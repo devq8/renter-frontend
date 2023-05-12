@@ -67,16 +67,22 @@ function InvoiceDetails() {
 
   // const documentsList = invoiceDetails?.documents.map((document) => {});
   const documentsList = [
-    <AttachmentItem fileName={"WaterConsumption.png"} deleteIcon={true} />,
-    <AttachmentItem fileName={"invoice.pdf"} deleteIcon={true} />,
+    <AttachmentItem
+      key={1}
+      fileName={"WaterConsumption.png"}
+      deleteIcon={true}
+    />,
+    <AttachmentItem key={2} fileName={"invoice.pdf"} deleteIcon={true} />,
   ];
   return (
     <div className="h-[100%] pb-5">
       <header className="bg-transparent">
         <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8 flex flex-col justify-between">
           <Breadcrumb
-            main={"Invoices"}
-            sub={[`Invoice No. ${invoiceDetails?.id} Details`]}
+            main={{ title: "Invoices", url: "/invoices" }}
+            sub={[
+              { title: `Invoice No. ${invoiceDetails?.id} Details`, url: "" },
+            ]}
           />
           <div className="flex flex-row justify-between items-center">
             <h1 className="text-3xl font-bold tracking-tight text-[#1C1F2A]">

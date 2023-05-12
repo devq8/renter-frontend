@@ -1,6 +1,6 @@
 import Button from "../../utils/Button";
 import React from "react";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import Breadcrumb from "../../utils/Breadcrumb";
 import Spinner from "../../utils/Spinner";
 import api from "../../utils/api/contracts";
@@ -13,6 +13,7 @@ import format from "../../utils/format";
 
 function ContractDetails() {
   const { id: contractId } = useParams();
+  const navigate = useNavigate();
 
   const {
     data: contract,
@@ -21,6 +22,7 @@ function ContractDetails() {
   } = useQuery(["contract", contractId], () =>
     api.getContractDetails(contractId)
   );
+  console.log(contract);
 
   const {
     data: invoices,
@@ -31,7 +33,7 @@ function ContractDetails() {
   );
 
   const contractDetails = contract?.data;
-  console.log(contractDetails);
+
   const invoicesList = invoices?.data
     ?.sort((a, b) => {
       return new Date(b.invoice_date) - new Date(a.invoice_date);
@@ -39,6 +41,7 @@ function ContractDetails() {
     .map((invoice) => {
       return (
         <InvoiceRow
+          key={invoice.id}
           id={invoice.id}
           date={invoice.invoice_date}
           title={invoice.invoice_title}
@@ -51,13 +54,17 @@ function ContractDetails() {
       );
     });
 
+  function handleAddNewInvoice() {
+    navigate(`/contracts/${contractDetails.id}/new`);
+  }
+
   return (
     <div className="">
       <header className="bg-transparent">
         <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8 flex flex-col justify-between">
           <Breadcrumb
-            main={"Contracts"}
-            sub={[`Contract No. ${contractDetails?.id}`]}
+            main={{ title: "Contracts", url: "/contracts" }}
+            sub={[{ title: `Contract No. ${contractDetails?.id}`, url: "" }]}
           />
           <div className="flex flex-row justify-between items-center">
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
@@ -68,8 +75,14 @@ function ContractDetails() {
                 text="Send Reminder"
                 type="reminder"
                 className_="bg-[#52555C]"
+                disabled={true}
               />
-              <Button color="#BD9A5F" text="Add New Invoice" type="add" />
+              <Button
+                color="#BD9A5F"
+                text="Add New Invoice"
+                type="add"
+                onClick={handleAddNewInvoice}
+              />
             </div>
           </div>
           {isLoading ? (
@@ -80,7 +93,7 @@ function ContractDetails() {
             <div className="flex justify-center items-center space-x-3">
               <div className="flex-row justify-between h-[190px] w-[55%] bg-white items-center rounded-md mt-4">
                 <div className="flex flex-row justify-between items-start  h-[43%] pt-5">
-                  <div className="flex flex-row">
+                  <div className="flex flex-row items-center">
                     <div className="flex flex-row items-start justify-center  ms-2 pl-3">
                       {/* Building Icon */}
                       <div className="flex bg-[#F7F7F7] w-[48px] h-[48px] rounded-md items-center justify-center">
@@ -122,13 +135,14 @@ function ContractDetails() {
                   <div className="flex flex-col items-start justify-center my-5 mx-2 pl-5 border-l">
                     <h1 className="text-[#AEB3C2] text-sm font-bold">Floor</h1>
                     <h1 className="text-[#52555C] font-bold text-xl line-clamp-1">
-                      {contractDetails?.unit.get_floor_display}
+                      {contractDetails?.unit.floor}
                     </h1>
                   </div>
                   <div className="flex flex-col items-start justify-center my-5 mx-2 pl-5 pr-10 border-l">
                     <h1 className="text-[#AEB3C2] text-sm font-bold">Status</h1>
                     <h1 className="text-[#52555C] font-bold text-xl line-clamp-1 ">
-                      {contractDetails?.get_status_display}
+                      {contractDetails?.status.charAt(0).toUpperCase() +
+                        contractDetails?.status.slice(1).toLowerCase()}
                     </h1>
                   </div>
                   <div className="flex flex-col items-start justify-center my-5 mx-2 pl-5 pr-10 border-l">

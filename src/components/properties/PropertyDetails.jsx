@@ -7,6 +7,7 @@ import Button from "../../utils/Button";
 import SearchBox from "../../utils/SearchBox";
 import Spinner from "../../utils/Spinner";
 import UnitRow from "../unit/UnitRow";
+import format from "../../utils/format";
 
 function PropertyDetails() {
   const { id: propertyId } = useParams();
@@ -19,6 +20,7 @@ function PropertyDetails() {
   } = useQuery(["propertyOverview", propertyId], () =>
     api.getPropertyOverview(propertyId)
   );
+  console.log(property?.data);
 
   const propertyDetails = property?.data;
 
@@ -38,10 +40,8 @@ function PropertyDetails() {
         return unit;
       } else if (
         unit.number.toLowerCase().includes(search.toLowerCase()) ||
-        unit.get_unit_type_display
-          .toLowerCase()
-          .includes(search.toLowerCase()) ||
-        unit.get_floor_display.toLowerCase().includes(search.toLowerCase()) ||
+        unit.unit_type.toLowerCase().includes(search.toLowerCase()) ||
+        unit.floor.toLowerCase().includes(search.toLowerCase()) ||
         unit.active_contract?.tenant.user.mobile
           .toLowerCase()
           .includes(search.toLowerCase())
@@ -52,10 +52,11 @@ function PropertyDetails() {
     .map((unit) => {
       return (
         <UnitRow
+          key={unit.id}
           id={unit.id}
-          floor={unit.get_floor_display}
+          floor={unit.floor}
           number={unit.number}
-          type={unit.get_unit_type_display}
+          type={unit.unit_type}
           vacant={unit.vacant}
           tenantFirstName={unit.active_contract?.tenant.user.first_name}
           tenantLastName={unit.active_contract?.tenant.user.last_name}
@@ -66,14 +67,14 @@ function PropertyDetails() {
         />
       );
     });
-  console.log(units?.data);
+  // console.log(units?.data);
   return (
     <div className="">
       <header className="bg-transparent">
         <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8 flex flex-col justify-between">
           <Breadcrumb
-            main={"Properties"}
-            sub={[`${propertyDetails?.name} Details`]}
+            main={{ title: "Properties", url: "/properties" }}
+            sub={[{ title: `${propertyDetails?.name}`, url: "" }]}
           />
           <div className="flex flex-row justify-between items-center">
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
@@ -81,7 +82,15 @@ function PropertyDetails() {
             </h1>
             <div className="flex">
               <Button color="#52555C" text="Edit Property" type="edit" />
-              <Button color="#BD9A5F" text="Add New Unit" type="add" />
+              <div
+                onClick={() =>
+                  navigate(`/properties/${propertyDetails.id}/new`, {
+                    state: { propertyDetails },
+                  })
+                }
+              >
+                <Button color="#BD9A5F" text="Add New Unit" type="add" />
+              </div>
             </div>
           </div>
           <div className="flex bg-transparent h-[122px] items-center rounded-md mt-4">
@@ -89,19 +98,19 @@ function PropertyDetails() {
               <div className="flex flex-col items-start justify-center my-5 mx-2 pl-4">
                 <h1 className="text-[#AEB3C2] text-sm font-bold">Area</h1>
                 <h1 className="text-[#52555C] font-bold text-xl line-clamp-1 w-28">
-                  Shuwaikh 8
+                  {propertyDetails?.area ?? "N/A"}
                 </h1>
               </div>
               <div className="flex flex-col items-start justify-center my-5 mx-2 pl-5 border-l">
                 <h1 className="text-[#AEB3C2] text-sm font-bold">Address</h1>
                 <h1 className="text-[#52555C] font-bold text-xl line-clamp-1">
-                  Block 9 - St. 25 - Buidling 8 - paci no 223
+                  {propertyDetails?.address ?? "N/A"}
                 </h1>
               </div>
               <div className="flex flex-col items-start justify-center my-5 mx-2 pl-5 pr-10 border-l">
                 <h1 className="text-[#AEB3C2] text-sm font-bold">Owner Name</h1>
                 <h1 className="text-[#52555C] font-bold text-xl line-clamp-1 w-28">
-                  Khaled Mohammad
+                  {propertyDetails?.owner_name[0] ?? "N/A"}
                 </h1>
               </div>
             </div>
@@ -111,13 +120,19 @@ function PropertyDetails() {
                   Total Rents
                 </h1>
                 <h1 className="text-[#52555C] font-bold text-xl line-clamp-1">
-                  KD 4,500
+                  {`KD ${format.changeAmountFormat(
+                    propertyDetails?.total_rents,
+                    0
+                  )}`}
                 </h1>
               </div>
               <div className="flex flex-col items-start justify-center my-5 mx-2 pl-5 border-l">
                 <h1 className="text-[#AEB3C2] text-sm font-bold">Last Month</h1>
                 <h1 className="text-[#52555C] font-bold text-xl line-clamp-1">
-                  KD 3,850
+                  {`KD ${format.changeAmountFormat(
+                    propertyDetails?.last_month_rents,
+                    0
+                  )}`}
                 </h1>
               </div>
               <div className="flex flex-col items-start justify-center my-5 mx-2 pl-5 border-l">
@@ -125,7 +140,7 @@ function PropertyDetails() {
                   Total Units
                 </h1>
                 <h1 className="text-[#52555C] font-bold text-xl line-clamp-1 ">
-                  30
+                  {propertyDetails?.number_of_units}
                 </h1>
               </div>
               <div className="flex flex-col items-start justify-center my-5 mx-2 px-5 border-l">
@@ -133,7 +148,7 @@ function PropertyDetails() {
                   Vacant Units
                 </h1>
                 <h1 className="text-[#52555C] font-bold text-xl line-clamp-1 ">
-                  4
+                  {propertyDetails?.vacancies}
                 </h1>
               </div>
             </div>

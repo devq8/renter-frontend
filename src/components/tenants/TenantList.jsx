@@ -40,6 +40,7 @@ function TenantList() {
     .map((tenant) => {
       return (
         <TenantRow
+          key={tenant.user.id}
           firstName={tenant.user.first_name}
           lastName={tenant.user.last_name}
           email={tenant.user.email}
@@ -54,7 +55,7 @@ function TenantList() {
     <div className="">
       <header className="bg-transparent">
         <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8 flex flex-col justify-between">
-          <Breadcrumb main={"Tenants"} sub={[]} />
+          <Breadcrumb main={{ title: "Tenants", url: "/tenants" }} sub={[]} />
           <div className="flex flex-row justify-between items-center">
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
               Tenants

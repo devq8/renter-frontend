@@ -56,12 +56,12 @@ function ContractRow({
         {tenant.user.first_name} {tenant.user.last_name}
       </td>
       <td className="px-4 py-4">{unit.property_fk.name}</td>
-      <td className="px-4 py-4">{unit.get_floor_display}</td>
+      <td className="px-4 py-4">{unit.floor}</td>
       <td className="px-4 py-4">{unit.number}</td>
       <td className="px-4 py-4">{daysToExpire} Days</td>
       <td className="px-4 py-4 text-end">KD 2,500</td>
       <td className="px-4 py-4 text-gray-700 font-medium text-end">
-        {rent && `KD ${format.changeAmountFormat(rent)}`}
+        {rent && `KD ${format.changeAmountFormat(rent, 0)}`}
       </td>
       <td className="px-4 py-4 flex justify-center items-center">
         {getStatus(status)}

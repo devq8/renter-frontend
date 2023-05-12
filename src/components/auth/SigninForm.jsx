@@ -14,11 +14,13 @@ function SigninForm() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    // console.log(`I'm in Signin Form\nI'm trying to login ...`);
+
     login.mutate(user, {
-      onError: () => console.log("Invalid credentials!"),
+      onError: (error) => console.log(`There's an error: ${error.message}`),
       onSuccess: () => {
         console.log("Logged in successfully!");
-        navigate("/");
+        navigate("/dashboard");
       },
     });
   };

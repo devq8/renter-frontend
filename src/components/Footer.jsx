@@ -1,11 +1,12 @@
 import React from "react";
 import { Typography } from "@material-tailwind/react";
+import dayjs from "dayjs";
 
 function Footer() {
   return (
-    <footer className="flex w-full flex-row flex-wrap items-center justify-center gap-y-6 gap-x-12 border-t border-blue-gray-50 py-6 text-center md:justify-between max-w-7xl mx-auto mt-5">
+    <footer className="flex w-full flex-row flex-wrap items-center justify-center gap-y-6 gap-x-12 border-t border-blue-gray-50 py-6 text-center md:justify-between md:px-6 max-w-7xl mx-auto mt-5">
       <Typography color="blue-gray" className="font-normal">
-        Renter Co. &copy; 2023
+        Warba United Co. &copy; {dayjs().year()}
       </Typography>
       <ul className="flex flex-wrap items-center gap-y-2 gap-x-8">
         <li>

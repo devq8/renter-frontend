@@ -7,11 +7,32 @@ import { useQuery } from "@tanstack/react-query";
 import InvoiceRow from "./InvoiceRow";
 import Spinner from "../../utils/Spinner";
 import SearchBox from "../../utils/SearchBox";
+import Filter from "../../utils/Filter";
 
 function InvoiceList() {
   const navigate = useNavigate();
 
   const [search, setSearch] = useState("");
+
+  const [invoiceStatus, setInvoiceStatus] = useState("");
+  function invoiceStatusOnChange(e) {
+    setInvoiceStatus(e.target.value);
+  }
+
+  const [property, setProperty] = useState("");
+  function propertyOnChange(e) {
+    setProperty(e.target.value);
+  }
+
+  const [invoiceType, setInvoiceType] = useState("");
+  function invoiceTypeOnChange(e) {
+    setInvoiceType(e.target.value);
+  }
+
+  const [paymentMethod, setPaymentMethod] = useState("");
+  function paymentMethodOnChange(e) {
+    setPaymentMethod(e.target.value);
+  }
 
   const {
     data: invoices,
@@ -38,7 +59,7 @@ function InvoiceList() {
         invoice.contract.unit.property_fk.name
           .toLowerCase()
           .includes(search.toLowerCase()) ||
-        invoice.contract.unit.get_floor_display
+        invoice.contract.unit.floor
           .toLowerCase()
           .includes(search.toLowerCase()) ||
         invoice.contract.unit.number
@@ -52,13 +73,52 @@ function InvoiceList() {
         return invoice;
       }
     })
+    .filter((invoice) => {
+      if (invoiceStatus === "") {
+        return invoice;
+      } else if (
+        invoice.get_invoice_status_display.toLowerCase() ===
+        invoiceStatus.toLowerCase()
+      ) {
+        return invoice;
+      }
+    })
+    .filter((invoice) => {
+      if (property === "") {
+        return invoice;
+      } else if (
+        invoice.contract.unit.property_fk.name.toLowerCase() ===
+        property.toLowerCase()
+      ) {
+        return invoice;
+      }
+    })
+    .filter((invoice) => {
+      if (invoiceType === "") {
+        return invoice;
+      } else if (
+        invoice.get_type_display.toLowerCase() === invoiceType.toLowerCase()
+      ) {
+        return invoice;
+      }
+    })
+    .filter((invoice) => {
+      if (paymentMethod === "") {
+        return invoice;
+      } else if (
+        invoice.method_of_payment.toLowerCase() === paymentMethod.toLowerCase()
+      ) {
+        return invoice;
+      }
+    })
     .map((invoice) => {
       return (
         <InvoiceRow
+          key={invoice.id}
           id={invoice.id}
           tenant={invoice.contract.tenant}
           property={invoice.contract.unit.property_fk}
-          floor={invoice.contract.unit.get_floor_display}
+          floor={invoice.contract.unit.floor}
           unit={invoice.contract.unit.number}
           type={invoice.get_type_display}
           amount={invoice.invoice_amount}
@@ -73,14 +133,14 @@ function InvoiceList() {
     <div className="">
       <header className="bg-transparent">
         <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8 flex flex-col justify-between">
-          <Breadcrumb main={"Invoices"} sub={[]} />
+          <Breadcrumb main={{ title: "Invoices", url: "/invoices" }} sub={[]} />
           <div className="flex flex-row justify-between items-center">
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
               Invoices
             </h1>
-            <div onClick={() => navigate("/contract/new")}>
+            {/* <div onClick={() => navigate("/invoices/new")}>
               <Button color="#BD9A5F" text="Add New Invoice" type="add" />
-            </div>
+            </div> */}
           </div>
         </div>
       </header>
@@ -91,6 +151,13 @@ function InvoiceList() {
               "Search invoice by tenant name, mobile, property, floor, unit, invoice type, or status"
             }
             onChange={handleSearch}
+          />
+
+          <Filter
+            invoiceStatusOnChange={invoiceStatusOnChange}
+            propertyOnChange={propertyOnChange}
+            invoiceTypeOnChange={invoiceTypeOnChange}
+            paymentMethodOnChange={paymentMethodOnChange}
           />
           {isLoading ? (
             <div className="flex justify-center items-center h-[50vh]">

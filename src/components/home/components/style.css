@@ -1,0 +1,11 @@
+.typed-cursor {
+  display: inline !important;
+  margin-left: 5px;
+  animation: typedjsBlink 0.7s infinite;
+}
+
+@keyframes typedjsBlink {
+  50% {
+    opacity: 0;
+  }
+}

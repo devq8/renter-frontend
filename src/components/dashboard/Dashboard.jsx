@@ -11,7 +11,7 @@ export default function Dashboard() {
     <>
       <header className="bg-transparent">
         <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8 flex flex-col justify-between">
-          <Breadcrumb main={"Dashboard"} sub={[]} />
+          <Breadcrumb main={{ title: "Dashboard", url: "/" }} sub={[]} />
           <div className="flex flex-row justify-between items-center">
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
               Dashboard

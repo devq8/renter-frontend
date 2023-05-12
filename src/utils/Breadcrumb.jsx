@@ -13,6 +13,7 @@ function Breadcrumb({ main, sub = [] }) {
       aria-label="Breadcrumb"
     >
       <ol className="inline-flex items-center space-x-1 md:space-x-3">
+        {/* Home Icon */}
         <li className="inline-flex items-center">
           <a
             style={{
@@ -23,7 +24,7 @@ function Breadcrumb({ main, sub = [] }) {
           >
             <svg
               className="w-4 h-4 mr-2"
-              fill="currentColor"
+              fillRule="currentColor"
               viewBox="0 0 20 20"
               xmlns="http://www.w3.org/2000/svg"
             >
@@ -31,49 +32,72 @@ function Breadcrumb({ main, sub = [] }) {
             </svg>
           </a>
         </li>
+        {/* Main Section */}
         <li>
           <div className="flex items-center">
             <svg
               className="w-6 h-6 text-gray-400"
-              fill="currentColor"
+              fillRule="currentColor"
               viewBox="0 0 20 20"
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                fill-rule="evenodd"
+                fillRule="evenodd"
                 d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                clip-rule="evenodd"
+                clipRule="evenodd"
               ></path>
             </svg>
-            <a
-              // style={{
-              //   cursor: "pointer",
-              // }}
-              className="text-gray-700 hover:text-gray-900 ml-1 md:ml-2 text-sm font-medium "
-            >
-              {main}
-            </a>
+            {sub.length === 0 ? (
+              <a className="text-gray-700 ml-1 md:ml-2 text-sm font-medium ">
+                {main.title}
+              </a>
+            ) : (
+              <a
+                style={{
+                  cursor: "pointer",
+                }}
+                onClick={() => navigate(main.url)}
+                className="text-gray-700 ml-1 md:ml-2 text-sm font-medium "
+              >
+                {main.title}
+              </a>
+            )}
           </div>
         </li>
-        {sub?.map((item) => {
+        {/* Subsection Loop */}
+        {sub?.map((item, index) => {
+          const isLastItem = index === sub.length - 1;
           return (
-            <li aria-current="page">
+            <li key={index} aria-current="page">
               <div className="flex items-center">
+                {/* Arrow Icon */}
                 <svg
                   className="w-6 h-6 text-gray-400"
-                  fill="currentColor"
+                  fillRule="currentColor"
                   viewBox="0 0 20 20"
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <path
-                    fill-rule="evenodd"
+                    fillRule="evenodd"
                     d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                    clip-rule="evenodd"
+                    clipRule="evenodd"
                   ></path>
                 </svg>
-                <span className="text-gray-400 ml-1 md:ml-2 text-sm font-medium ">
-                  {item}
-                </span>
+                {isLastItem ? (
+                  <a className="text-gray-700 ml-1 md:ml-2 text-sm font-medium ">
+                    {item.title}
+                  </a>
+                ) : (
+                  <a
+                    style={{
+                      cursor: "pointer",
+                    }}
+                    className="text-gray-700 ml-1 md:ml-2 text-sm font-medium "
+                    onClick={() => navigate(item.url)}
+                  >
+                    {item.title}
+                  </a>
+                )}
               </div>
             </li>
           );

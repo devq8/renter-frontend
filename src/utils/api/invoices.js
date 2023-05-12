@@ -14,6 +14,12 @@ function getInvoiceDetails(invoice_id) {
   return instance.get(`/api/invoices/${invoice_id}/`);
 }
 
+function addInvoice(invoice) {
+  console.log(`Adding invoice`);
+  console.log(invoice);
+  return instance.post(`/api/invoices/add/`, invoice);
+}
+
 // function getUnitsList(property_id) {
 //   return instance.get(`/api/units/${property_id}/`);
 // }
@@ -23,4 +29,4 @@ function getInvoiceDetails(invoice_id) {
 //   return instance.get(`/api/properties/${property_id}/`);
 // }
 
-export default { getInvoices, getInvoiceDetails };
+export default { getInvoices, getInvoiceDetails, addInvoice };

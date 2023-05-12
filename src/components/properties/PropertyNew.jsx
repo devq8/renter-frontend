@@ -4,45 +4,86 @@ import Breadcrumb from "../../utils/Breadcrumb";
 import "flowbite";
 import Select from "react-select";
 import api from "../../utils/api/properties";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import utils from "../../utils/api/utils";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import Input from "../../utils/form/Input";
+import Dropdown from "../../utils/form/Dropdown";
+import Validation from "./Validation";
 
 function PropertyNew() {
   const navigate = useNavigate();
+  const [errors, setErrors] = useState({});
 
   const queryClient = useQueryClient();
 
   const addPropertyMutation = useMutation(
     (property) => api.addProperty(property),
     {
-      onSuccess: () => queryClient.invalidateQueries(["properties"]),
+      onSuccess: () => {
+        queryClient.invalidateQueries(["properties"]);
+        navigate("/properties");
+        toast.success("Property added successfully");
+      },
+      onError: (error) => console.log(error.response.data.name[0]),
     }
   );
 
-  const areas = [
-    { value: "hawalli", label: "Hawalli" },
-    { value: "khaitan", label: "Khaitan" },
-    { value: "farwaniya", label: "Farwaniya" },
-  ];
+  const {
+    data: areas,
+    isLoading: areasLoading,
+    error: areasError,
+  } = useQuery(["areas"], () => utils.getAreas());
+  const areasList = areas && areas.data ? areas.data.map((area) => area) : [];
+  console.log(areasList);
 
-  const managers = [
-    { value: "khaled", label: "Khaled" },
-    { value: "ali", label: "Ali" },
-    { value: "mohd", label: "Mohammad" },
-  ];
+  const {
+    data: banks,
+    isLoading: banksLoading,
+    error: banksError,
+  } = useQuery(["banks"], () => utils.getBanks());
+  const banksList = banks && banks.data ? banks.data.map((bank) => bank) : [];
 
-  const owners = [
-    { value: "nadia", label: "Nadia" },
-    { value: "ahmad", label: "Ahmad" },
-    { value: "ali", label: "Ali" },
-  ];
+  const {
+    data: managers,
+    isLoading: managersLoading,
+    error: managersError,
+  } = useQuery(["managers"], () => utils.getManagers());
+  const managersList =
+    managers && managers.data
+      ? managers.data.map((manager) => ({
+          value: manager.id,
+          label:
+            manager.legal_name ??
+            `${manager.user.first_name} ${manager.user.last_name}`,
+        }))
+      : [];
 
-  const banks = [
-    { value: "kfh", label: "KFH" },
-    { value: "bbyn", label: "Boubyan" },
-    { value: "nbk", label: "NBK" },
-  ];
+  const {
+    data: owners,
+    isLoading: ownersLoading,
+    error: ownersError,
+  } = useQuery(["owners"], () => utils.getOwners());
+  const ownersList =
+    owners && owners.data
+      ? owners.data.map((owner) => ({
+          value: owner.id,
+          label: `${owner.user.first_name} ${owner.user.last_name}`,
+        }))
+      : [];
 
-  const [property, setProperty] = useState("");
+  const [property, setProperty] = useState({
+    name: "",
+    area: "",
+    address: "",
+    paci: "",
+    manager: [],
+    owner: [],
+    bank: "",
+    beneficiary: "",
+    iban: "",
+  });
   const [selectedManagers, setSelectedManagers] = useState([]);
   const [selectedOwners, setSelectedOwners] = useState([]);
   const [selectedBank, setSelectedBank] = useState("");
@@ -50,26 +91,37 @@ function PropertyNew() {
 
   function handleSelectedManagerChange(selected) {
     setSelectedManagers(selected);
-    setProperty({ ...property, managers: selected });
-    console.log(property);
+    setProperty({
+      ...property,
+      manager: selected.map((manager) => manager.value),
+    });
   }
 
   function handleSelectedOwnerChange(selected) {
     setSelectedOwners(selected);
-    setProperty({ ...property, owners: selected });
+    setProperty({
+      ...property,
+      owner: selected.map((owner) => owner.value),
+    });
     console.log(property);
   }
 
   function handleSelectedBankChange(selected) {
     setSelectedBank(selected);
-    setProperty({ ...property, bank: selected });
-    console.log(property);
+    if (selected && selected.value !== null) {
+      setProperty({ ...property, bank: selected.value });
+    } else if (selected === null) {
+      setProperty({ ...property, bank: "" });
+    }
   }
 
   function handleSelectedAreaChange(selected) {
     setSelectedArea(selected);
-    setProperty({ ...property, area: selected });
-    console.log(property);
+    if (selected !== null) {
+      setProperty({ ...property, area: selected.value });
+    } else if (selected === null) {
+      setProperty({ ...property, area: "" });
+    }
   }
 
   function handleCancel() {
@@ -83,12 +135,12 @@ function PropertyNew() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    // console.log("Adding new property function called");
-    // console.log(`The property details to be saved is ${property}`);
-    try {
+
+    setErrors(Validation(property));
+    console.log(errors);
+    if (Object.keys(errors).length === 0) {
       addPropertyMutation.mutate(property);
-    } catch (error) {
-      alert(error.response.data.message);
+      toast.success("Property Added Successfully"); //Not working!!
     }
   };
 
@@ -96,7 +148,10 @@ function PropertyNew() {
     <div className="">
       <header className="bg-transparent">
         <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8 flex flex-col justify-between">
-          <Breadcrumb main={"Properties"} sub={["Add New Property"]} />
+          <Breadcrumb
+            main={{ title: "Properties", url: "/properties" }}
+            sub={[{ title: "Add New Property", url: "" }]}
+          />
           <div className="flex flex-row justify-between">
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
               Add New Property
@@ -120,107 +175,52 @@ function PropertyNew() {
                 </p>
                 {/* First Row */}
                 <div className="flex p-3">
-                  <div className="flex flex-col w-[50%] pe-2">
-                    <label
-                      for="name"
-                      class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      Property name
-                    </label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      class="border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary focus:border-primary block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary dark:focus:border-primary"
-                      placeholder="e.g. Hawalli 29"
-                      required
-                      onChange={handleChange}
-                    />
-                  </div>
+                  <Input
+                    name="name"
+                    type="text"
+                    label="Property name"
+                    placeholder="e.g. Hawalli 290"
+                    required={true}
+                    onChange={handleChange}
+                    errorMessage={errors.name}
+                    // pattern="^[4-6,9][0-9]{7}$"
+                  />
                 </div>
 
                 {/* Second Row */}
                 <div className="flex p-3">
-                  <div className="w-[50%] pe-2">
-                    <label
-                      for="area"
-                      class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      Property area
-                    </label>
-                    <Select
-                      name="area"
-                      isClearable={true}
-                      isSearchable={true}
-                      options={areas}
-                      placeholder="Select property's area ..."
-                      //   onChange={handleSelectedAreaChange}
-                      value={selectedArea}
-                      styles={{
-                        control: (provided, state) => ({
-                          ...provided,
-                          height: "42px",
-                          borderColor: state.isFocused ? "#BD9A5F" : "white",
-                          boxShadow: "0 0 0 1px #D1D5DB",
-                        }),
-                      }}
-                    />
-                    {/* <SelectSearch
-                      label="Property area"
-                      options={areas}
-                      clearable={true}
-                      searchable={true}
-                      name="area"
-                      //   onInputChange={handleChange}
-                      placeholder="Select property's area ..."
-                    /> */}
-                  </div>
-                  <div className="flex flex-col w-[50%] ps-2">
-                    <label
-                      for="address"
-                      class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      Address
-                      <span className=" mb-2 text-xs font-medium text-gray-400 dark:text-white">
-                        {" "}
-                        (optional)
-                      </span>
-                    </label>
-                    <input
-                      type="text"
-                      id="address"
-                      name="address"
-                      //   onChange={handleChange}
-                      class="border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary focus:border-primary block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary dark:focus:border-primary"
-                      //   placeholder="e.g. Block 1 - Ibn Khaldoun Street - Building No. 32"
-                      //   required
-                    />
-                  </div>
+                  <Dropdown
+                    name="area"
+                    label="Property area"
+                    isClearable={true}
+                    isSearchable={true}
+                    options={areasList}
+                    placeholder="Select property's area ..."
+                    onChange={handleSelectedAreaChange}
+                    value={selectedArea}
+                    isMulti={false}
+                    errorMessage={errors.area}
+                  />
+                  <Input
+                    name="address"
+                    type="text"
+                    label="Address"
+                    placeholder="e.g. Block 1 - Ibn Khaldoun Street - Building No. 32"
+                    onChange={handleChange}
+                    required={false}
+                  />
                 </div>
 
                 {/* Third Row */}
                 <div className="flex p-3">
-                  <div className="flex flex-col w-[50%] pe-2">
-                    <label
-                      for="paci"
-                      class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      PACI
-                      <span className=" mb-2 text-xs font-medium text-gray-400 dark:text-white">
-                        {" "}
-                        (optional)
-                      </span>
-                    </label>
-                    <input
-                      type="text"
-                      id="paci"
-                      name="paci"
-                      class="border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary focus:border-primary block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary dark:focus:border-primary"
-                      //   onChange={handleChange}
-                      //   placeholder="e.g. Block 1 - Ibn Khaldoun Street - Building No. 32"
-                      //   required
-                    />
-                  </div>
+                  <Input
+                    name="paci"
+                    type="text"
+                    label="PACI"
+                    placeholder="e.g. 12345678"
+                    onChange={handleChange}
+                    required={false}
+                  />
                 </div>
               </div>
               <div className="border-gray-900/10 pb-12">
@@ -231,60 +231,34 @@ function PropertyNew() {
                   Enter the property management details below.
                 </p>
                 {/* Fourth Row */}
-                <div className="flex flex-col w-[50%] p-3">
-                  <label
-                    for="manager"
-                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                  >
-                    Manager
-                  </label>
-                  <Select
+                <div className="flex p-3">
+                  <Dropdown
                     name="manager"
-                    isMulti
+                    label="Manager"
                     isClearable={true}
                     isSearchable={true}
-                    options={managers}
+                    options={managersList}
                     placeholder="Select property manager"
-                    // onInputChange={handleChange}
-                    // onChange={handleSelectedManagerChange}
+                    onChange={handleSelectedManagerChange}
                     value={selectedManagers}
-                    styles={{
-                      control: (provided, state) => ({
-                        ...provided,
-                        height: "42px",
-                        borderColor: state.isFocused ? "#BD9A5F" : "white",
-                        boxShadow: "0 0 0 1px #D1D5DB",
-                      }),
-                    }}
+                    isMulti={true}
+                    errorMessage={errors.manager}
                   />
                 </div>
 
                 {/* Fifth Row */}
-                <div className="flex flex-col w-[50%] p-3">
-                  <label
-                    for="owner"
-                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                  >
-                    Owner
-                  </label>
-
-                  <Select
+                <div className="flex p-3">
+                  <Dropdown
                     name="owner"
-                    isMulti
+                    label="Owner"
                     isClearable={true}
                     isSearchable={true}
-                    options={owners}
+                    options={ownersList}
                     placeholder="Select property owner"
-                    // onChange={handleSelectedOwnerChange}
+                    onChange={handleSelectedOwnerChange}
                     value={selectedOwners}
-                    styles={{
-                      control: (provided, state) => ({
-                        ...provided,
-                        height: "42px",
-                        borderColor: state.isFocused ? "#BD9A5F" : "white",
-                        boxShadow: "0 0 0 1px #D1D5DB",
-                      }),
-                    }}
+                    isMulti={true}
+                    errorMessage={errors.owner}
                   />
                 </div>
               </div>
@@ -296,70 +270,39 @@ function PropertyNew() {
                   Enter the bank details below.
                 </p>
                 {/* Sixth Row */}
-                <div className="flex flex-col w-[50%] p-3">
-                  <label
-                    for="bank"
-                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                  >
-                    Bank name
-                  </label>
-
-                  <Select
+                <div className="flex p-3">
+                  <Dropdown
                     name="bank"
+                    label="Bank Name"
                     isClearable={true}
                     isSearchable={true}
-                    options={banks}
+                    options={banksList}
                     placeholder="Select your bank name"
+                    onChange={handleSelectedBankChange}
                     value={selectedBank}
-                    // onChange={handleSelectedBankChange}
-                    styles={{
-                      control: (provided, state) => ({
-                        ...provided,
-                        height: "42px",
-                        borderColor: state.isFocused ? "#BD9A5F" : "white",
-                        boxShadow: "0 0 0 1px #D1D5DB",
-                      }),
-                    }}
+                    isMulti={false}
                   />
                 </div>
                 <div className="flex p-3">
-                  <div className="flex flex-col w-[50%] pe-2">
-                    <label
-                      for="beneficiary"
-                      class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      Beneficiary
-                    </label>
-                    <input
-                      type="text"
-                      id="beneficiary"
-                      name="beneficiary"
-                      //   onChange={handleChange}
-                      class="border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary focus:border-primary block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary dark:focus:border-primary"
-                      //   placeholder="e.g. Block 1 - Ibn Khaldoun Street - Building No. 32"
-                      //   required
-                    />
-                  </div>
-                  <div className="flex flex-col w-[50%] ps-2">
-                    <label
-                      for="iban"
-                      class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                    >
-                      IBAN
-                    </label>
-                    <input
-                      type="text"
-                      id="iban"
-                      name="iban"
-                      //   onChange={handleChange}
-                      class="border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary focus:border-primary block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary dark:focus:border-primary"
-                      //   placeholder="e.g. Block 1 - Ibn Khaldoun Street - Building No. 32"
-                      //   required
-                    />
-                  </div>
+                  <Input
+                    name="beneficiary"
+                    type="text"
+                    label="Beneficiary"
+                    placeholder="e.g. Warba United Company"
+                    onChange={handleChange}
+                    required={false}
+                  />
+                  <Input
+                    name="iban"
+                    type="text"
+                    label="IBAN"
+                    placeholder=""
+                    onChange={handleChange}
+                    required={false}
+                  />
                 </div>
               </div>
-              <hr class="h-px my-3 bg-gray-200 border-0 dark:bg-gray-700" />
+              <hr className="h-px my-3 bg-gray-200 border-0 dark:bg-gray-700" />
 
               <div className="mt-6 flex items-center justify-end gap-x-6">
                 <button
@@ -369,15 +312,17 @@ function PropertyNew() {
                 >
                   Cancel
                 </button>
+
                 <button
                   type="submit"
                   className="rounded-md bg-[#BD9A5F] px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#BD9A5F] hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#BD9A5F]"
-                  //   onClick={handleSave}
                 >
                   Save
                 </button>
               </div>
             </form>
+            {/* <button>Notification</button> */}
+            <ToastContainer />
           </div>
         </div>
       </main>

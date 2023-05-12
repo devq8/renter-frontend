@@ -29,7 +29,7 @@ function PropertyList() {
         return property;
       } else if (
         property.name?.toLowerCase().includes(search.toLowerCase()) ||
-        property.get_area_display?.toLowerCase().includes(search.toLowerCase())
+        property.area?.toLowerCase().includes(search.toLowerCase())
       ) {
         return property;
       }
@@ -37,9 +37,10 @@ function PropertyList() {
     .map((property) => {
       return (
         <PropertyRow
+          key={property.id}
           id={property.id}
           name={property.name}
-          area={property.get_area_display}
+          area={property.area}
           address={property.address}
           owner={property.owner}
         />
@@ -50,7 +51,10 @@ function PropertyList() {
     <div className="">
       <header className="bg-transparent">
         <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8 flex flex-col justify-between">
-          <Breadcrumb main={"Properties"} sub={[]} />
+          <Breadcrumb
+            main={{ title: "Properties", url: "/properties" }}
+            sub={[]}
+          />
           <div className="flex flex-row justify-between items-center">
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
               Properties

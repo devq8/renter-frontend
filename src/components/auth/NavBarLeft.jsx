@@ -1,8 +1,9 @@
 import { Fragment } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import Logo from "../../assets/horizontal.png";
+import Logo from "../../assets/images/logo.png";
 import "../../App.css";
+import { useNavigate } from "react-router";
 
 const navigation = [
   { name: "Home", href: "/", current: false },
@@ -14,6 +15,10 @@ function classNames(...classes) {
 }
 
 export default function NavBarLeft() {
+  const navigate = useNavigate();
+  function handleNavigation() {
+    navigate(`/`);
+  }
   return (
     <Disclosure as="nav" className="bg-transparent pt-5">
       {({ open }) => (
@@ -36,14 +41,16 @@ export default function NavBarLeft() {
                   <img
                     className="block h-8 w-auto lg:hidden"
                     src={Logo}
-                    alt="Your Company"
-                    href="/"
+                    alt="Warba United Co. Logo"
+                    onClick={handleNavigation}
+                    style={{ cursor: "pointer" }}
                   />
                   <img
                     className="hidden h-8 w-auto lg:block pr-5"
                     src={Logo}
-                    alt="Your Company"
-                    href="/"
+                    alt="Warba United Co. Logo"
+                    onClick={handleNavigation}
+                    style={{ cursor: "pointer" }}
                   />
                 </div>
                 <div className="hidden sm:ml-6 sm:block">
