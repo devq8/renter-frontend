@@ -22,7 +22,8 @@ function ContractDetails() {
   } = useQuery(["contract", contractId], () =>
     api.getContractDetails(contractId)
   );
-  console.log(contract);
+
+  const total_pending_amount = contract?.data?.total_pending_amount;
 
   const {
     data: invoices,
@@ -48,14 +49,18 @@ function ContractDetails() {
           start={invoice.from_date}
           end={invoice.to_date}
           amount={invoice.invoice_amount}
-          status={invoice.get_invoice_status_display}
-          paymentDate={invoice.payment_date}
+          status={invoice.invoice_status}
         />
       );
     });
 
   function handleAddNewInvoice() {
     navigate(`/contracts/${contractDetails.id}/new`);
+  }
+
+  function handlePayment() {
+    console.log("redirecting to payment page");
+    navigate(`/contracts/${contractDetails?.id}/checkout`);
   }
 
   return (
@@ -119,7 +124,16 @@ function ContractDetails() {
                     </div>
                   </div>
                   <div className="me-3">
-                    <Button color="#52555C" text="Payment Link" type="link" />
+                    {total_pending_amount > 0 ? (
+                      <Button
+                        color="#52555C"
+                        text="Payment Link"
+                        type="link"
+                        onClick={handlePayment}
+                      />
+                    ) : (
+                      <></>
+                    )}
                   </div>
                 </div>
 

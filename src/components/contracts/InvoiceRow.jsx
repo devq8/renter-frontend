@@ -25,7 +25,7 @@ function InvoiceRow({
           ) : null}
         </span>
       );
-    } else if (invoiceStatus === "Overdue") {
+    } else if (invoiceStatus === "Unpaid") {
       return (
         <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-1 text-xs font-semibold text-red-600">
           Overdue
@@ -37,16 +37,10 @@ function InvoiceRow({
           Cancelled
         </span>
       );
-    } else if (invoiceStatus === "Upcoming") {
+    } else {
       return (
         <span className="inline-flex items-center gap-1 rounded-full bg-yellow-50 px-2 py-1 text-xs font-semibold text-yellow-600">
-          Upcoming
-        </span>
-      );
-    } else if (invoiceStatus === "New") {
-      return (
-        <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-600">
-          New
+          Pending
         </span>
       );
     }
@@ -70,7 +64,7 @@ function InvoiceRow({
       <td className="px-4 py-4">
         {format.changeDatesFormat(start)} - {format.changeDatesFormat(end)}
       </td>
-      <td className="px-4 py-4">
+      <td className="flex justify-end items-center px-4 py-4">
         {amount && `KD ${format.changeAmountFormat(amount)}`}
       </td>
       <td className="px-4 py-4 text-center">

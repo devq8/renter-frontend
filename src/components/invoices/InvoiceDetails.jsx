@@ -22,7 +22,8 @@ function InvoiceDetails() {
   } = useQuery(["invoice", invoiceId], () => api.getInvoiceDetails(invoiceId));
 
   const invoiceDetails = invoice?.data;
-  console.log(invoiceDetails);
+  // console.log("invoiceDetails");
+  // console.log(invoiceDetails);
 
   function showStatus(status) {
     if (status === "Paid") {
@@ -55,6 +56,12 @@ function InvoiceDetails() {
           Upcoming
         </span>
       );
+    } else {
+      return (
+        <span className="inline-flex items-center gap-1 rounded-md bg-red-50 px-2 py-1 text-sm font-semibold text-red-600">
+          Pending
+        </span>
+      );
     }
   }
 
@@ -62,10 +69,13 @@ function InvoiceDetails() {
 
   function handlePayment() {
     console.log("redirecting to payment page");
-    navigate(`/invoices/${invoiceDetails?.id}/pay`);
+    navigate(`/contracts/${invoiceDetails?.contract.id}/checkout`);
   }
 
-  // const documentsList = invoiceDetails?.documents.map((document) => {});
+  function handlePrintInvoice() {
+    navigate(`/invoices/${invoiceDetails?.payment?.id}/receipt`);
+  }
+
   const documentsList = [
     <AttachmentItem
       key={1}
@@ -105,18 +115,27 @@ function InvoiceDetails() {
           <div className="flex flex-col bg-white rounded-md p-5">
             <div className="flex items-center justify-between p-3 text-3xl font-bold text-[#52555C]">
               <h1 className="mx-2">{invoiceDetails?.invoice_title}</h1>
-              <Button
-                color="#BD9A5F"
-                text="Payment Link"
-                type="link"
-                onClick={handlePayment}
-              />
+              {!invoiceDetails?.payment ? (
+                <Button
+                  color="#BD9A5F"
+                  text="Payment Link"
+                  type="link"
+                  onClick={handlePayment}
+                />
+              ) : (
+                <Button
+                  color="#BD9A5F"
+                  text="Print Invoice"
+                  type="print"
+                  onClick={handlePrintInvoice}
+                />
+              )}
             </div>
             <div className="flex bg-[#F7F7F7] h-[90px] rounded-md mx-5 items-start justify-between">
               <div className="flex flex-col items-start justify-center my-5 mx-2 pl-4">
                 <h1 className="text-[#AEB3C2] text-sm font-bold">Type</h1>
                 <h1 className="text-[#52555C] font-bold text-xl line-clamp-1 ">
-                  {invoiceDetails?.get_type_display}
+                  {invoiceDetails?.get_invoice_type_display}
                 </h1>
               </div>
               <div className="flex flex-col items-start justify-center my-5 mx-2 pl-5 border-l">
@@ -186,7 +205,7 @@ function InvoiceDetails() {
             <div className="flex justify-between text-[#52555C]">
               <h1 className="mx-2 py-2 font-bold">Floor</h1>
               <h1 className="mx-2 py-2 font-bold">
-                {invoiceDetails?.contract.unit.get_floor_display}
+                {invoiceDetails?.contract.unit.floor}
               </h1>
             </div>
           </div>
@@ -197,31 +216,31 @@ function InvoiceDetails() {
             <div className="flex justify-between text-[#52555C] pt-2">
               <h1 className="mx-2 py-2 font-bold">Status</h1>
               <h1 className="mx-2 py-2 font-bold">
-                {showStatus(invoiceDetails?.get_invoice_status_display)}
+                {showStatus(invoiceDetails?.invoice_status)}
               </h1>
             </div>
             <div className="flex justify-between text-[#52555C]">
               <h1 className="mx-2 py-2 font-bold">Payment Method</h1>
               <h1 className="mx-2 py-2 font-bold">
-                {invoiceDetails?.method_of_payment}
+                {invoiceDetails?.payment?.payment_method}
               </h1>
             </div>
             <div className="flex justify-between text-[#52555C]">
               <h1 className="mx-2 py-2 font-bold">Reference ID</h1>
               <h1 className="mx-2 py-2 font-bold">
-                {invoiceDetails?.reference_id}
+                {invoiceDetails?.payment?.reference_id}
               </h1>
             </div>
             <div className="flex justify-between text-[#52555C]">
               <h1 className="mx-2 py-2 font-bold">Reference Token</h1>
               <h1 className="mx-2 py-2 font-bold">
-                {invoiceDetails?.reference_token}
+                {invoiceDetails?.payment?.reference_token}
               </h1>
             </div>
             <div className="flex justify-between text-[#52555C]">
               <h1 className="mx-2 py-2 font-bold">Payment Date & Time</h1>
               <h1 className="mx-2 py-2 font-bold">
-                {invoiceDetails?.payment_date}
+                {invoiceDetails?.payment?.payment_date}
               </h1>
             </div>
           </div>

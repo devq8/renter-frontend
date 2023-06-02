@@ -4,7 +4,7 @@ import LogoLight from "../../../assets/images/logo-dark.png";
 
 function Footer() {
   return (
-    <footer className="py-8 bg-slate-800 dark:bg-gray-900">
+    <footer className="py-8 bg-slate-800 dark:bg-gray-900 hide-on-print">
       <div className="container">
         <div className="grid md:grid-cols-12 items-center">
           <div className="md:col-span-3">

@@ -23,7 +23,7 @@ function ContractList() {
     isLoading,
     error,
   } = useQuery(["contracts"], () => api.getContracts());
-
+  console.log(contracts?.data);
   const contractsList = contracts?.data
     ?.filter((contract) => {
       if (search === "") {
@@ -66,6 +66,7 @@ function ContractList() {
           end={contract.end_date}
           rent={contract.rent}
           daysToExpire={dayjs(contract.end_date).diff(dayjs(), "day")}
+          amountDue={contract.total_pending_amount}
         />
       );
     });

@@ -9,16 +9,16 @@ import SigninForm from "./SigninForm";
 
 function Signin() {
   return (
-    <div className="flex h-[100vh]">
-      <div className="w-[40%]">
+    <div className="flex flex-col md:flex-row h-screen">
+      <div className="w-full md:w-[40%]">
         <NavBarLeft />
         <div className="h-[90%] flex justify-center items-center ">
           <SigninForm />
         </div>
       </div>
-      <div className="w-[60%] bg-[#F7F6F2]">
+      <div className="w-full md:w-[60%] bg-[#F7F6F2]">
         <NavBarRight />
-        <div className="h-[70vh]  flex justify-end items-center">
+        <div className="h-[50vh] md:h-[70vh] flex justify-end items-center">
           <img src={demo} className="" />
         </div>
         <TextSlider />

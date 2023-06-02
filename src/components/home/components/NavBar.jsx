@@ -3,9 +3,11 @@ import LogoDark from "../../../assets/images/logo-dark.png";
 import LogoLight from "../../../assets/images/logo.png";
 import { Link } from "react-scroll";
 import { useNavigate } from "react-router";
+import { useUser } from "../../../utils/auth";
 
 function NavBar() {
   const navigate = useNavigate();
+  const user = useUser();
   const [isOpenMenu, setIsOpenMenu] = useState(true);
   const toggleClass = isOpenMenu ? "hidden" : "";
   function toggleMenu() {
@@ -40,8 +42,10 @@ function NavBar() {
   function handleNavigation(e) {
     if (e.target.name === "signin") {
       navigate(`/signin`);
-    } else {
+    } else if (e.target.name === "signup") {
       navigate(`/signup`);
+    } else if (e.target.name === "dashboard") {
+      navigate(`/dashboard`);
     }
   }
 
@@ -103,20 +107,32 @@ function NavBar() {
             </li> */}
           </ul>
           <div className="hidden lg_992:block space-x-4">
-            <button
-              name="signin"
-              onClick={handleNavigation}
-              className="btn bg-transparent hover:bg-tertiary border-primary hover:border-tertiary text-primary hover:text-black rounded-md"
-            >
-              Sign In
-            </button>
-            <button
-              name="signup"
-              onClick={handleNavigation}
-              className="btn bg-primary hover:bg-tertiary border-primary hover:border-tertiary text-white hover:text-black rounded-md"
-            >
-              Sign Up
-            </button>
+            {!user?.data ? (
+              <>
+                <button
+                  name="signin"
+                  onClick={handleNavigation}
+                  className="btn bg-transparent hover:bg-tertiary border-primary hover:border-tertiary text-primary hover:text-black rounded-md"
+                >
+                  Sign In
+                </button>
+                <button
+                  name="signup"
+                  onClick={handleNavigation}
+                  className="btn bg-primary hover:bg-tertiary border-primary hover:border-tertiary text-white hover:text-black rounded-md"
+                >
+                  Sign Up
+                </button>
+              </>
+            ) : (
+              <button
+                name="dashboard"
+                onClick={handleNavigation}
+                className="btn bg-primary hover:bg-tertiary border-primary hover:border-tertiary text-white hover:text-black rounded-md"
+              >
+                Dashboard
+              </button>
+            )}
           </div>
 
           <button
@@ -193,20 +209,32 @@ function NavBar() {
               <span className="nav-link">Contact us</span>
             </Link>
             <div className="lg_992:hidden flex flex-row items-center justify-center">
-              <button
-                name="signup"
-                onClick={handleNavigation}
-                className="btn m-2 w-[50%] bg-primary hover:bg-tertiary border-primary hover:border-tertiary text-white hover:text-black rounded-md"
-              >
-                Sign Up
-              </button>
-              <button
-                name="signin"
-                onClick={handleNavigation}
-                className="btn m-2 w-[50%] bg-transparent hover:bg-tertiary border-primary hover:border-tertiary text-primary hover:text-black rounded-md"
-              >
-                Sign In
-              </button>
+              {!user?.data ? (
+                <>
+                  <button
+                    name="signup"
+                    onClick={handleNavigation}
+                    className="btn m-2 w-[50%] bg-primary hover:bg-tertiary border-primary hover:border-tertiary text-white hover:text-black rounded-md"
+                  >
+                    Sign Up
+                  </button>
+                  <button
+                    name="signin"
+                    onClick={handleNavigation}
+                    className="btn m-2 w-[50%] bg-transparent hover:bg-tertiary border-primary hover:border-tertiary text-primary hover:text-black rounded-md"
+                  >
+                    Sign In
+                  </button>
+                </>
+              ) : (
+                <button
+                  name="dashboard"
+                  onClick={handleNavigation}
+                  className="btn bg-primary hover:bg-tertiary border-primary hover:border-tertiary text-white hover:text-black rounded-md"
+                >
+                  Dashboard
+                </button>
+              )}
             </div>
           </ul>
         </div>

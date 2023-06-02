@@ -21,8 +21,10 @@ function ScrollTop() {
   }
 
   return (
-    <div className={style.scrollTop} onClick={scrollToTop}>
-      <img className={style.icon} alt="arrow-up" src={ChevronUp} />
+    <div className="hide-on-print">
+      <div className={style.scrollTop} onClick={scrollToTop}>
+        <img className={style.icon} alt="arrow-up" src={ChevronUp} />
+      </div>
     </div>
   );
 }

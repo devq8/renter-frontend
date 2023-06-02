@@ -40,6 +40,9 @@ function InvoiceList() {
     error,
   } = useQuery(["invoices"], () => api.getInvoices());
 
+  // console.log("Invoices");
+  // console.log(invoices);
+
   const handleSearch = (e) => {
     setSearch(e.target.value);
   };
@@ -65,10 +68,10 @@ function InvoiceList() {
         invoice.contract.unit.number
           .toLowerCase()
           .includes(search.toLowerCase()) ||
-        invoice.get_type_display.toLowerCase().includes(search.toLowerCase()) ||
-        invoice.get_invoice_status_display
+        invoice.get_invoice_type_display
           .toLowerCase()
-          .includes(search.toLowerCase())
+          .includes(search.toLowerCase()) ||
+        invoice.invoice_status.toLowerCase().includes(search.toLowerCase())
       ) {
         return invoice;
       }
@@ -97,7 +100,8 @@ function InvoiceList() {
       if (invoiceType === "") {
         return invoice;
       } else if (
-        invoice.get_type_display.toLowerCase() === invoiceType.toLowerCase()
+        invoice.get_invoice_type_display.toLowerCase() ===
+        invoiceType.toLowerCase()
       ) {
         return invoice;
       }
@@ -112,6 +116,8 @@ function InvoiceList() {
       }
     })
     .map((invoice) => {
+      // console.log("Invoice");
+      // console.log(invoice);
       return (
         <InvoiceRow
           key={invoice.id}
@@ -120,14 +126,16 @@ function InvoiceList() {
           property={invoice.contract.unit.property_fk}
           floor={invoice.contract.unit.floor}
           unit={invoice.contract.unit.number}
-          type={invoice.get_type_display}
+          type={invoice.get_invoice_type_display}
           amount={invoice.invoice_amount}
-          status={invoice.get_invoice_status_display}
+          status={invoice.invoice_status}
           date={invoice.invoice_date}
           paymentDate={invoice.payment_date}
         />
       );
     });
+  console.log("Invoices List");
+  console.log(invoicesList);
 
   return (
     <div className="">

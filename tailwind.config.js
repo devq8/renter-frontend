@@ -13,6 +13,7 @@ module.exports = withMT({
   important: true,
   theme: {
     screens: {
+      mobile: "350px",
       xs: "540px",
       sm: "640px",
       md: "768px",
@@ -40,6 +41,8 @@ module.exports = withMT({
         primary: "#BD9A5F",
         secondary: "#1C1f2A",
         tertiary: "#C4BEB6",
+        successGreen: "#58BB37",
+        errorRed: "#E03123",
       },
       boxShadow: {
         sm: "0 2px 4px 0 rgb(60 72 88 / 0.15)",
@@ -60,12 +63,14 @@ module.exports = withMT({
         992: "60rem",
         768: "45rem",
       }),
-
       zIndex: {
         1: "1",
         2: "2",
         3: "3",
         999: "999",
+      },
+      lineClamp: {
+        2: "2",
       },
     },
   },

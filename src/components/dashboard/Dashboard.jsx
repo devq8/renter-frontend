@@ -20,12 +20,12 @@ export default function Dashboard() {
         </div>
       </header>
       <main>
-        <div className="flex flex-row justify-center items-start mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
-          <div className="flex flex-col justify-center items-center w-[50%] space-y-3 ">
+        <div className="md:flex md:mx-auto md:max-w-7xl md:py-3 mt-4 p-2">
+          <div className="flex flex-col space-y-4 md:w-[50%] md:me-1 mx-2 mb-4">
             <RentCollectionsChart />
             <RentCollectionsBars />
           </div>
-          <div className="w-[50%]">
+          <div className="flex flex-col space-y-4 md:w-[50%] md:ms-1">
             <LastTransactions />
           </div>
         </div>

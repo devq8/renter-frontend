@@ -14,6 +14,9 @@ function InvoiceRow({
   status,
   paymentDate,
 }) {
+  console.log("status");
+  console.log(status);
+
   const navigate = useNavigate();
 
   function handleInvoiceDetails() {
@@ -32,9 +35,9 @@ function InvoiceRow({
           ) : null}
         </span>
       );
-    } else if (status == "Overdue") {
+    } else if (status == "Unpaid") {
       return (
-        <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-1 text-xs font-semibold text-red-600">
+        <span className="inline-flex items-center justify-center gap-1 rounded-full bg-red-50 px-2 py-1 text-xs font-semibold text-red-600">
           {status}
         </span>
       );
@@ -44,16 +47,10 @@ function InvoiceRow({
           {status}
         </span>
       );
-    } else if (status == "New") {
-      return (
-        <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-600">
-          {status}
-        </span>
-      );
-    } else if (status == "Upcoming") {
+    } else {
       return (
         <span className="inline-flex items-center gap-1 rounded-full bg-yellow-50 px-2 py-1 text-xs font-semibold text-yellow-600">
-          {status}
+          Pending
         </span>
       );
     }
@@ -81,9 +78,7 @@ function InvoiceRow({
       <td className="px-4 py-4 text-gray-700 font-medium text-end">
         {amount && `KD ${format.changeAmountFormat(amount)}`}
       </td>
-      <td className="px-4 py-4 flex justify-center items-center">
-        {showInvoiceStatus(status, paymentDate)}
-      </td>
+      <td className="px-4 py-4 ">{showInvoiceStatus(status, paymentDate)}</td>
     </tr>
   );
 }

@@ -78,7 +78,7 @@ const Navbar = (first_name, email) => {
   return (
     <Disclosure
       as="nav"
-      className="bg-white mx-auto max-w-7xl lg:rounded-md md:rounded-md"
+      className="bg-white mx-auto max-w-7xl lg:rounded-md md:rounded-md hide-on-print"
     >
       {({ open }) => (
         <>

@@ -6,6 +6,7 @@ function getProperties() {
 }
 
 function getUnitsList(property_id, vacant) {
+  console.log("get units list called");
   // if (vacant) {
   //   return instance.get(`/api/units/${property_id}/?vacant=${vacant}`);
   // } else {
