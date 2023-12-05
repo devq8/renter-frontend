@@ -11,6 +11,9 @@ import Home from "./components/home/Home";
 import "./assets/css/tailwind.css";
 import "./assets/scss/tailwind.scss";
 import "./assets/scss/icons.scss";
+import Checkout from "./components/checkout/Checkout";
+import Status from "./components/checkout/Status";
+import { ToastContainer } from "react-toastify";
 
 const queryClient = new QueryClient();
 
@@ -23,8 +26,11 @@ function App() {
             <Route path="/*" element={<Layout />} />
             <Route path="/signin" element={<Signin />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/contracts/:id/checkout" element={<Checkout />} />
+            <Route path="/checkout/response" element={<Status />} />
             <Route path="/" element={<Home />} />
           </Routes>
+          <ToastContainer />
         </BrowserRouter>
       </LocalizationProvider>
     </QueryClientProvider>

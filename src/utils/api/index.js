@@ -2,7 +2,8 @@ import axios from "axios";
 import storage from "../storage";
 
 const instance = axios.create({
-  baseURL: "http://127.0.0.1:8000",
+  // baseURL: "http://127.0.0.1:8000",
+  baseURL: "https://admin.wuc.com.kw",
 });
 
 instance.interceptors.request.use(

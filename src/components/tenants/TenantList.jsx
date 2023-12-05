@@ -60,9 +60,9 @@ function TenantList() {
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
               Tenants
             </h1>
-            <div onClick={() => navigate("/tenants/new")}>
+            {/* <div onClick={() => navigate("/tenants/new")}>
               <Button color="#BD9A5F" text="Add New Tenant" type="add" />
-            </div>
+            </div> */}
           </div>
         </div>
       </header>

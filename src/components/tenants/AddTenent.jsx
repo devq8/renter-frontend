@@ -19,15 +19,20 @@ function AddTenent() {
     setTenant({ ...tenant, [e.target.name]: e.target.files[0] });
   };
 
-  function handleSave() {
-    console.log("Adding new tenant function called");
-  }
+  const handleSave = (event) => {
+    event.preventDefault();
+    console.log("Tenant details:");
+    console.log(tenant);
+  };
 
   return (
     <div className="">
       <header className="bg-transparent">
         <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8 flex flex-col justify-between">
-          <Breadcrumb main={"Tenants"} sub={["Add New Tenant"]} />
+          <Breadcrumb
+            main={{ title: "Tenants", url: "/tenants" }}
+            sub={[{ title: "Add New Tenant", url: "" }]}
+          />
           <div className="flex flex-row justify-between">
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
               Add New Tenants
@@ -44,13 +49,13 @@ function AddTenent() {
                   Tenant Personal Information
                 </h2>
                 <p className="mt-1 text-sm leading-6 text-gray-600">
-                  Use a permanent address where you can receive mail.
+                  Enter tenant detail below.
                 </p>
 
                 <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                   <div className="sm:col-span-3">
                     <label
-                      for="first_name"
+                      htmlFor="first_name"
                       className="block text-sm font-medium leading-6 text-gray-900"
                     >
                       First name
@@ -60,7 +65,7 @@ function AddTenent() {
                         type="text"
                         name="first_name"
                         id="first_name"
-                        autocomplete="given-name"
+                        autoComplete="given-name"
                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#BD9A5F] sm:text-sm sm:leading-6"
                         onChange={handleChange}
                       />
@@ -69,7 +74,7 @@ function AddTenent() {
 
                   <div className="sm:col-span-3">
                     <label
-                      for="last_name"
+                      htmlFor="last_name"
                       className="block text-sm font-medium leading-6 text-gray-900"
                     >
                       Last name
@@ -79,7 +84,7 @@ function AddTenent() {
                         type="text"
                         name="last_name"
                         id="last_name"
-                        autocomplete="family-name"
+                        autoComplete="family-name"
                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#BD9A5F] sm:text-sm sm:leading-6"
                         onChange={handleChange}
                       />
@@ -89,7 +94,7 @@ function AddTenent() {
                 <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                   <div className="sm:col-span-3">
                     <label
-                      for="email"
+                      htmlFor="email"
                       className="block text-sm font-medium leading-6 text-gray-900"
                     >
                       Email address
@@ -99,7 +104,7 @@ function AddTenent() {
                         id="email"
                         name="email"
                         type="email"
-                        autocomplete="email"
+                        autoComplete="email"
                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#BD9A5F] sm:text-sm sm:leading-6"
                         onChange={handleChange}
                       />
@@ -109,7 +114,7 @@ function AddTenent() {
                 <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                   <div className="sm:col-span-3">
                     <label
-                      for="mobile"
+                      htmlFor="mobile"
                       className="block text-sm font-medium leading-6 text-gray-900"
                     >
                       Mobile
@@ -119,7 +124,7 @@ function AddTenent() {
                         type="text"
                         name="mobile"
                         id="mobile"
-                        autocomplete="mobile"
+                        autoComplete="mobile"
                         className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-[#BD9A5F] sm:text-sm sm:leading-6"
                         onChange={handleChange}
                       />
@@ -127,65 +132,8 @@ function AddTenent() {
                   </div>
                 </div>
               </div>
-              <div className="border-gray-900/10 pb-12">
-                <h2 className="text-base font-semibold leading-7 text-gray-900">
-                  Notifications
-                </h2>
-                <p className="mt-1 text-sm leading-6 text-gray-600">
-                  Choose the way of notification you want to receive for the
-                  tenant.
-                </p>
-
-                <div className="space-y-10">
-                  <fieldset>
-                    <div className="mt-6 space-y-6">
-                      <div className="flex items-center gap-x-3">
-                        <input
-                          id="sms"
-                          name="notifications"
-                          type="radio"
-                          className="h-4 w-4 border-gray-300 text-[#BD9A5F] focus:ring-[#BD9A5F]"
-                        />
-                        <label
-                          htmlFor="sms"
-                          className="block text-sm font-medium leading-6 text-gray-900"
-                        >
-                          SMS
-                        </label>
-                      </div>
-                      <div className="flex items-center gap-x-3">
-                        <input
-                          id="whatsapp"
-                          name="notifications"
-                          type="radio"
-                          className="h-4 w-4 border-gray-300 text-[#BD9A5F] focus:ring-[#BD9A5F]"
-                        />
-                        <label
-                          htmlFor="whatsapp"
-                          className="block text-sm font-medium leading-6 text-gray-900"
-                        >
-                          WhatsApp
-                        </label>
-                      </div>
-                      <div className="flex items-center gap-x-3">
-                        <input
-                          id="email"
-                          name="notifications"
-                          type="radio"
-                          className="h-4 w-4 border-gray-300 text-[#BD9A5F] focus:ring-[#BD9A5F]"
-                        />
-                        <label
-                          htmlFor="email"
-                          className="block text-sm font-medium leading-6 text-gray-900"
-                        >
-                          Email
-                        </label>
-                      </div>
-                    </div>
-                  </fieldset>
-                </div>
-              </div>
-              <div className="col-span-full">
+              {/* Document Upload */}
+              {/* <div className="col-span-full">
                 <label
                   htmlFor="cover-photo"
                   className="block text-sm font-medium leading-6 text-gray-900"
@@ -219,7 +167,7 @@ function AddTenent() {
                     </p>
                   </div>
                 </div>
-              </div>
+              </div> */}
               <div className="mt-6 flex items-center justify-end gap-x-6">
                 <button
                   type="button"

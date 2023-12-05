@@ -18,8 +18,6 @@ import PaymentReturn from "./invoices/PaymentReturn";
 import PropertyNew from "./properties/PropertyNew";
 import UnitNew from "./unit/UnitNew";
 import InvoiceNew from "./invoices/InvoiceNew";
-import Checkout from "./checkout/Checkout";
-import Status from "./checkout/Status";
 import ConnectionChecker from "../utils/ConnectionChecker";
 import Receipt from "./invoices/Receipt";
 
@@ -56,7 +54,7 @@ export default function Layout() {
             <Route path="/contracts" element={<ContractList />} />
             <Route path="/contracts/:id" element={<ContractDetails />} />
             <Route path="/contracts/:id/new" element={<InvoiceNew />} />
-            <Route path="/contracts/:id/checkout" element={<Checkout />} />
+            {/* <Route path="/contracts/:id/checkout" element={<Checkout />} /> */}
             <Route path="/contracts/new" element={<ContractNew />} />
             <Route path="/invoices" element={<InvoiceList />} />
             <Route path="/invoices/new" element={<InvoiceNew />} />
@@ -65,7 +63,7 @@ export default function Layout() {
             <Route path="/invoices/:id/pay" element={<PaymentForm />} />
             <Route path="/invoices/:id/return" element={<PaymentReturn />} />
             <Route path="/invoices/:paymentid/receipt" element={<Receipt />} />
-            <Route path="/checkout/response" element={<Status />} />
+            {/* <Route path="/checkout/response" element={<Status />} /> */}
           </Routes>
         </ConnectionChecker>
         <Footer />
