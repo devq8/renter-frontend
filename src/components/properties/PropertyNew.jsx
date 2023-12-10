@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router";
 import Breadcrumb from "../../utils/Breadcrumb";
 import "flowbite";
-import Select from "react-select";
 import api from "../../utils/api/properties";
 import utils from "../../utils/api/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -10,23 +9,24 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Input from "../../utils/form/Input";
 import Dropdown from "../../utils/form/Dropdown";
-import Validation from "./Validation";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 
 function PropertyNew() {
   const navigate = useNavigate();
-  const [errors, setErrors] = useState({});
-
   const queryClient = useQueryClient();
-
   const addPropertyMutation = useMutation(
     (property) => api.addProperty(property),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["properties"]);
-        navigate("/properties");
         toast.success("Property added successfully");
+        navigate("/properties");
       },
-      onError: (error) => console.log(error.response.data.name[0]),
+      onError: (error) => {
+        console.log(error.response.data.name[0]);
+        toast.error("Error adding property");
+      },
     }
   );
 
@@ -36,7 +36,6 @@ function PropertyNew() {
     error: areasError,
   } = useQuery(["areas"], () => utils.getAreas());
   const areasList = areas && areas.data ? areas.data.map((area) => area) : [];
-  console.log(areasList);
 
   const {
     data: banks,
@@ -73,76 +72,105 @@ function PropertyNew() {
         }))
       : [];
 
-  const [property, setProperty] = useState({
-    name: "",
-    area: "",
-    address: "",
-    paci: "",
-    manager: [],
-    owner: [],
-    bank: "",
-    beneficiary: "",
-    iban: "",
+  const formik = useFormik({
+    initialValues: {
+      name: "",
+      area: "",
+      address: "",
+      PACI: "",
+      area: "",
+      manager: [],
+      owner: [],
+      bank_name: "",
+      beneficiary: "",
+      IBAN: "",
+    },
+    validationSchema: Yup.object({
+      name: Yup.string().required("Property name is required!"),
+      area: Yup.string().required("Area is required!"),
+      manager: Yup.array()
+        .min(1, "At least one manager must be selected")
+        .required("Property manager is required"),
+      owner: Yup.array()
+        .min(1, "At least one owner must be selected")
+        .required("Property owner is required"),
+      bank_name: Yup.string().required("Bank is required"),
+    }),
+    onSubmit: (values) => {
+      const propertyData = {
+        name: values.name,
+        area: values.area,
+        address: values.address,
+        PACI: values.PACI,
+        manager: values.manager,
+        owner: values.owner,
+        bank_name: values.bank_name,
+        beneficiary: values.beneficiary,
+        IBAN: values.IBAN,
+      };
+      console.log("Form submitted with values:", propertyData);
+      addPropertyMutation.mutate(propertyData);
+    },
   });
-  const [selectedManagers, setSelectedManagers] = useState([]);
-  const [selectedOwners, setSelectedOwners] = useState([]);
-  const [selectedBank, setSelectedBank] = useState("");
-  const [selectedArea, setSelectedArea] = useState("");
-
-  function handleSelectedManagerChange(selected) {
-    setSelectedManagers(selected);
-    setProperty({
-      ...property,
-      manager: selected.map((manager) => manager.value),
-    });
-  }
-
-  function handleSelectedOwnerChange(selected) {
-    setSelectedOwners(selected);
-    setProperty({
-      ...property,
-      owner: selected.map((owner) => owner.value),
-    });
-    console.log(property);
-  }
-
-  function handleSelectedBankChange(selected) {
-    setSelectedBank(selected);
-    if (selected && selected.value !== null) {
-      setProperty({ ...property, bank: selected.value });
-    } else if (selected === null) {
-      setProperty({ ...property, bank: "" });
-    }
-  }
-
-  function handleSelectedAreaChange(selected) {
-    setSelectedArea(selected);
-    if (selected !== null) {
-      setProperty({ ...property, area: selected.value });
-    } else if (selected === null) {
-      setProperty({ ...property, area: "" });
-    }
-  }
 
   function handleCancel() {
     navigate("/properties");
   }
 
-  const handleChange = (event) => {
-    setProperty({ ...property, [event.target.name]: event.target.value });
-    console.log(property);
-  };
+  // const provincy = [
+  //   { value: "hawalli", label: "Hawalli" },
+  //   { value: "farwaniya", label: "Farwaniya" },
+  //   { value: "ahmadi", label: "Ahmadi" },
+  //   { value: "jahra", label: "Jahra" },
+  //   { value: "mubarak", label: "Mubarak Al-Kabeer" },
+  //   { value: "asima", label: "Asima" },
+  // ];
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-
-    setErrors(Validation(property));
-    console.log(errors);
-    if (Object.keys(errors).length === 0) {
-      addPropertyMutation.mutate(property);
-      toast.success("Property Added Successfully"); //Not working!!
-    }
-  };
+  // const cities = {
+  //   hawalli: [
+  //     { value: "salmiya", label: "Salmiya" },
+  //     { value: "jabriya", label: "Jabriya" },
+  //     { value: "hawalli", label: "Hawalli" },
+  //     { value: "mishref", label: "Mishref" },
+  //     { value: "rawda", label: "Rawda" },
+  //     { value: "salwa", label: "Salwa" },
+  //     { value: "shaab", label: "Shaab" },
+  //     { value: "shuhada", label: "Shuhada" },
+  //     { value: "siddeeq", label: "Siddeeq" },
+  //     { value: "sabah", label: "Sabah Al-Salem" },
+  //   ],
+  //   farwaniya: [
+  //     { value: "abdullah", label: "Abdullah Al-Mubarak" },
+  //     { value: "andalous", label: "Andalous" },
+  //     { value: "daiya", label: "Daiya" },
+  //     { value: "doha", label: "Doha" },
+  //     { value: "fardous", label: "Fardous" },
+  //   ],
+  //   ahmadi: [
+  //     { value: "abuhalifa", label: "Abu Halifa" },
+  //     { value: "ahmadi", label: "Ahmadi" },
+  //     { value: "fahaheel", label: "Fahaheel" },
+  //   ],
+  //   jahra: [
+  //     { value: "abdali", label: "Abdali" },
+  //     { value: "jahra", label: "Jahra" },
+  //     { value: "naseem", label: "Naseem" },
+  //     { value: "qasr", label: "Qasr" },
+  //   ],
+  //   mubarak: [
+  //     { value: "mubarak", label: "Mubarak Al-Kabeer" },
+  //     { value: "qusoor", label: "Al-Qusoor" },
+  //     { value: "adan", label: "Al-Adan" },
+  //   ],
+  //   asima: [
+  //     { value: "kaifan", label: "Kaifan" },
+  //     { value: "khaldiya", label: "Khaldiya" },
+  //     { value: "rawda", label: "Rawda" },
+  //     { value: "shamiya", label: "Shamiya" },
+  //     { value: "sharq", label: "Sharq" },
+  //     { value: "shuwaikh", label: "Shuwaikh" },
+  //   ],
+  // };
 
   return (
     <div className="">
@@ -162,9 +190,10 @@ function PropertyNew() {
       <main>
         <div className="mx-auto max-w-7xl py-3 sm:px-6 lg:px-8 ">
           <div className="overflow-hidden rounded-lg border border-gray-200 shadow-md m-5 p-7 bg-white">
+            {/* Formik */}
             <form
               className="w-full border-collapse bg-white text-left text-sm text-gray-500"
-              onSubmit={handleSubmit}
+              onSubmit={formik.handleSubmit}
             >
               <div className="border-gray-900/10 pb-12 ">
                 <h2 className="text-base font-semibold leading-7 text-gray-900">
@@ -181,9 +210,14 @@ function PropertyNew() {
                     label="Property name"
                     placeholder="e.g. Hawalli 290"
                     required={true}
-                    onChange={handleChange}
-                    errorMessage={errors.name}
-                    // pattern="^[4-6,9][0-9]{7}$"
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    value={formik.values.name}
+                    errorMessage={
+                      formik.touched.name &&
+                      formik.errors.name &&
+                      formik.errors.name
+                    }
                   />
                 </div>
 
@@ -191,35 +225,59 @@ function PropertyNew() {
                 <div className="flex p-3">
                   <Dropdown
                     name="area"
-                    label="Property area"
+                    label="Property Area"
                     isClearable={true}
                     isSearchable={true}
                     options={areasList}
-                    placeholder="Select property's area ..."
-                    onChange={handleSelectedAreaChange}
-                    value={selectedArea}
+                    placeholder="Select area ..."
+                    onChange={(selectedOption) =>
+                      formik.setFieldValue(
+                        "area",
+                        selectedOption ? selectedOption.value : null
+                      )
+                    }
+                    value={areasList?.find(
+                      (option) => option.value === formik.values.area
+                    )}
+                    onBlur={formik.handleBlur}
                     isMulti={false}
-                    errorMessage={errors.area}
+                    errorMessage={
+                      formik.touched.area &&
+                      formik.errors.area &&
+                      formik.errors.area
+                    }
+                    isLoading={areasLoading}
                   />
                   <Input
                     name="address"
                     type="text"
                     label="Address"
                     placeholder="e.g. Block 1 - Ibn Khaldoun Street - Building No. 32"
-                    onChange={handleChange}
-                    required={false}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    value={formik.values.address}
+                    errorMessage={
+                      formik.touched.address &&
+                      formik.errors.address &&
+                      formik.errors.address
+                    }
                   />
                 </div>
-
                 {/* Third Row */}
                 <div className="flex p-3">
                   <Input
-                    name="paci"
+                    name="PACI"
                     type="text"
                     label="PACI"
                     placeholder="e.g. 12345678"
-                    onChange={handleChange}
-                    required={false}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    value={formik.values.PACI}
+                    errorMessage={
+                      formik.touched.PACI &&
+                      formik.errors.PACI &&
+                      formik.errors.PACI
+                    }
                   />
                 </div>
               </div>
@@ -239,13 +297,27 @@ function PropertyNew() {
                     isSearchable={true}
                     options={managersList}
                     placeholder="Select property manager"
-                    onChange={handleSelectedManagerChange}
-                    value={selectedManagers}
+                    onChange={(selectedOptions) =>
+                      formik.setFieldValue(
+                        "manager",
+                        selectedOptions
+                          ? selectedOptions.map((option) => option.value)
+                          : null
+                      )
+                    }
+                    value={managersList?.filter((option) =>
+                      formik.values.manager.includes(option.value)
+                    )}
+                    onBlur={formik.handleBlur}
                     isMulti={true}
-                    errorMessage={errors.manager}
+                    isLoading={managersLoading}
+                    errorMessage={
+                      formik.touched.manager &&
+                      formik.errors.manager &&
+                      formik.errors.manager
+                    }
                   />
                 </div>
-
                 {/* Fifth Row */}
                 <div className="flex p-3">
                   <Dropdown
@@ -255,10 +327,25 @@ function PropertyNew() {
                     isSearchable={true}
                     options={ownersList}
                     placeholder="Select property owner"
-                    onChange={handleSelectedOwnerChange}
-                    value={selectedOwners}
+                    onChange={(selectedOptions) =>
+                      formik.setFieldValue(
+                        "owner",
+                        selectedOptions
+                          ? selectedOptions.map((option) => option.value)
+                          : null
+                      )
+                    }
+                    onBlur={formik.handleBlur}
+                    value={ownersList?.filter((option) =>
+                      formik.values.owner.includes(option.value)
+                    )}
                     isMulti={true}
-                    errorMessage={errors.owner}
+                    isLoading={ownersLoading}
+                    errorMessage={
+                      formik.touched.owner &&
+                      formik.errors.owner &&
+                      formik.errors.owner
+                    }
                   />
                 </div>
               </div>
@@ -272,15 +359,30 @@ function PropertyNew() {
                 {/* Sixth Row */}
                 <div className="flex p-3">
                   <Dropdown
-                    name="bank"
+                    name="bank_name"
                     label="Bank Name"
                     isClearable={true}
                     isSearchable={true}
                     options={banksList}
                     placeholder="Select your bank name"
-                    onChange={handleSelectedBankChange}
-                    value={selectedBank}
+                    onChange={(selectedOption) =>
+                      formik.setFieldValue(
+                        "bank_name",
+                        selectedOption ? selectedOption.value : null
+                      )
+                    }
+                    value={
+                      banksList?.find(
+                        (option) => option.value === formik.values.bank_name
+                      ) || null
+                    }
                     isMulti={false}
+                    isLoading={banksLoading}
+                    errorMessage={
+                      formik.touched.bank_name &&
+                      formik.errors.bank_name &&
+                      formik.errors.bank_name
+                    }
                   />
                 </div>
                 <div className="flex p-3">
@@ -289,21 +391,76 @@ function PropertyNew() {
                     type="text"
                     label="Beneficiary"
                     placeholder="e.g. Warba United Company"
-                    onChange={handleChange}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
                     required={false}
+                    value={formik.values.beneficiary}
+                    errorMessage={
+                      formik.touched.beneficiary &&
+                      formik.errors.beneficiary && (
+                        <div>{formik.errors.beneficiary}</div>
+                      )
+                    }
                   />
                   <Input
-                    name="iban"
+                    name="IBAN"
                     type="text"
                     label="IBAN"
                     placeholder=""
-                    onChange={handleChange}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
                     required={false}
+                    value={formik.values.IBAN}
+                    errorMessage={
+                      formik.touched.IBAN &&
+                      formik.errors.IBAN &&
+                      formik.errors.IBAN
+                    }
                   />
                 </div>
               </div>
-              <hr className="h-px my-3 bg-gray-200 border-0 dark:bg-gray-700" />
+              {/* ######## New Code - Dependable Dropdown ######## */}
+              {/* <div>
+                <label htmlFor="provincy">Provincy</label>
+                <Select
+                  id="provincy"
+                  name="provincy"
+                  options={provincy}
+                  value={provincy.find(
+                    (s) => s.value === formik.values.provincy
+                  )}
+                  onChange={(selectedOption) => {
+                    formik.setFieldValue("provincy", selectedOption.value);
+                    formik.setFieldValue("city", ""); // Reset city when state changes
+                  }}
+                  onBlur={formik.handleBlur}
+                  isSearchable
+                />
+                {formik.touched.provincy && formik.errors.provincy && (
+                  <div>{formik.errors.provincy}</div>
+                )}
+              </div>
+              <div>
+                <label htmlFor="city">City</label>
+                <Select
+                  id="city"
+                  name="city"
+                  options={cities[formik.values.provincy] || []}
+                  value={cities[formik.values.provincy]?.find(
+                    (c) => c.value === formik.values.city
+                  )}
+                  onChange={(selectedOption) =>
+                    formik.setFieldValue("city", selectedOption.value)
+                  }
+                  onBlur={formik.handleBlur}
+                  isSearchable
+                />
+                {formik.touched.city && formik.errors.city && (
+                  <div>{formik.errors.city}</div>
+                )}
+              </div> */}
 
+              <hr className="h-px my-3 bg-gray-200 border-0 dark:bg-gray-700" />
               <div className="mt-6 flex items-center justify-end gap-x-6">
                 <button
                   type="button"
@@ -316,12 +473,12 @@ function PropertyNew() {
                 <button
                   type="submit"
                   className="rounded-md bg-[#BD9A5F] px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#BD9A5F] hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#BD9A5F]"
+                  disabled={addPropertyMutation.isLoading}
                 >
-                  Save
+                  {addPropertyMutation.isLoading ? "Saving..." : "Save"}
                 </button>
               </div>
             </form>
-            {/* <button>Notification</button> */}
             <ToastContainer />
           </div>
         </div>

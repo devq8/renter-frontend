@@ -23,7 +23,7 @@ function Dropdown(props) {
           options={props.options}
           placeholder={props.placeholder}
           onChange={props.onChange}
-          // value={props.value}
+          value={props.value || null}
           isMulti={props.isMulti ? true : false}
           styles={{
             control: (provided, state) => ({

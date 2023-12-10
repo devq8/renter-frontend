@@ -12,6 +12,7 @@ function Input(props) {
     placeholder,
     required,
     onChange,
+    onBlur,
     errorMessage,
     pattern,
     disabled,
@@ -47,10 +48,7 @@ function Input(props) {
             placeholder={placeholder}
             disabled={disabled}
             onChange={onChange}
-            // required={required}
-            // pattern="^[4-6,9][0-9]{7}$"
-            // onBlur={handleFocused}
-            // focused={focused.toString()}
+            onBlur={onBlur}
           />
         </div>
       ) : (
@@ -64,10 +62,7 @@ function Input(props) {
           placeholder={placeholder}
           disabled={disabled}
           onChange={onChange}
-          // required={required}
-          // pattern="^[4-6,9][0-9]{7}$"
-          // onBlur={handleFocused}
-          // focused={focused.toString()}
+          onBlur={onBlur}
         />
       )}
       {errorMessage && (
