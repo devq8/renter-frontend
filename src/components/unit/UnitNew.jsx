@@ -1,8 +1,7 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate, useParams } from "react-router";
 import Breadcrumb from "../../utils/Breadcrumb";
 import "flowbite";
-import Select from "react-select";
 import apiProperties from "../../utils/api/properties";
 import api from "../../utils/api/units";
 import utils from "../../utils/api/utils";
@@ -11,99 +10,79 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Input from "../../utils/form/Input";
 import Dropdown from "../../utils/form/Dropdown";
-import Validation from "./Validation";
+import * as Yup from "yup";
+import { useFormik } from "formik";
 
 function UnitNew() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const { id: propertyId } = useParams();
 
   const {
     data: property,
-    isLoading: PropertyLoading,
-    error: PropertyError,
+    // isLoading: PropertyLoading,
+    // error: PropertyError,
   } = useQuery(["propertyOverview", propertyId], () =>
     apiProperties.getPropertyOverview(propertyId)
   );
-  // console.log(property?.data);
 
   const propertyDetails = property?.data;
-
-  const [errors, setErrors] = useState({});
-  console.log(errors);
-  const queryClient = useQueryClient();
 
   const addUnitMutation = useMutation((unit) => api.addUnit(unit, propertyId), {
     onSuccess: () => {
       queryClient.invalidateQueries(["units", propertyId]);
+      toast.success("Unit added successfully");
       navigate(`/properties/${propertyId}`);
-      toast.success("Property added successfully");
     },
-    onError: (error) => console.log(error.response.data.name[0]),
+    onError: (error) => {
+      console.log(error.response.data.name[0]);
+      toast.error("Error adding unit");
+    },
   });
 
   const {
     data: types,
     isLoading: typesLoading,
-    error: typesError,
+    // error: typesError,
   } = useQuery(["types"], () => utils.getUnitTypes());
   const typesList = types && types.data ? types.data.map((type) => type) : [];
 
   const {
     data: floors,
     isLoading: floorsLoading,
-    error: floorsError,
+    // error: floorsError,
   } = useQuery(["floors"], () => utils.getFloors());
   const floorsList =
     floors && floors.data ? floors.data.map((floor) => floor) : [];
-
-  const [unit, setUnit] = useState({
-    number: "",
-    unit_type: "",
-    floor: "",
-    area: 0,
-  });
-  const [selectedType, setSelectedType] = useState("");
-  const [selectedFloor, setSelectedFloor] = useState("");
-
-  function handleSelectedTypeChange(selected) {
-    setSelectedType(selected);
-    if (selected !== null) {
-      setUnit({ ...unit, unit_type: selected.value });
-    } else if (selected === null) {
-      setUnit({ ...unit, unit_type: "" });
-    }
-  }
-
-  function handleSelectedFloorChange(selected) {
-    setSelectedFloor(selected);
-    if (selected !== null) {
-      setUnit({ ...unit, floor: selected.value });
-    } else if (selected === null) {
-      setUnit({ ...unit, floor: "" });
-    }
-  }
 
   function handleCancel() {
     navigate(`/properties/${propertyId}`);
   }
 
-  const handleChange = (event) => {
-    setUnit({ ...unit, [event.target.name]: event.target.value });
-    console.log(unit);
-  };
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    // console.log(unit);
-    setErrors(Validation(unit));
-    console.log(errors);
-    if (Object.keys(errors).length === 0) {
-      console.log("No errors ");
-      addUnitMutation.mutate(unit);
-      toast.success("Unit Added Successfully"); //Not working!!
-    }
-  };
+  const formik = useFormik({
+    initialValues: {
+      number: "",
+      unit_type: "",
+      floor: "",
+      area: 0,
+    },
+    validationSchema: Yup.object({
+      number: Yup.string().required("Required"),
+      unit_type: Yup.string().required("Required"),
+      floor: Yup.string().required("Required"),
+      area: Yup.number(),
+    }),
+    onSubmit: (values) => {
+      const unitData = {
+        number: values.number,
+        unit_type: values.unit_type,
+        floor: values.floor,
+        area: values.area,
+      };
+      addUnitMutation.mutate(unitData);
+    },
+  });
 
   return (
     <div className="">
@@ -129,9 +108,10 @@ function UnitNew() {
       <main>
         <div className="mx-auto max-w-7xl py-3 sm:px-6 lg:px-8 ">
           <div className="overflow-hidden rounded-lg border border-gray-200 shadow-md m-5 p-7 bg-white">
+            {/* Formik */}
             <form
               className="w-full border-collapse bg-white text-left text-sm text-gray-500"
-              onSubmit={handleSubmit}
+              onSubmit={formik.handleSubmit}
             >
               <div className="border-gray-900/10 pb-12 ">
                 <h2 className="text-base font-semibold leading-7 text-gray-900">
@@ -147,10 +127,11 @@ function UnitNew() {
                     type="text"
                     label="Unit number"
                     placeholder="e.g. GF-08"
-                    onChange={handleChange}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    value={formik.values.number}
                     required={true}
-                    errorMessage={errors.number}
-                    // pattern="^[4-6,9][0-9]{7}$"
+                    errorMessage={formik.touched.number && formik.errors.number}
                   />
                 </div>
 
@@ -163,19 +144,22 @@ function UnitNew() {
                     isSearchable={true}
                     options={typesList}
                     placeholder="Select unit's type ..."
-                    onChange={handleSelectedTypeChange}
-                    value={selectedType}
+                    onChange={(selectedOption) =>
+                      formik.setFieldValue(
+                        "unit_type",
+                        selectedOption ? selectedOption.value : null
+                      )
+                    }
+                    onBlur={formik.handleBlur}
+                    value={typesList?.find(
+                      (option) => option.value === formik.values.unit_type
+                    )}
+                    isLoading={typesLoading}
                     isMulti={false}
-                    errorMessage={errors.unit_type}
+                    errorMessage={
+                      formik.touched.unit_type && formik.errors.unit_type
+                    }
                   />
-                  {/* <Input
-                    name="address"
-                    type="text"
-                    label="Address"
-                    placeholder="e.g. Block 1 - Ibn Khaldoun Street - Building No. 32"
-                    onChange={handleChange}
-                    required={false}
-                  /> */}
                 </div>
 
                 {/* Third Row */}
@@ -187,10 +171,19 @@ function UnitNew() {
                     isSearchable={true}
                     options={floorsList}
                     placeholder="Select unit floor ..."
-                    onChange={handleSelectedFloorChange}
-                    value={selectedFloor}
+                    onChange={(selectedOption) =>
+                      formik.setFieldValue(
+                        "floor",
+                        selectedOption ? selectedOption.value : null
+                      )
+                    }
+                    onBlur={formik.handleBlur}
+                    value={floorsList?.find(
+                      (option) => option.value === formik.values.floor
+                    )}
+                    isLoading={floorsLoading}
                     isMulti={false}
-                    errorMessage={errors.floor}
+                    errorMessage={formik.touched.floor && formik.errors.floor}
                   />
                 </div>
                 <div className="flex p-3">
@@ -198,7 +191,9 @@ function UnitNew() {
                     name="area"
                     type="number"
                     label="Area (m²)"
-                    onChange={handleChange}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    value={formik.values.area}
                     required={false}
                   />
                 </div>
@@ -218,12 +213,12 @@ function UnitNew() {
                 <button
                   type="submit"
                   className="rounded-md bg-[#BD9A5F] px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#BD9A5F] hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#BD9A5F]"
+                  disabled={addUnitMutation.isLoading}
                 >
-                  Save
+                  {addUnitMutation.isLoading ? "Saving..." : "Save"}
                 </button>
               </div>
             </form>
-            {/* <button>Notification</button> */}
             <ToastContainer />
           </div>
         </div>

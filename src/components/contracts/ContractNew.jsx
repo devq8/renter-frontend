@@ -8,7 +8,6 @@ import apiContracts from "../../utils/api/contracts";
 import apiTenants from "../../utils/api/tenants";
 import apiUnits from "../../utils/api/units";
 import { toast, ToastContainer } from "react-toastify";
-import Validation from "./Validation";
 import Input from "../../utils/form/Input";
 import Dropdown from "../../utils/form/Dropdown";
 import utils from "../../utils/api/utils";
@@ -18,14 +17,32 @@ import Toggle from "../../utils/form/Toggle";
 import Radio from "../../utils/form/Radio";
 import Button from "../../utils/Button";
 import { AiFillPlusCircle } from "react-icons/ai";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 
 function ContractNew() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const addContractMutation = useMutation(
+    (contract) => apiContracts.addContract(contract),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["contracts"]);
+        toast.success("Contract added successfully");
+        navigate(`/contracts/`);
+      },
+      onError: (error) => {
+        console.log(error.response.data.name[0]);
+        toast.error("Error adding contract");
+      },
+    }
+  );
 
   const {
     data: properties,
     isLoading: propertiesLoading,
-    error,
+    // error: propertiesError,
   } = useQuery(["properties"], () => apiProperties.getProperties());
 
   const propertiesList =
@@ -36,12 +53,10 @@ function ContractNew() {
         }))
       : [];
 
-  // console.log(propertiesList);
-
   const {
     data: units,
     isLoading: unitsLoading,
-    error: unitsError,
+    // error: unitsError,
   } = useQuery(["units"], () => apiUnits.listUnit(true));
 
   const unitsList =
@@ -53,12 +68,10 @@ function ContractNew() {
         }))
       : [];
 
-  // console.log(unitsList);
-
   const {
     data: tenants,
     isLoading: tenantsLoading,
-    error: tenantsError,
+    // error: tenantsError,
   } = useQuery(["tenants"], () => apiTenants.getTenants());
 
   const tenantsList =
@@ -69,150 +82,59 @@ function ContractNew() {
         }))
       : [];
 
-  const [errors, setErrors] = useState({});
-  const queryClient = useQueryClient();
-
-  const addContractMutation = useMutation(
-    (contract) => apiContracts.addContract(contract),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(["contracts"]);
-        navigate(`/contracts/`);
-        toast.success("Contract added successfully");
-      },
-      onError: (error) => {
-        console.log(error.response.data.name[0]);
-        toast.error("Error adding contract");
-      },
-    }
-  );
-
-  const [contract, setContract] = useState({
-    property: "",
-    unit: "",
-    tenant: "",
-    status: "ACTIVE",
-    flexible: false,
-    notification_method: "sms",
-    notification_mobile: "",
-    notification_email: "",
-    start_date: "",
-    end_date: "",
-    first_payment_date: "",
-    rent: "",
-  });
-
-  // const [selectedProperty, setSelectedProperty] = useState("");
-
-  // const [selectedUnit, setSelectedUnit] = useState("");
-  const [selectedTenant, setSelectedTenant] = useState("");
-  // const [unitsList, setUnitsList] = useState([]);
-  const [isOn, setIsOn] = useState(false);
-  const [selectedNotificationMethod, setNotificationMethod] = useState("SMS");
-
-  function handleSelectedTenantChange(selected) {
-    setSelectedTenant(selected);
-    setContract({ ...contract, tenant: selected ? selected.value : "" });
-    console.log(contract);
-    // setErrors(Validation(contract));
-  }
-
-  // function handleSelectedUnitChange(selected) {
-  //   setSelectedUnit(selected);
-  //   setContract({ ...contract, unit: selected ? selected.value : "" });
-  //   setErrors(Validation(contract));
-  // }
+  // const [contract, setContract] = useState({
+  //   property: "",
+  //   unit: "",
+  //   tenant: "",
+  //   status: "ACTIVE",
+  //   flexible: false,
+  //   notification_method: "sms",
+  //   notification_mobile: "",
+  //   notification_email: "",
+  //   start_date: "",
+  //   end_date: "",
+  //   first_payment_date: "",
+  //   rent: "",
+  // });
 
   function handleCancel() {
     navigate(`/contracts`);
   }
 
-  const handleChange = (event) => {
-    setContract({ ...contract, [event.target.name]: event.target.value });
-    console.log(contract);
-    // setErrors(Validation(contract));
-  };
-
-  function handleNotificationMethodChange(event) {
-    console.log(event.target.value);
-    setNotificationMethod(event.target.value);
-
-    setContract({
-      ...contract,
-      notification_method: event.target.value,
-    });
-    console.log(contract);
-  }
-
-  function handleDateChange(date, name) {
-    setContract({ ...contract, [name]: dayjs(date).format("YYYY-MM-DD") });
-
-    // setErrors(Validation(contract));
-  }
-
-  function handleNewTenant(event) {
-    console.log("New tenant function");
-  }
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    console.log(contract);
-    setErrors(Validation(contract));
-    console.log(errors);
-    if (Object.keys(errors).length === 0) {
-      console.log("No errors");
-      addContractMutation.mutate(contract);
-    }
-  };
-
-  const [property, setProperty] = useState([]);
-  const [unit, setUnit] = useState([]);
-
-  useEffect(() => {
-    setProperty(propertiesList);
-  }, []);
-
-  const handlePropertyChange = (selectedProperty) => {
-    if (selectedProperty === null || selectedProperty === "") {
-      setContract({
-        ...contract,
-        ["property"]: "",
-      });
-      setUnit([]);
-    } else {
-      setContract({
-        ...contract,
-        ["property"]: selectedProperty.value,
-        ["unit"]: "",
-      });
-
-      setUnit(
-        unitsList.filter((unit) => unit.property === selectedProperty.value)
-      );
-    }
-  };
-
-  const handleUnitChange = (selectedUnit) => {
-    if (selectedUnit === null || selectedUnit === "") {
-      console.log("Selected unit is null");
-      setContract({
-        ...contract,
-        ["unit"]: "",
-      });
-      return;
-    }
-    setContract({
-      ...contract,
-      ["unit"]: selectedUnit.value,
-    });
-    console.log(`Selected unit is ${selectedUnit.value}`);
-  };
-
-  const handleFlexibleChange = (event) => {
-    setIsOn(event.target.checked);
-    setContract({ ...contract, flexible: !isOn });
-    console.log(contract);
-  };
+  const formik = useFormik({
+    initialValues: {
+      property: "",
+      unit: "",
+      tenant: "",
+    },
+    validationSchema: Yup.object({
+      property: Yup.string().required("Required"),
+      unit: Yup.string().required("Required"),
+      tenant: Yup.string().required("Required"),
+      start_date: Yup.string().required("Required"),
+      end_date: Yup.string().required("Required"),
+      first_payment_date: Yup.string().required("Required"),
+      rent: Yup.string().required("Required"),
+      notification_mobile: Yup.string().required("Required"),
+    }),
+    onSubmit: (values) => {
+      const contractData = {
+        property: values.property,
+        unit: values.unit,
+        tenant: values.tenant,
+        status: values.status,
+        flexible: values.flexible,
+        notification_method: values.notification_method,
+        notification_mobile: values.notification_mobile,
+        notification_email: values.notification_email,
+        start_date: values.start_date,
+        end_date: values.end_date,
+        first_payment_date: values.first_payment_date,
+        rent: values.rent,
+      };
+      addContractMutation.mutate(contractData);
+    },
+  });
 
   return (
     <div className="">
@@ -234,7 +156,7 @@ function ContractNew() {
           <div className="overflow-hidden rounded-lg border border-gray-200 shadow-md m-5 p-7 bg-white">
             <form
               className="w-full border-collapse bg-white text-left text-sm text-gray-500"
-              onSubmit={handleSubmit}
+              onSubmit={formik.handleSubmit}
             >
               <div className="border-gray-900/10 pb-12 ">
                 <h2 className="text-base font-semibold leading-7 text-gray-900">
@@ -251,11 +173,22 @@ function ContractNew() {
                     isClearable={true}
                     isSearchable={true}
                     options={propertiesList}
-                    placeholder="Select property from the list ..."
-                    onChange={handlePropertyChange}
+                    placeholder="Select property ..."
+                    onChange={(selectedOption) =>
+                      formik.setFieldValue(
+                        "property",
+                        selectedOption ? selectedOption.value : null
+                      )
+                    }
+                    value={propertiesList?.find(
+                      (option) => option.value === formik.values.property
+                    )}
+                    onBlur={formik.handleBlur}
                     isMulti={false}
-                    errorMessage={errors.property}
-                    // isLoading={propertiesLoading}
+                    errorMessage={
+                      formik.touched.property && formik.errors.property
+                    }
+                    isLoading={propertiesLoading}
                   />
 
                   <Dropdown
@@ -263,13 +196,20 @@ function ContractNew() {
                     label="Unit"
                     isClearable={true}
                     isSearchable={true}
-                    options={unit}
-                    placeholder="Select unit from the list ..."
-                    onChange={handleUnitChange}
-                    // value={selectedUnit}
+                    options={unitsList}
+                    placeholder="Select unit ..."
+                    onChange={(selectedOption) =>
+                      formik.setFieldValue(
+                        "unit",
+                        selectedOption ? selectedOption.value : null
+                      )
+                    }
+                    value={unitsList?.find(
+                      (option) => option.value === formik.values.unit
+                    )}
                     isMulti={false}
-                    errorMessage={errors.unit}
-                    // isLoading={unitsLoading}
+                    errorMessage={formik.touched.unit && formik.errors.unit}
+                    isLoading={unitsLoading}
                   />
                 </div>
                 <h2 className="text-base font-semibold leading-7 text-gray-900 pt-10">
@@ -286,11 +226,18 @@ function ContractNew() {
                     isClearable={true}
                     isSearchable={true}
                     options={tenantsList}
-                    placeholder="Select tenant from the list ..."
-                    onChange={handleSelectedTenantChange}
-                    value={selectedTenant}
+                    placeholder="Select tenant ..."
+                    onChange={(selectedOption) =>
+                      formik.setFieldValue(
+                        "tenant",
+                        selectedOption ? selectedOption.value : null
+                      )
+                    }
+                    value={tenantsList?.find(
+                      (option) => option.value === formik.values.tenant
+                    )}
                     isMulti={false}
-                    errorMessage={errors.tenant}
+                    errorMessage={formik.touched.tenant && formik.errors.tenant}
                   />
                   <div className="hide-on-print">
                     <button
@@ -298,7 +245,7 @@ function ContractNew() {
                       data-modal-toggle="defaultModal"
                       type="button"
                       className="flex items-center rounded-md bg-[#BD9A5F] mx-2 px-7 py-3 text-base font-medium text-white transition duration-200 hover:bg-[#BD9A5F] hover:opacity-80 active:bg-[#BD9A5F]"
-                      onClick={handleNewTenant}
+                      // onClick={handleNewTenant}
                     >
                       <span className="inline-block mr-2 ">
                         <AiFillPlusCircle className="w-6 h-6" />
@@ -460,15 +407,15 @@ function ContractNew() {
                     label="Contract Start Date"
                     name="from_date"
                     // value={selectedContractPeriod.startDate}
-                    onChange={(date) => handleDateChange(date, "start_date")}
-                    errorMessage={errors.start_date}
+                    // onChange={(date) => handleDateChange(date, "start_date")}
+                    // errorMessage={errors.start_date}
                   />
                   <DateInput
                     label="Contract End Date"
                     name="to_date"
                     // value={selectedContractPeriod.endDate}
-                    onChange={(date) => handleDateChange(date, "end_date")}
-                    errorMessage={errors.end_date}
+                    // onChange={(date) => handleDateChange(date, "end_date")}
+                    // errorMessage={errors.end_date}
                     // defaultValue={selectedContractPeriod.endDate}
                     // minDate={dayjs(selectedStartDate)}
                   />
@@ -479,10 +426,10 @@ function ContractNew() {
                     label="First Payment Date"
                     name="first_payment_date"
                     // value={selectedContractPeriod.firstPaymentDate}
-                    errorMessage={errors.first_payment_date}
-                    onChange={(date) =>
-                      handleDateChange(date, "first_payment_date")
-                    }
+                    // errorMessage={errors.first_payment_date}
+                    // onChange={(date) =>
+                    //   handleDateChange(date, "first_payment_date")
+                    // }
                     // defaultValue={dayjs(selectedStartDate)}
                   />
                 </div>
@@ -490,7 +437,9 @@ function ContractNew() {
                 {/* Fifth Row */}
                 <div className="flex p-3">
                   {/* <label>Flexible Contract</label> */}
-                  <Toggle onChange={handleFlexibleChange} />
+                  <Toggle
+                  // onChange={handleFlexibleChange}
+                  />
                 </div>
 
                 {/* Sixth Row */}
@@ -512,14 +461,14 @@ function ContractNew() {
                         name="rent"
                         defaultValue={0}
                         className="rounded-none rounded-r-md border text-gray-900 focus:ring-primary focus:border-primary block flex-1 min-w-0 w-full text-sm border-gray-300 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary dark:focus:border-primary"
-                        onChange={handleChange}
+                        // onChange={handleChange}
                       />
                     </div>
-                    {errors.rent && (
+                    {/* {errors.rent && (
                       <p className="mt-2 text-sm text-red-600 dark:text-red-500">
                         <span className="font-medium">{errors.rent}</span>
                       </p>
-                    )}
+                    )} */}
                   </div>
                 </div>
                 <h2 className="text-base font-semibold leading-7 text-gray-900 pt-10">
@@ -534,20 +483,20 @@ function ContractNew() {
                     options={["SMS", "WhatsApp", "Email"]}
                     name={"notifications_method"}
                     defaultChoice={"SMS"}
-                    onChange={handleNotificationMethodChange}
+                    // onChange={handleNotificationMethodChange}
                   />
                 </div>
                 {/* Eight Row */}
                 <div className="flex p-3">
-                  {selectedNotificationMethod === "Email" ? (
+                  {/* {selectedNotificationMethod === "Email" ? (
                     <Input
                       name="notification_email"
                       type="email"
                       label="Notification Email"
                       placeholder="e.g. info@wuc.com.kw"
                       required={true}
-                      onChange={handleChange}
-                      errorMessage={errors.notification_email}
+                      // onChange={handleChange}
+                      // errorMessage={errors.notification_email}
                       // pattern="^[4-6,9][0-9]{7}$"
                     />
                   ) : (
@@ -557,11 +506,11 @@ function ContractNew() {
                       label="Notification Mobile"
                       placeholder="e.g. +965 66600499"
                       required={true}
-                      onChange={handleChange}
-                      errorMessage={errors.notification_mobile}
+                      // onChange={handleChange}
+                      // errorMessage={errors.notification_mobile}
                       // pattern="^[4-6,9][0-9]{7}$"
                     />
-                  )}
+                  )} */}
                 </div>
               </div>
 

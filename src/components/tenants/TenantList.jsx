@@ -61,7 +61,11 @@ function TenantList() {
               Tenants
             </h1>
             {/* <div onClick={() => navigate("/tenants/new")}>
-              <Button color="#BD9A5F" text="Add New Tenant" type="add" />
+              <Button
+                text="Add New Tenant"
+                type="add"
+                className_="bg-primary"
+              />
             </div> */}
           </div>
         </div>

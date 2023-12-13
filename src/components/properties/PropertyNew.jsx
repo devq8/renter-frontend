@@ -33,21 +33,21 @@ function PropertyNew() {
   const {
     data: areas,
     isLoading: areasLoading,
-    error: areasError,
+    // error: areasError,
   } = useQuery(["areas"], () => utils.getAreas());
   const areasList = areas && areas.data ? areas.data.map((area) => area) : [];
 
   const {
     data: banks,
     isLoading: banksLoading,
-    error: banksError,
+    // error: banksError,
   } = useQuery(["banks"], () => utils.getBanks());
   const banksList = banks && banks.data ? banks.data.map((bank) => bank) : [];
 
   const {
     data: managers,
     isLoading: managersLoading,
-    error: managersError,
+    // error: managersError,
   } = useQuery(["managers"], () => utils.getManagers());
   const managersList =
     managers && managers.data
@@ -62,8 +62,9 @@ function PropertyNew() {
   const {
     data: owners,
     isLoading: ownersLoading,
-    error: ownersError,
+    // error: ownersError,
   } = useQuery(["owners"], () => utils.getOwners());
+
   const ownersList =
     owners && owners.data
       ? owners.data.map((owner) => ({
@@ -78,7 +79,6 @@ function PropertyNew() {
       area: "",
       address: "",
       PACI: "",
-      area: "",
       manager: [],
       owner: [],
       bank_name: "",
@@ -108,7 +108,6 @@ function PropertyNew() {
         beneficiary: values.beneficiary,
         IBAN: values.IBAN,
       };
-      console.log("Form submitted with values:", propertyData);
       addPropertyMutation.mutate(propertyData);
     },
   });
@@ -241,11 +240,7 @@ function PropertyNew() {
                     )}
                     onBlur={formik.handleBlur}
                     isMulti={false}
-                    errorMessage={
-                      formik.touched.area &&
-                      formik.errors.area &&
-                      formik.errors.area
-                    }
+                    errorMessage={formik.touched.area && formik.errors.area}
                     isLoading={areasLoading}
                   />
                   <Input
