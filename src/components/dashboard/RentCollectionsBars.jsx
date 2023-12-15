@@ -109,7 +109,7 @@ function RentCollectionsChart() {
     };
   });
 
-  console.log(datasets);
+  // console.log(datasets);
 
   const data = {
     labels,

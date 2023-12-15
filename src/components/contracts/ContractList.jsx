@@ -23,7 +23,7 @@ function ContractList() {
     isLoading,
     error,
   } = useQuery(["contracts"], () => api.getContracts());
-  console.log(contracts?.data);
+  // console.log(contracts?.data);
   const contractsList = contracts?.data
     ?.filter((contract) => {
       if (search === "") {

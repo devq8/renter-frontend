@@ -113,7 +113,7 @@ function RentCollectionsChart() {
     let borderColor = `${colors[index % colors.length]}`;
     let backgroundColor = `${background[index % background.length]}`;
     const collections = property.last_year_collections;
-    console.log(collections);
+    // console.log(collections);
     const data = collections.map((item) => item.collections).reverse();
 
     return {

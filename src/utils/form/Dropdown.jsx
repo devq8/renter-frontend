@@ -11,30 +11,27 @@ function Dropdown(props) {
       >
         {props.label}
       </label>
-      {props.isLoading ? (
-        <div className="flex justify-center items-center">
-          <Spinner />
-        </div>
-      ) : (
-        <Select
-          name={props.name}
-          isClearable={props.isClearable}
-          isSearchable={props.isSearchable}
-          options={props.options}
-          placeholder={props.placeholder}
-          onChange={props.onChange}
-          value={props.value || null}
-          isMulti={props.isMulti ? true : false}
-          styles={{
-            control: (provided, state) => ({
-              ...provided,
-              height: "42px",
-              borderColor: state.isFocused ? "#BD9A5F" : "white",
-              boxShadow: "0 0 0 1px #D1D5DB",
-            }),
-          }}
-        />
-      )}
+
+      <Select
+        name={props.name}
+        isClearable={props.isClearable}
+        isSearchable={props.isSearchable}
+        options={props.options}
+        placeholder={props.placeholder}
+        onChange={props.onChange}
+        value={props.value || null}
+        isMulti={props.isMulti ? true : false}
+        isLoading={props.isLoading ? true : false}
+        styles={{
+          control: (provided, state) => ({
+            ...provided,
+            height: "42px",
+            borderColor: state.isFocused ? "#BD9A5F" : "white",
+            boxShadow: "0 0 0 1px #D1D5DB",
+          }),
+        }}
+      />
+
       {props.errorMessage && (
         <p className="mt-2 text-sm text-red-600 dark:text-red-500">
           <span className="font-medium">{props.errorMessage}</span>

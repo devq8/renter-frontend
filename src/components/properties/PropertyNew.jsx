@@ -406,11 +406,7 @@ function PropertyNew() {
                     onBlur={formik.handleBlur}
                     required={false}
                     value={formik.values.IBAN}
-                    errorMessage={
-                      formik.touched.IBAN &&
-                      formik.errors.IBAN &&
-                      formik.errors.IBAN
-                    }
+                    errorMessage={formik.touched.IBAN && formik.errors.IBAN}
                   />
                 </div>
               </div>

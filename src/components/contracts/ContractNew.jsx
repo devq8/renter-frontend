@@ -24,6 +24,8 @@ function ContractNew() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
+  const [SelectedProperty, setSelectedProperty] = useState(null);
+
   const addContractMutation = useMutation(
     (contract) => apiContracts.addContract(contract),
     {
@@ -57,7 +59,7 @@ function ContractNew() {
     data: units,
     isLoading: unitsLoading,
     // error: unitsError,
-  } = useQuery(["units"], () => apiUnits.listUnit(true));
+  } = useQuery(["units"], () => apiUnits.listUnit(true)); // List all vacant units
 
   const unitsList =
     units && units.data
@@ -67,6 +69,10 @@ function ContractNew() {
           label: unit.number,
         }))
       : [];
+
+  const filteredUnits = unitsList.filter(
+    (unit) => unit.property === SelectedProperty
+  );
 
   const {
     data: tenants,
@@ -82,21 +88,6 @@ function ContractNew() {
         }))
       : [];
 
-  // const [contract, setContract] = useState({
-  //   property: "",
-  //   unit: "",
-  //   tenant: "",
-  //   status: "ACTIVE",
-  //   flexible: false,
-  //   notification_method: "sms",
-  //   notification_mobile: "",
-  //   notification_email: "",
-  //   start_date: "",
-  //   end_date: "",
-  //   first_payment_date: "",
-  //   rent: "",
-  // });
-
   function handleCancel() {
     navigate(`/contracts`);
   }
@@ -106,16 +97,31 @@ function ContractNew() {
       property: "",
       unit: "",
       tenant: "",
+      start_date: null,
+      end_date: null,
+      first_payment_date: null,
+      rent: 0,
+      flexible: false,
+      notification_method: "SMS",
+      notification_mobile: "",
+      notification_email: "",
     },
     validationSchema: Yup.object({
       property: Yup.string().required("Required"),
       unit: Yup.string().required("Required"),
       tenant: Yup.string().required("Required"),
-      start_date: Yup.string().required("Required"),
-      end_date: Yup.string().required("Required"),
-      first_payment_date: Yup.string().required("Required"),
-      rent: Yup.string().required("Required"),
+      start_date: Yup.date().nullable().required("Required"),
+      end_date: Yup.date().nullable().required("Required"),
+      first_payment_date: Yup.date().nullable().required("Required"),
+      rent: Yup.number()
+        .moreThan(0, "Rent must be greater then zero")
+        .required("Required"),
+      flexible: Yup.boolean(),
+      notification_method: Yup.string().required("Required"),
       notification_mobile: Yup.string().required("Required"),
+      notification_email: Yup.string().when("notification_method", (method) =>
+        method === "Email" ? Yup.string().required("Required") : Yup.string()
+      ),
     }),
     onSubmit: (values) => {
       const contractData = {
@@ -132,7 +138,8 @@ function ContractNew() {
         first_payment_date: values.first_payment_date,
         rent: values.rent,
       };
-      addContractMutation.mutate(contractData);
+      console.log(contractData);
+      // addContractMutation.mutate(contractData);
     },
   });
 
@@ -174,12 +181,16 @@ function ContractNew() {
                     isSearchable={true}
                     options={propertiesList}
                     placeholder="Select property ..."
-                    onChange={(selectedOption) =>
+                    onChange={(selectedOption) => {
                       formik.setFieldValue(
                         "property",
                         selectedOption ? selectedOption.value : null
-                      )
-                    }
+                      );
+                      setSelectedProperty(
+                        selectedOption ? selectedOption.value : null
+                      );
+                      formik.setFieldValue("unit", "");
+                    }}
                     value={propertiesList?.find(
                       (option) => option.value === formik.values.property
                     )}
@@ -196,7 +207,7 @@ function ContractNew() {
                     label="Unit"
                     isClearable={true}
                     isSearchable={true}
-                    options={unitsList}
+                    options={filteredUnits}
                     placeholder="Select unit ..."
                     onChange={(selectedOption) =>
                       formik.setFieldValue(
@@ -204,7 +215,7 @@ function ContractNew() {
                         selectedOption ? selectedOption.value : null
                       )
                     }
-                    value={unitsList?.find(
+                    value={filteredUnits.find(
                       (option) => option.value === formik.values.unit
                     )}
                     isMulti={false}
@@ -237,10 +248,11 @@ function ContractNew() {
                       (option) => option.value === formik.values.tenant
                     )}
                     isMulti={false}
+                    isLoading={tenantsLoading}
                     errorMessage={formik.touched.tenant && formik.errors.tenant}
                   />
-                  <div className="hide-on-print">
-                    <button
+                  {/* <div className="hide-on-print"> */}
+                  {/* <button
                       id="defaultModalButton"
                       data-modal-toggle="defaultModal"
                       type="button"
@@ -251,8 +263,8 @@ function ContractNew() {
                         <AiFillPlusCircle className="w-6 h-6" />
                       </span>
                       <span className="line-clamp-1">Add New Tenant</span>
-                    </button>
-                  </div>
+                    </button> */}
+                  {/* </div> */}
                   <div
                     id="defaultModal"
                     tabindex="-1"
@@ -289,7 +301,7 @@ function ContractNew() {
                           </button>
                         </div>
                         {/* Modal body */}
-                        <form action="#">
+                        {/* <form action="#">
                           <div class="grid gap-4 mb-4 sm:grid-cols-2">
                             <div>
                               <label
@@ -390,10 +402,26 @@ function ContractNew() {
                             </svg>
                             Add new product
                           </button>
-                        </form>
+                        </form> */}
                       </div>
                     </div>
                   </div>
+                </div>
+                <div className="flex p-3">
+                  <Input
+                    name="notification_mobile"
+                    type="text"
+                    label="Mobile Number"
+                    placeholder="e.g. +965 66600499"
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    value={formik.values.notification_mobile}
+                    errorMessage={
+                      formik.touched.notification_mobile &&
+                      formik.errors.notification_mobile
+                    }
+                    required={true}
+                  />
                 </div>
                 <h2 className="text-base font-semibold leading-7 text-gray-900 pt-10">
                   Contract Information
@@ -405,19 +433,25 @@ function ContractNew() {
                 <div className="flex p-3">
                   <DateInput
                     label="Contract Start Date"
-                    name="from_date"
-                    // value={selectedContractPeriod.startDate}
-                    // onChange={(date) => handleDateChange(date, "start_date")}
-                    // errorMessage={errors.start_date}
+                    name="start_date"
+                    value={formik.values.start_date}
+                    onChange={(value) =>
+                      formik.setFieldValue("start_date", value)
+                    }
+                    errorMessage={
+                      formik.touched.start_date && formik.errors.start_date
+                    }
                   />
                   <DateInput
                     label="Contract End Date"
-                    name="to_date"
-                    // value={selectedContractPeriod.endDate}
-                    // onChange={(date) => handleDateChange(date, "end_date")}
-                    // errorMessage={errors.end_date}
-                    // defaultValue={selectedContractPeriod.endDate}
-                    // minDate={dayjs(selectedStartDate)}
+                    name="end_date"
+                    value={formik.values.end_date}
+                    onChange={(value) =>
+                      formik.setFieldValue("end_date", value)
+                    }
+                    errorMessage={
+                      formik.touched.end_date && formik.errors.end_date
+                    }
                   />
                 </div>
                 {/* Fourth Row */}
@@ -425,12 +459,14 @@ function ContractNew() {
                   <DateInput
                     label="First Payment Date"
                     name="first_payment_date"
-                    // value={selectedContractPeriod.firstPaymentDate}
-                    // errorMessage={errors.first_payment_date}
-                    // onChange={(date) =>
-                    //   handleDateChange(date, "first_payment_date")
-                    // }
-                    // defaultValue={dayjs(selectedStartDate)}
+                    value={formik.values.first_payment_date}
+                    onChange={(value) =>
+                      formik.setFieldValue("first_payment_date", value)
+                    }
+                    errorMessage={
+                      formik.touched.first_payment_date &&
+                      formik.errors.first_payment_date
+                    }
                   />
                 </div>
 
@@ -438,7 +474,10 @@ function ContractNew() {
                 <div className="flex p-3">
                   {/* <label>Flexible Contract</label> */}
                   <Toggle
-                  // onChange={handleFlexibleChange}
+                    name="flexible"
+                    title="Flexible Contract"
+                    onChange={formik.handleChange}
+                    value={formik.values.flexible}
                   />
                 </div>
 
@@ -451,24 +490,30 @@ function ContractNew() {
                     >
                       Rent (KD)
                     </label>
-                    <div className="flex">
-                      <span className="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-r-0 border-gray-300 rounded-l-md dark:bg-gray-600 dark:text-gray-400 dark:border-gray-600">
-                        KD
-                      </span>
-                      <input
-                        type="number"
-                        id="rent"
-                        name="rent"
-                        defaultValue={0}
-                        className="rounded-none rounded-r-md border text-gray-900 focus:ring-primary focus:border-primary block flex-1 min-w-0 w-full text-sm border-gray-300 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary dark:focus:border-primary"
-                        // onChange={handleChange}
-                      />
+                    <div className="flex-col">
+                      <div className="flex">
+                        <span className="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-r-0 border-gray-300 rounded-l-md dark:bg-gray-600 dark:text-gray-400 dark:border-gray-600">
+                          KD
+                        </span>
+                        <input
+                          type="number"
+                          id="rent"
+                          name="rent"
+                          defaultValue={0}
+                          className="rounded-none rounded-r-md border text-gray-900 focus:ring-primary focus:border-primary block flex-1 min-w-0 w-full text-sm border-gray-300 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary dark:focus:border-primary"
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          value={formik.values.rent}
+                        />
+                      </div>
+                      {formik.touched.rent && formik.errors.rent && (
+                        <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+                          <span className="font-medium">
+                            {formik.touched.rent && formik.errors.rent}
+                          </span>
+                        </p>
+                      )}
                     </div>
-                    {/* {errors.rent && (
-                      <p className="mt-2 text-sm text-red-600 dark:text-red-500">
-                        <span className="font-medium">{errors.rent}</span>
-                      </p>
-                    )} */}
                   </div>
                 </div>
                 <h2 className="text-base font-semibold leading-7 text-gray-900 pt-10">
@@ -480,37 +525,30 @@ function ContractNew() {
                 {/* Seventh Row */}
                 <div className="flex p-3">
                   <Radio
+                    name={"notification_method"}
                     options={["SMS", "WhatsApp", "Email"]}
-                    name={"notifications_method"}
-                    defaultChoice={"SMS"}
-                    // onChange={handleNotificationMethodChange}
+                    onChange={formik.handleChange}
+                    value={formik.values.notification_method}
                   />
                 </div>
                 {/* Eight Row */}
                 <div className="flex p-3">
-                  {/* {selectedNotificationMethod === "Email" ? (
+                  {formik.values.notification_method === "Email" ? (
                     <Input
                       name="notification_email"
                       type="email"
-                      label="Notification Email"
+                      label="Email Address"
                       placeholder="e.g. info@wuc.com.kw"
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      value={formik.values.notification_email}
+                      errorMessage={
+                        formik.touched.notification_email &&
+                        formik.errors.notification_email
+                      }
                       required={true}
-                      // onChange={handleChange}
-                      // errorMessage={errors.notification_email}
-                      // pattern="^[4-6,9][0-9]{7}$"
                     />
-                  ) : (
-                    <Input
-                      name="notification_mobile"
-                      type="number"
-                      label="Notification Mobile"
-                      placeholder="e.g. +965 66600499"
-                      required={true}
-                      // onChange={handleChange}
-                      // errorMessage={errors.notification_mobile}
-                      // pattern="^[4-6,9][0-9]{7}$"
-                    />
-                  )} */}
+                  ) : null}
                 </div>
               </div>
 
@@ -528,8 +566,9 @@ function ContractNew() {
                 <button
                   type="submit"
                   className="rounded-md bg-[#BD9A5F] px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#BD9A5F] hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#BD9A5F]"
+                  disabled={addContractMutation.isLoading}
                 >
-                  Save
+                  {addContractMutation.isLoading ? "Saving..." : "Save"}
                 </button>
               </div>
             </form>

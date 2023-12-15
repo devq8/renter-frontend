@@ -1,8 +1,9 @@
 import React from "react";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { TextField } from "@mui/material";
 
 function DateInput(props) {
-  const { name, label, defaultValue, onChange, errorMessage } = props;
+  const { name, label, value, onChange, errorMessage } = props;
 
   return (
     <div className="w-[50%] px-2">
@@ -13,10 +14,18 @@ function DateInput(props) {
         {label}
       </label>
       <DatePicker
+        value={value}
         slotProps={{ textField: { size: "small" } }}
         formatDensity="spacious"
         onChange={onChange}
-        defaultValue={defaultValue}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            fullWidth
+            error={!!errorMessage}
+            helperText={errorMessage}
+          />
+        )}
       />
       {errorMessage && (
         <p className="mt-2 text-sm text-red-600 dark:text-red-500">
