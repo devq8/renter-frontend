@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import Breadcrumb from "../../utils/Breadcrumb";
 import "flowbite";
 import api from "../../utils/api/properties";
@@ -11,10 +11,25 @@ import Input from "../../utils/form/Input";
 import Dropdown from "../../utils/form/Dropdown";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import format from "../../utils/format";
 
-function PropertyNew() {
+function PropertyNewUpdate() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
+  const { id: propertyId } = useParams();
+  // Check if the property is in update mode or add mode
+  const isUpdatingMode = propertyId != null;
+
+  const { data: propertyData, isLoading: PropertyLoading } = useQuery(
+    ["property", propertyId],
+    () => api.getPropertyOverview(propertyId),
+    { enabled: isUpdatingMode }
+  );
+
+  // const isValidIBAN = format.validateIBAN("KW43KFHO0000000000431010002797");
+  // console.log("Validate IBAN ", isValidIBAN);
+
   const addPropertyMutation = useMutation(
     (property) => api.addProperty(property),
     {
@@ -24,8 +39,36 @@ function PropertyNew() {
         navigate("/properties");
       },
       onError: (error) => {
-        console.log(error.response.data.name[0]);
-        toast.error("Error adding property");
+        let errorMessage = "";
+        if (error.response && error.response.data) {
+          errorMessage += `${
+            error.response.data.detail || error.response.data.message
+          }`;
+        }
+
+        console.log("Error: ", error);
+        toast.error(errorMessage);
+      },
+    }
+  );
+  const updatePropertyMutation = useMutation(
+    ({ id, ...propertyData }) => api.updateProperty(propertyData, id),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["properties"]);
+        toast.success("Property updated successfully");
+        navigate(`/properties/${propertyId}`);
+      },
+      onError: (error) => {
+        let errorMessage = "";
+        if (error.response && error.response.data) {
+          errorMessage += `${
+            error.response.data.detail || error.response.data.message
+          }`;
+        }
+
+        console.log("Error: ", error);
+        toast.error(errorMessage);
       },
     }
   );
@@ -35,14 +78,14 @@ function PropertyNew() {
     isLoading: areasLoading,
     // error: areasError,
   } = useQuery(["areas"], () => utils.getAreas());
-  const areasList = areas && areas.data ? areas.data.map((area) => area) : [];
+  const areasList = areas && areas.data ? areas?.data.map((area) => area) : [];
 
   const {
     data: banks,
     isLoading: banksLoading,
     // error: banksError,
   } = useQuery(["banks"], () => utils.getBanks());
-  const banksList = banks && banks.data ? banks.data.map((bank) => bank) : [];
+  const banksList = banks && banks.data ? banks?.data.map((bank) => bank) : [];
 
   const {
     data: managers,
@@ -50,7 +93,7 @@ function PropertyNew() {
     // error: managersError,
   } = useQuery(["managers"], () => utils.getManagers());
   const managersList =
-    managers && managers.data
+    managers && managers?.data
       ? managers.data.map((manager) => ({
           value: manager.id,
           label:
@@ -64,9 +107,8 @@ function PropertyNew() {
     isLoading: ownersLoading,
     // error: ownersError,
   } = useQuery(["owners"], () => utils.getOwners());
-
   const ownersList =
-    owners && owners.data
+    owners && owners?.data
       ? owners.data.map((owner) => ({
           value: owner.id,
           label: `${owner.user.first_name} ${owner.user.last_name}`,
@@ -75,26 +117,39 @@ function PropertyNew() {
 
   const formik = useFormik({
     initialValues: {
-      name: "",
-      area: "",
-      address: "",
-      PACI: "",
-      manager: [],
-      owner: [],
-      bank_name: "",
-      beneficiary: "",
-      IBAN: "",
+      area: isUpdatingMode && propertyData?.data ? propertyData.data.area : "",
+      name: isUpdatingMode && propertyData?.data ? propertyData.data.name : "",
+      address:
+        isUpdatingMode && propertyData?.data ? propertyData.data.address : "",
+      PACI: isUpdatingMode && propertyData?.data ? propertyData.data.PACI : "",
+      manager:
+        isUpdatingMode && propertyData?.data ? propertyData.data.manager : [],
+      owner:
+        isUpdatingMode && propertyData?.data ? propertyData.data.owner : [],
+      bank_name:
+        isUpdatingMode && propertyData?.data ? propertyData.data.bank_name : "",
+      beneficiary:
+        isUpdatingMode && propertyData?.data
+          ? propertyData.data.beneficiary
+          : "",
+      IBAN: isUpdatingMode && propertyData?.data ? propertyData.data.IBAN : "",
     },
+    enableReinitialize: true,
     validationSchema: Yup.object({
-      name: Yup.string().required("Property name is required!"),
-      area: Yup.string().required("Area is required!"),
+      name: Yup.string().required("Required"),
+      area: Yup.string().required("Required"),
       manager: Yup.array()
         .min(1, "At least one manager must be selected")
-        .required("Property manager is required"),
+        .required("Required"),
       owner: Yup.array()
         .min(1, "At least one owner must be selected")
-        .required("Property owner is required"),
-      bank_name: Yup.string().required("Bank is required"),
+        .required("Required"),
+      bank_name: Yup.string().required("Required"),
+      IBAN: Yup.string()
+        .required("Required")
+        .test("isValidIBAN", "Invalid IBAN", (value) =>
+          format.validateIBAN(value || "")
+        ),
     }),
     onSubmit: (values) => {
       const propertyData = {
@@ -108,12 +163,18 @@ function PropertyNew() {
         beneficiary: values.beneficiary,
         IBAN: values.IBAN,
       };
-      addPropertyMutation.mutate(propertyData);
+      // console.log("Property data: ", propertyData);
+      if (isUpdatingMode) {
+        updatePropertyMutation.mutate({ id: propertyId, ...propertyData });
+      } else {
+        addPropertyMutation.mutate(propertyData);
+      }
     },
   });
 
   function handleCancel() {
-    navigate("/properties");
+    if (isUpdatingMode) navigate(`/properties/${propertyId}`);
+    else navigate("/properties");
   }
 
   // const provincy = [
@@ -175,13 +236,36 @@ function PropertyNew() {
     <div className="">
       <header className="bg-transparent">
         <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8 flex flex-col justify-between">
-          <Breadcrumb
-            main={{ title: "Properties", url: "/properties" }}
-            sub={[{ title: "Add New Property", url: "" }]}
-          />
+          {isUpdatingMode ? (
+            <Breadcrumb
+              main={{ title: "Properties", url: "/properties" }}
+              sub={[
+                {
+                  title: propertyData?.data.name,
+                  url: `/properties/${propertyId}`,
+                },
+                {
+                  title: "Update Property",
+                  url: "",
+                },
+              ]}
+            />
+          ) : (
+            <Breadcrumb
+              main={{ title: "Properties", url: "/properties" }}
+              sub={[
+                {
+                  title: "Add New Property",
+                  url: "",
+                },
+              ]}
+            />
+          )}
           <div className="flex flex-row justify-between">
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-              Add New Property
+              {isUpdatingMode
+                ? `Update Property ${propertyData?.data?.name}`
+                : `Add New Property`}
             </h1>
           </div>
         </div>
@@ -374,9 +458,7 @@ function PropertyNew() {
                     isMulti={false}
                     isLoading={banksLoading}
                     errorMessage={
-                      formik.touched.bank_name &&
-                      formik.errors.bank_name &&
-                      formik.errors.bank_name
+                      formik.touched.bank_name && formik.errors.bank_name
                     }
                   />
                 </div>
@@ -391,10 +473,7 @@ function PropertyNew() {
                     required={false}
                     value={formik.values.beneficiary}
                     errorMessage={
-                      formik.touched.beneficiary &&
-                      formik.errors.beneficiary && (
-                        <div>{formik.errors.beneficiary}</div>
-                      )
+                      formik.touched.beneficiary && formik.errors.beneficiary
                     }
                   />
                   <Input
@@ -404,7 +483,7 @@ function PropertyNew() {
                     placeholder=""
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    required={false}
+                    required={true}
                     value={formik.values.IBAN}
                     errorMessage={formik.touched.IBAN && formik.errors.IBAN}
                   />
@@ -464,13 +543,23 @@ function PropertyNew() {
                 <button
                   type="submit"
                   className="rounded-md bg-[#BD9A5F] px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#BD9A5F] hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#BD9A5F]"
-                  disabled={addPropertyMutation.isLoading}
+                  disabled={
+                    isUpdatingMode
+                      ? updatePropertyMutation.isLoading
+                      : addPropertyMutation.isLoading
+                  }
                 >
-                  {addPropertyMutation.isLoading ? "Saving..." : "Save"}
+                  {isUpdatingMode
+                    ? updatePropertyMutation.isLoading
+                      ? "Updating..."
+                      : "Update"
+                    : addPropertyMutation.isLoading
+                    ? "Saving..."
+                    : "Save"}
                 </button>
               </div>
             </form>
-            <ToastContainer />
+            {/* <ToastContainer /> */}
           </div>
         </div>
       </main>
@@ -478,4 +567,4 @@ function PropertyNew() {
   );
 }
 
-export default PropertyNew;
+export default PropertyNewUpdate;

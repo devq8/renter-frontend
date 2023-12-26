@@ -6,7 +6,6 @@ function getProperties() {
 }
 
 function getUnitsList(property_id, vacant) {
-  console.log("get units list called");
   // if (vacant) {
   //   return instance.get(`/api/units/${property_id}/?vacant=${vacant}`);
   // } else {
@@ -15,7 +14,6 @@ function getUnitsList(property_id, vacant) {
 }
 
 function getPropertyOverview(property_id) {
-  // console.log(`Property Overview: ${property_id} called`);
   return instance.get(`/api/properties/${property_id}/`);
 }
 
@@ -26,9 +24,20 @@ function addProperty(property) {
   return instance.post("/api/properties/add/", property);
 }
 
+// ######################### Update ###########################
+function updateProperty(property, id) {
+  try {
+    console.log(`Update property ${id} in API`, property);
+    return instance.patch(`/api/properties/${id}/update/`, property);
+  } catch (error) {
+    console.log("error", error);
+  }
+}
+
 export default {
   getProperties,
   getUnitsList,
   getPropertyOverview,
   addProperty,
+  updateProperty,
 };

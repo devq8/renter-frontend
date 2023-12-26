@@ -1,7 +1,8 @@
 import React from "react";
 
 function TextareaInput(props) {
-  const { name, label, placeholder, rows, optional, onChange } = props;
+  const { name, label, placeholder, rows, optional, onChange, errorMessage } =
+    props;
   return (
     <div className="px-2">
       <label
@@ -23,6 +24,11 @@ function TextareaInput(props) {
         placeholder={placeholder}
         onChange={onChange}
       ></textarea>
+      {errorMessage && (
+        <p className="mt-2 text-sm text-red-600 dark:text-red-500">
+          <span className="font-medium">{errorMessage}</span>
+        </p>
+      )}
     </div>
   );
 }

@@ -20,6 +20,7 @@ function Receipt() {
   );
 
   const paymentDetails = payment?.data;
+  // console.log(paymentDetails);
 
   const invoiceId = paymentDetails?.invoices[0];
 

@@ -55,7 +55,7 @@ function ContractDetails() {
     });
 
   function handleAddNewInvoice() {
-    navigate(`/contracts/${contractDetails.id}/new`);
+    navigate(`/contracts/${contractDetails.id}/new_invoice`);
   }
 
   function handlePayment() {

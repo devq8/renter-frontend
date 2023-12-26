@@ -22,7 +22,7 @@ function InvoiceDetails() {
   } = useQuery(["invoice", invoiceId], () => api.getInvoiceDetails(invoiceId));
 
   const invoiceDetails = invoice?.data;
-  // console.log("invoiceDetails");
+  // console.log(invoiceDetails.invoice_status);
   // console.log(invoiceDetails);
 
   function showStatus(status) {
@@ -101,11 +101,13 @@ function InvoiceDetails() {
             <div
             // onClick={() => navigate("/contract/new")}
             >
-              <Button
-                text="Send Reminder"
-                type="reminder"
-                className_={"bg-[#52555C]"}
-              />
+              {invoiceDetails && invoiceDetails.invoice_status !== "Paid" && (
+                <Button
+                  text="Send Reminder"
+                  type="reminder"
+                  className_={"bg-[#52555C]"}
+                />
+              )}
             </div>
           </div>
         </div>

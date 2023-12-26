@@ -15,7 +15,7 @@ import Footer from "./home/components/Footer";
 import ContractNew from "./contracts/ContractNew";
 import PaymentForm from "./invoices/PaymentForm";
 import PaymentReturn from "./invoices/PaymentReturn";
-import PropertyNew from "./properties/PropertyNew";
+import PropertyNewUpdate from "./properties/PropertyNewUpdate";
 import UnitNew from "./unit/UnitNew";
 import InvoiceNew from "./invoices/InvoiceNew";
 import ConnectionChecker from "../utils/ConnectionChecker";
@@ -46,18 +46,25 @@ export default function Layout() {
           <Routes>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/tenants" element={<TenantList />} />
-            <Route path="/tenants/new" element={<AddTenent />} />
+            <Route path="/tenants/new_tenant" element={<AddTenent />} />
             <Route path="/properties" element={<PropertyList />} />
             <Route path="/properties/:id" element={<PropertyDetails />} />
-            <Route path="/properties/new" element={<PropertyNew />} />
-            <Route path="/properties/:id/new" element={<UnitNew />} />
+            <Route
+              path="/properties/:id/update"
+              element={<PropertyNewUpdate />}
+            />
+            <Route
+              path="/properties/new_property"
+              element={<PropertyNewUpdate />}
+            />
+            <Route path="/properties/:id/new_unit" element={<UnitNew />} />
             <Route path="/contracts" element={<ContractList />} />
             <Route path="/contracts/:id" element={<ContractDetails />} />
-            <Route path="/contracts/:id/new" element={<InvoiceNew />} />
+            <Route path="/contracts/:id/new_invoice" element={<InvoiceNew />} />
             {/* <Route path="/contracts/:id/checkout" element={<Checkout />} /> */}
-            <Route path="/contracts/new" element={<ContractNew />} />
+            <Route path="/contracts/new_contract" element={<ContractNew />} />
             <Route path="/invoices" element={<InvoiceList />} />
-            <Route path="/invoices/new" element={<InvoiceNew />} />
+            <Route path="/invoices/new_invoice" element={<InvoiceNew />} />
             <Route path="/invoices/:id" element={<InvoiceDetails />} />
             <Route path="/invoices/mobile/:id" element={<InvoiceView />} />
             <Route path="/invoices/:id/pay" element={<PaymentForm />} />

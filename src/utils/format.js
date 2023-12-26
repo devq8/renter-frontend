@@ -37,4 +37,42 @@ const changeDateTimeFormat = (date) => {
   return `${newDateFormat} ${newTimeFormat}`;
 };
 
-export default { changeAmountFormat, changeDatesFormat, changeDateTimeFormat };
+function modulo(divident, divisor) {
+  let partLength = 10;
+
+  while (divident.length > partLength) {
+    let part = divident.substring(0, partLength);
+    divident = (part % divisor) + divident.substring(partLength);
+  }
+
+  return divident % divisor;
+}
+
+const validateIBAN = (iban) => {
+  if (iban.length !== 30) {
+    return false;
+  }
+
+  // Move first 4 characters to the end and replace letters with numbers
+  let rearrainged = iban.slice(4) + iban.slice(0, 4);
+  let numericIBAN = rearrainged
+    .split("")
+    .map((char) => {
+      if (isNaN(char)) {
+        return char.charCodeAt(0) - 55;
+      } else {
+        return char;
+      }
+    })
+    .join("");
+
+  // Check if remainder of division by 97 is 1
+  return modulo(numericIBAN, 97) === 1;
+};
+
+export default {
+  changeAmountFormat,
+  changeDatesFormat,
+  changeDateTimeFormat,
+  validateIBAN,
+};

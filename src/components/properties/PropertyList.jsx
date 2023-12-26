@@ -59,7 +59,7 @@ function PropertyList() {
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
               Properties
             </h1>
-            <div onClick={() => navigate("/properties/new")}>
+            <div onClick={() => navigate("/properties/new_property")}>
               <Button
                 text="Add New Property"
                 type="add"

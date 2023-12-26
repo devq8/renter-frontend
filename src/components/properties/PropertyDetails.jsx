@@ -20,12 +20,10 @@ function PropertyDetails() {
   } = useQuery(["propertyOverview", propertyId], () =>
     api.getPropertyOverview(propertyId)
   );
-  console.log(property?.data);
 
   const propertyDetails = property?.data;
 
   const handleSearch = (e) => {
-    // e.target.value
     setSearch(e.target.value);
   };
   const {
@@ -67,7 +65,7 @@ function PropertyDetails() {
         />
       );
     });
-  // console.log(units?.data);
+
   return (
     <div className="">
       <header className="bg-transparent">
@@ -81,10 +79,16 @@ function PropertyDetails() {
               {propertyDetails?.name} Details
             </h1>
             <div className="flex">
-              <Button color="#52555C" text="Edit Property" type="edit" />
               <div
                 onClick={() =>
-                  navigate(`/properties/${propertyDetails.id}/new`, {
+                  navigate(`/properties/${propertyDetails.id}/update`)
+                }
+              >
+                <Button color="#52555C" text="Edit Property" type="edit" />
+              </div>
+              <div
+                onClick={() =>
+                  navigate(`/properties/${propertyDetails.id}/new_unit`, {
                     state: { propertyDetails },
                   })
                 }

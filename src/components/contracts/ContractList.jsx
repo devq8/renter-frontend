@@ -83,7 +83,7 @@ function ContractList() {
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
               Contracts
             </h1>
-            <div onClick={() => navigate("/contracts/new")}>
+            <div onClick={() => navigate("/contracts/new_contract")}>
               <Button color="#BD9A5F" text="Add New Contract" type="add" />
             </div>
           </div>

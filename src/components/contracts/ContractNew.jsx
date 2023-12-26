@@ -111,8 +111,38 @@ function ContractNew() {
       unit: Yup.string().required("Required"),
       tenant: Yup.string().required("Required"),
       start_date: Yup.date().nullable().required("Required"),
-      end_date: Yup.date().nullable().required("Required"),
-      first_payment_date: Yup.date().nullable().required("Required"),
+      end_date: Yup.date()
+        .nullable()
+        .required("Required")
+        .test(
+          "is-after-start-date",
+          "End date must be after start date",
+          function (value) {
+            const startDate = this.parent.start_date;
+            return (
+              !startDate || !value || dayjs(value).isAfter(dayjs(startDate))
+            );
+          }
+        ),
+      first_payment_date: Yup.date()
+        .nullable()
+        .required("Required")
+        .test(
+          "is-after-or-same-as-start-date",
+          "First payment date must be after or same as start date",
+          function (value) {
+            const startDate = this.parent.start_date;
+            if (!startDate || !value) {
+              return true; // Passing validation if either date is not set
+            }
+            // Convert both dates to YYYY-MM-DD format for comparison
+            const formattedStartDate = dayjs(startDate).format("YYYY-MM-DD");
+            const formattedValue = dayjs(value).format("YYYY-MM-DD");
+
+            // Compare as strings
+            return formattedValue >= formattedStartDate;
+          }
+        ),
       rent: Yup.number()
         .moreThan(0, "Rent must be greater then zero")
         .required("Required"),
@@ -124,22 +154,33 @@ function ContractNew() {
       ),
     }),
     onSubmit: (values) => {
+      const notificationMethodMapping = {
+        Email: "eml",
+        SMS: "sms",
+        WhatsApp: "wap",
+      };
+
       const contractData = {
-        property: values.property,
         unit: values.unit,
         tenant: values.tenant,
-        status: values.status,
         flexible: values.flexible,
-        notification_method: values.notification_method,
+        notification_method:
+          notificationMethodMapping[values.notification_method],
         notification_mobile: values.notification_mobile,
         notification_email: values.notification_email,
-        start_date: values.start_date,
-        end_date: values.end_date,
-        first_payment_date: values.first_payment_date,
+        start_date: values.start_date
+          ? dayjs(values.start_date).format("YYYY-MM-DD")
+          : null,
+        end_date: values.end_date
+          ? dayjs(values.end_date).format("YYYY-MM-DD")
+          : null,
+        first_payment_date: values.first_payment_date
+          ? dayjs(values.first_payment_date).format("YYYY-MM-DD")
+          : null,
         rent: values.rent,
       };
-      console.log(contractData);
-      // addContractMutation.mutate(contractData);
+      // console.log(contractData);
+      addContractMutation.mutate(contractData);
     },
   });
 

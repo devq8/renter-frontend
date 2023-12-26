@@ -14,9 +14,6 @@ function InvoiceRow({
   status,
   paymentDate,
 }) {
-  console.log("status");
-  console.log(status);
-
   const navigate = useNavigate();
 
   function handleInvoiceDetails() {

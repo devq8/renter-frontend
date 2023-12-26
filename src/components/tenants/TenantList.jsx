@@ -60,13 +60,13 @@ function TenantList() {
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
               Tenants
             </h1>
-            {/* <div onClick={() => navigate("/tenants/new")}>
+            <div onClick={() => navigate("/tenants/new_tenant")}>
               <Button
                 text="Add New Tenant"
                 type="add"
                 className_="bg-primary"
               />
-            </div> */}
+            </div>
           </div>
         </div>
       </header>
