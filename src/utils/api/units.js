@@ -3,8 +3,6 @@ import instance from "./index";
 
 // ######################### Add ###########################
 function addUnit(unit, propertyId) {
-  console.log(`Adding unit`);
-  console.log(unit);
   return instance.post(`/api/units/${propertyId}/add/`, unit);
 }
 
@@ -16,7 +14,21 @@ function listUnit(vacant) {
   }
 }
 
+function getUnitDetails(unitId) {
+  return instance.get(`/api/units/details/${unitId}/`);
+}
+
+function updateUnit(unit, id) {
+  try {
+    return instance.patch(`/api/units/details/${id}/update/`, unit);
+  } catch (error) {
+    console.log("Error :", error);
+  }
+}
+
 export default {
   addUnit,
   listUnit,
+  getUnitDetails,
+  updateUnit,
 };

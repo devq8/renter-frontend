@@ -44,6 +44,10 @@ function sendContactUs(message) {
   return instance.post("/api/contact/", message);
 }
 
+function sendInvoiceReminder(contractID) {
+  return instance.post(`/api/contracts/${contractID}/reminder/`);
+}
+
 export default {
   getBanks,
   getManagers,
@@ -52,4 +56,5 @@ export default {
   getFloors,
   getUnitTypes,
   sendContactUs,
+  sendInvoiceReminder,
 };

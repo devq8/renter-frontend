@@ -29,11 +29,7 @@ function SigninForm() {
     onSubmit: (values) => {
       setIsLoading(true);
       setLoginError("");
-      const userData = {
-        email: values.email,
-        password: values.password,
-      };
-      console.log(userData);
+
       login.mutate(values, {
         onError: (error) => {
           console.log(`There's an error: ${error.message}`);

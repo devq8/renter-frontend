@@ -19,15 +19,12 @@ function getPropertyOverview(property_id) {
 
 // ######################### Add ###########################
 function addProperty(property) {
-  console.log(`Adding property`);
-  console.log(property);
   return instance.post("/api/properties/add/", property);
 }
 
 // ######################### Update ###########################
 function updateProperty(property, id) {
   try {
-    console.log(`Update property ${id} in API`, property);
     return instance.patch(`/api/properties/${id}/update/`, property);
   } catch (error) {
     console.log("error", error);

@@ -144,9 +144,9 @@ function InvoiceList() {
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
               Invoices
             </h1>
-            <div onClick={() => navigate("/invoices/new_invoice")}>
+            {/* <div onClick={() => navigate("/invoices/new_invoice")}>
               <Button color="#BD9A5F" text="Add New Invoice" type="add" />
-            </div>
+            </div> */}
           </div>
         </div>
       </header>

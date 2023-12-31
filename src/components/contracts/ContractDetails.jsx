@@ -1,19 +1,23 @@
 import Button from "../../utils/Button";
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import Breadcrumb from "../../utils/Breadcrumb";
 import Spinner from "../../utils/Spinner";
 import api from "../../utils/api/contracts";
+import apiUtils from "../../utils/api/utils";
 import invoiceApi from "../../utils/api/invoices";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { BsFillBuildingFill, BsFillPersonFill } from "react-icons/bs";
 import { IoCalendarSharp } from "react-icons/io5";
 import InvoiceRow from "./InvoiceRow";
 import format from "../../utils/format";
+import { toast } from "react-toastify";
 
 function ContractDetails() {
   const { id: contractId } = useParams();
   const navigate = useNavigate();
+
+  const [isSending, setIsSending] = useState(false);
 
   const {
     data: contract,
@@ -63,6 +67,23 @@ function ContractDetails() {
     navigate(`/contracts/${contractDetails?.id}/checkout`);
   }
 
+  const sendInvoiceReminderMutation = useMutation(
+    (contractId) => apiUtils.sendInvoiceReminder(contractId),
+    {
+      onMutate: () => {
+        setIsSending(true);
+      },
+      onSuccess: () => {
+        toast.success("Reminder sent successfully");
+        setIsSending(false);
+      },
+      onError: (error) => {
+        toast.error(error.message);
+        setIsSending(false);
+      },
+    }
+  );
+
   return (
     <div className="">
       <header className="bg-transparent">
@@ -77,10 +98,11 @@ function ContractDetails() {
             </h1>
             <div className="flex">
               <Button
-                text="Send Reminder"
+                text={isSending ? "Sending..." : "Send Reminder"}
                 type="reminder"
                 className_="bg-[#52555C]"
-                disabled={true}
+                disabled={isSending}
+                onClick={() => sendInvoiceReminderMutation.mutate(contractId)}
               />
               <Button
                 color="#BD9A5F"

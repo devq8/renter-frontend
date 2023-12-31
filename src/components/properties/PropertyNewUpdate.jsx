@@ -5,7 +5,7 @@ import "flowbite";
 import api from "../../utils/api/properties";
 import utils from "../../utils/api/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Input from "../../utils/form/Input";
 import Dropdown from "../../utils/form/Dropdown";
@@ -26,9 +26,6 @@ function PropertyNewUpdate() {
     () => api.getPropertyOverview(propertyId),
     { enabled: isUpdatingMode }
   );
-
-  // const isValidIBAN = format.validateIBAN("KW43KFHO0000000000431010002797");
-  // console.log("Validate IBAN ", isValidIBAN);
 
   const addPropertyMutation = useMutation(
     (property) => api.addProperty(property),
@@ -173,8 +170,7 @@ function PropertyNewUpdate() {
   });
 
   function handleCancel() {
-    if (isUpdatingMode) navigate(`/properties/${propertyId}`);
-    else navigate("/properties");
+    navigate(-1);
   }
 
   // const provincy = [
@@ -296,11 +292,7 @@ function PropertyNewUpdate() {
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     value={formik.values.name}
-                    errorMessage={
-                      formik.touched.name &&
-                      formik.errors.name &&
-                      formik.errors.name
-                    }
+                    errorMessage={formik.touched.name && formik.errors.name}
                   />
                 </div>
 
@@ -336,9 +328,7 @@ function PropertyNewUpdate() {
                     onBlur={formik.handleBlur}
                     value={formik.values.address}
                     errorMessage={
-                      formik.touched.address &&
-                      formik.errors.address &&
-                      formik.errors.address
+                      formik.touched.address && formik.errors.address
                     }
                   />
                 </div>
@@ -352,11 +342,7 @@ function PropertyNewUpdate() {
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     value={formik.values.PACI}
-                    errorMessage={
-                      formik.touched.PACI &&
-                      formik.errors.PACI &&
-                      formik.errors.PACI
-                    }
+                    errorMessage={formik.touched.PACI && formik.errors.PACI}
                   />
                 </div>
               </div>
@@ -391,9 +377,7 @@ function PropertyNewUpdate() {
                     isMulti={true}
                     isLoading={managersLoading}
                     errorMessage={
-                      formik.touched.manager &&
-                      formik.errors.manager &&
-                      formik.errors.manager
+                      formik.touched.manager && formik.errors.manager
                     }
                   />
                 </div>
@@ -420,11 +404,7 @@ function PropertyNewUpdate() {
                     )}
                     isMulti={true}
                     isLoading={ownersLoading}
-                    errorMessage={
-                      formik.touched.owner &&
-                      formik.errors.owner &&
-                      formik.errors.owner
-                    }
+                    errorMessage={formik.touched.owner && formik.errors.owner}
                   />
                 </div>
               </div>

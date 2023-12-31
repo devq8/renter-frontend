@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router";
 import Breadcrumb from "../../utils/Breadcrumb";
 import "flowbite";
 import apiProperties from "../../utils/api/properties";
-import api from "../../utils/api/units";
+import apiUnits from "../../utils/api/units";
 import utils from "../../utils/api/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast, ToastContainer } from "react-toastify";
@@ -13,33 +13,65 @@ import Dropdown from "../../utils/form/Dropdown";
 import * as Yup from "yup";
 import { useFormik } from "formik";
 
-function UnitNew() {
+function UnitNewUpdate() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const { id: propertyId } = useParams();
+  const { propertyId, unitId } = useParams();
+
+  const isUpdatingMode = unitId != null;
 
   const {
     data: property,
     // isLoading: PropertyLoading,
-    // error: PropertyError,
   } = useQuery(["propertyOverview", propertyId], () =>
     apiProperties.getPropertyOverview(propertyId)
   );
-
   const propertyDetails = property?.data;
 
-  const addUnitMutation = useMutation((unit) => api.addUnit(unit, propertyId), {
-    onSuccess: () => {
-      queryClient.invalidateQueries(["units", propertyId]);
-      toast.success("Unit added successfully");
-      navigate(`/properties/${propertyId}`);
-    },
-    onError: (error) => {
-      console.log(error.response.data.name[0]);
-      toast.error("Error adding unit");
-    },
+  const {
+    data: unitData,
+    // isLoading: unitLoading,
+  } = useQuery(["unit", unitId], () => apiUnits.getUnitDetails(unitId), {
+    enabled: isUpdatingMode,
   });
+
+  const addUnitMutation = useMutation(
+    (unit) => apiUnits.addUnit(unit, propertyId),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["units", propertyId]);
+        toast.success("Unit added successfully");
+        navigate(`/properties/${propertyId}`);
+      },
+      onError: (error) => {
+        console.log(error.response.data.name[0]);
+        toast.error("Error adding unit");
+      },
+    }
+  );
+
+  const updateUnitMutation = useMutation(
+    ({ id, ...unitData }) => apiUnits.updateUnit(unitData, id),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["units"]);
+        toast.success("Unit updated successfully");
+        navigate(`/properties/${propertyId}`);
+      },
+      onError: (error) => {
+        let errorMessage = "";
+        if (error.response && error.response.data) {
+          errorMessage += `${
+            error.response.data.detail || error.response.data.message
+          }`;
+        }
+
+        console.log("Error: ", error);
+        toast.error(errorMessage);
+      },
+    }
+  );
 
   const {
     data: types,
@@ -57,16 +89,18 @@ function UnitNew() {
     floors && floors.data ? floors.data.map((floor) => floor) : [];
 
   function handleCancel() {
-    navigate(`/properties/${propertyId}`);
+    navigate(-1);
   }
 
   const formik = useFormik({
     initialValues: {
-      number: "",
-      unit_type: "",
-      floor: "",
-      area: 0,
+      number: isUpdatingMode && unitData?.data ? unitData.data.number : "",
+      unit_type:
+        isUpdatingMode && unitData?.data ? unitData.data.unit_type : [],
+      floor: isUpdatingMode && unitData?.data ? unitData.data.floor : [],
+      area: isUpdatingMode && unitData?.data ? unitData.data.area : "",
     },
+    enableReinitialize: true,
     validationSchema: Yup.object({
       number: Yup.string().required("Required"),
       unit_type: Yup.string().required("Required"),
@@ -80,7 +114,12 @@ function UnitNew() {
         floor: values.floor,
         area: values.area,
       };
-      addUnitMutation.mutate(unitData);
+
+      if (isUpdatingMode) {
+        updateUnitMutation.mutate({ id: unitId, ...unitData });
+      } else {
+        addUnitMutation.mutate(unitData);
+      }
     },
   });
 
@@ -95,12 +134,17 @@ function UnitNew() {
                 title: propertyDetails?.name,
                 url: `/properties/${propertyId}`,
               },
-              { title: "Add New Unit", url: "" },
+              {
+                title: isUpdatingMode ? "Update Unit" : "Add New Unit",
+                url: "",
+              },
             ]}
           />
           <div className="flex flex-row justify-between">
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-              Add New Unit
+              {isUpdatingMode
+                ? `Update Unit ${unitData?.data?.number}`
+                : `Add New Unit`}
             </h1>
           </div>
         </div>
@@ -140,10 +184,6 @@ function UnitNew() {
                   <Dropdown
                     name="unit_type"
                     label="Unit type"
-                    isClearable={true}
-                    isSearchable={true}
-                    options={typesList}
-                    placeholder="Select unit's type ..."
                     onChange={(selectedOption) =>
                       formik.setFieldValue(
                         "unit_type",
@@ -154,6 +194,10 @@ function UnitNew() {
                     value={typesList?.find(
                       (option) => option.value === formik.values.unit_type
                     )}
+                    isClearable={true}
+                    isSearchable={true}
+                    options={typesList}
+                    placeholder="Select unit's type ..."
                     isLoading={typesLoading}
                     isMulti={false}
                     errorMessage={
@@ -167,10 +211,6 @@ function UnitNew() {
                   <Dropdown
                     name="floor"
                     label="Floor"
-                    isClearable={true}
-                    isSearchable={true}
-                    options={floorsList}
-                    placeholder="Select unit floor ..."
                     onChange={(selectedOption) =>
                       formik.setFieldValue(
                         "floor",
@@ -181,6 +221,10 @@ function UnitNew() {
                     value={floorsList?.find(
                       (option) => option.value === formik.values.floor
                     )}
+                    isClearable={true}
+                    isSearchable={true}
+                    options={floorsList}
+                    placeholder="Select unit floor ..."
                     isLoading={floorsLoading}
                     isMulti={false}
                     errorMessage={formik.touched.floor && formik.errors.floor}
@@ -213,13 +257,23 @@ function UnitNew() {
                 <button
                   type="submit"
                   className="rounded-md bg-[#BD9A5F] px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#BD9A5F] hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#BD9A5F]"
-                  disabled={addUnitMutation.isLoading}
+                  disabled={
+                    isUpdatingMode
+                      ? updateUnitMutation.isLoading
+                      : addUnitMutation.isLoading
+                  }
                 >
-                  {addUnitMutation.isLoading ? "Saving..." : "Save"}
+                  {isUpdatingMode
+                    ? updateUnitMutation.isLoading
+                      ? "Updating..."
+                      : "Update"
+                    : addUnitMutation.isLoading
+                    ? "Saving..."
+                    : "Save"}
                 </button>
               </div>
             </form>
-            <ToastContainer />
+            {/* <ToastContainer /> */}
           </div>
         </div>
       </main>
@@ -227,4 +281,4 @@ function UnitNew() {
   );
 }
 
-export default UnitNew;
+export default UnitNewUpdate;

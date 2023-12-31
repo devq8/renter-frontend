@@ -52,6 +52,7 @@ function PropertyDetails() {
         <UnitRow
           key={unit.id}
           id={unit.id}
+          property={propertyId}
           floor={unit.floor}
           number={unit.number}
           type={unit.unit_type}
@@ -225,6 +226,18 @@ function PropertyDetails() {
                     >
                       Overdue Amount
                     </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-4 font-medium text-gray-900"
+                    >
+                      Edit
+                    </th>
+                    {/* <th
+                      scope="col"
+                      className="px-6 py-4 font-medium text-gray-900"
+                    >
+                      Delete
+                    </th> */}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 border-t border-gray-100">

@@ -16,7 +16,7 @@ import ContractNew from "./contracts/ContractNew";
 import PaymentForm from "./invoices/PaymentForm";
 import PaymentReturn from "./invoices/PaymentReturn";
 import PropertyNewUpdate from "./properties/PropertyNewUpdate";
-import UnitNew from "./unit/UnitNew";
+import UnitNewUpdate from "./unit/UnitNewUpdate";
 import InvoiceNew from "./invoices/InvoiceNew";
 import ConnectionChecker from "../utils/ConnectionChecker";
 import Receipt from "./invoices/Receipt";
@@ -57,7 +57,14 @@ export default function Layout() {
               path="/properties/new_property"
               element={<PropertyNewUpdate />}
             />
-            <Route path="/properties/:id/new_unit" element={<UnitNew />} />
+            <Route
+              path="/properties/:propertyId/new_unit"
+              element={<UnitNewUpdate />}
+            />
+            <Route
+              path="/properties/:propertyId/units/:unitId/update"
+              element={<UnitNewUpdate />}
+            />
             <Route path="/contracts" element={<ContractList />} />
             <Route path="/contracts/:id" element={<ContractDetails />} />
             <Route path="/contracts/:id/new_invoice" element={<InvoiceNew />} />
