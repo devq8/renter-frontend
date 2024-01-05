@@ -8,6 +8,8 @@ import InvoiceRow from "./InvoiceRow";
 import Spinner from "../../utils/Spinner";
 import SearchBox from "../../utils/SearchBox";
 import Filter from "../../utils/Filter";
+// import Box from "@mui/material/Box";
+// import { DataGrid } from "@mui/x-data-grid";
 
 function InvoiceList() {
   const navigate = useNavigate();
@@ -39,9 +41,6 @@ function InvoiceList() {
     isLoading,
     error,
   } = useQuery(["invoices"], () => api.getInvoices());
-
-  // console.log("Invoices");
-  // console.log(invoices);
 
   const handleSearch = (e) => {
     setSearch(e.target.value);
@@ -116,8 +115,6 @@ function InvoiceList() {
       }
     })
     .map((invoice) => {
-      // console.log("Invoice");
-      // console.log(invoice);
       return (
         <InvoiceRow
           key={invoice.id}
@@ -134,6 +131,30 @@ function InvoiceList() {
         />
       );
     });
+
+  // const columns = [
+  //   { field: "id", headerName: "Invoice No" },
+  //   { field: "tenant", headerName: "Tenant", width: 150 },
+  //   { field: "property", headerName: "Property", width: 150 },
+  //   { field: "floor", headerName: "Floor" },
+  //   { field: "unit", headerName: "Unit" },
+  //   { field: "type", headerName: "Type", width: 150 },
+  //   { field: "due", headerName: "Due", width: 150 },
+  //   { field: "amount", headerName: "Amount", width: 150 },
+  //   { field: "status", headerName: "Status", width: 150 },
+  // ];
+
+  // const transformedInvoices = invoices?.data?.map((invoice) => ({
+  //   id: invoice.id,
+  //   tenant: `${invoice.contract.tenant.user.first_name} ${invoice.contract.tenant.user.last_name}`,
+  //   property: invoice.contract.unit.property_fk.name,
+  //   floor: invoice.contract.unit.floor,
+  //   unit: invoice.contract.unit.number,
+  //   type: invoice.get_invoice_type_display,
+  //   due: invoice.invoice_date,
+  //   amount: invoice.invoice_amount,
+  //   status: invoice.invoice_status,
+  // }));
 
   return (
     <div className="">
@@ -170,71 +191,82 @@ function InvoiceList() {
               <Spinner />
             </div>
           ) : (
-            <div className="overflow-hidden rounded-lg border border-gray-200 shadow-md m-5">
-              <table className="w-full border-collapse bg-white text-left text-sm text-gray-500">
-                {/* Table Header */}
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th
-                      scope="col"
-                      className="px-4 py-4 font-medium text-gray-900"
-                    >
-                      Invoice No
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-4 font-medium text-gray-900"
-                    >
-                      Tenant
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-4 font-medium text-gray-900"
-                    >
-                      Property
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-4 font-medium text-gray-900"
-                    >
-                      Floor
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-4 font-medium text-gray-900"
-                    >
-                      Unit
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-4 font-medium text-gray-900 text-center"
-                    >
-                      Type
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-4 font-medium text-gray-900 text-center"
-                    >
-                      Due Date
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-4 font-medium text-gray-900 text-end"
-                    >
-                      Amount
-                    </th>
-                    <th
-                      scope="col"
-                      className="px-6 py-4 font-medium text-gray-900 flex justify-center items-center"
-                    >
-                      Status
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 border-t border-gray-100">
-                  {invoicesList}
-                </tbody>
-              </table>
+            <div>
+              {/* <Box sx={{ height: 400, width: "100%" }}>
+                <DataGrid
+                  rows={transformedInvoices}
+                  columns={columns}
+                  pageSize={5}
+                  rowsPerPageOptions={[5]}
+                  checkboxSelection={false}
+                />
+              </Box> */}
+              <div className="overflow-hidden rounded-lg border border-gray-200 shadow-md m-5">
+                <table className="w-full border-collapse bg-white text-left text-sm text-gray-500">
+                  {/* Table Header */}
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th
+                        scope="col"
+                        className="px-4 py-4 font-medium text-gray-900"
+                      >
+                        Invoice No
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-6 py-4 font-medium text-gray-900"
+                      >
+                        Tenant
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-6 py-4 font-medium text-gray-900"
+                      >
+                        Property
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-6 py-4 font-medium text-gray-900"
+                      >
+                        Floor
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-6 py-4 font-medium text-gray-900"
+                      >
+                        Unit
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-6 py-4 font-medium text-gray-900 text-center"
+                      >
+                        Type
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-6 py-4 font-medium text-gray-900 text-center"
+                      >
+                        Due Date
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-6 py-4 font-medium text-gray-900 text-end"
+                      >
+                        Amount
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-6 py-4 font-medium text-gray-900 flex justify-center items-center"
+                      >
+                        Status
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 border-t border-gray-100">
+                    {invoicesList}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
         </div>

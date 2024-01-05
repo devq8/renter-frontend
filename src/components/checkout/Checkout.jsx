@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router";
-
 import Breadcrumb from "../../utils/Breadcrumb";
 import { useQuery } from "@tanstack/react-query";
 import invoiceApi from "../../utils/api/invoices";
@@ -14,201 +13,142 @@ import Footer from "../home/components/Footer";
 // import VISALogo from "../../assets/images/visa.png";
 // import MasterCardLogo from "../../assets/images/mastercard.png";
 // import { BsFillBuildingFill, BsFillPersonFill } from "react-icons/bs";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 
 function Checkout() {
-  const { id: contractId } = useParams();
-  const [total, setTotal] = useState(parseFloat(0));
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("Knet");
-  const [isSubmitting, setIsSubmitting] = useState(false); // Redirecting spinner loading
-  const [paymentInfo, setPaymentInfo] = useState({
-    amount: "0",
-    paymentType: 1,
-    orderReferenceNumber: "",
-    variable1: "",
-    variable2: "",
-    variable3: "",
-    variable4: "",
-    variable5: "",
-    invoices: [],
-  });
-  const {
-    data: contract,
-    isLoading,
-    error,
-  } = useQuery(
+  const { id: contractId } = useParams(); // Get contract id from url
+
+  const [selectedInvoices, setSelectedInvoices] = useState({}); // This is to catch the selected invoices
+  const [isSubmitting, setIsSubmitting] = useState(false); // New state for tracking form submission
+
+  const fetchContractDetails = async () => {
+    return contractApi.getContractDetails(contractId);
+  };
+  const fetchInvoices = async () => {
+    return invoiceApi.getInvoices(contractId, "unpaid");
+  };
+  // Retreive contract details
+  const { data: contract, isLoading: isContractLoading } = useQuery(
     ["contract", contractId],
-    () => contractApi.getContractDetails(contractId),
-    {
-      onSuccess: (contract) => {
-        setPaymentInfo((prevPaymentInfo) => ({
-          ...prevPaymentInfo,
-          variable1: `ContractID__${contract?.data?.id}`,
-          variable2: `Tenant__${contract?.data?.tenant.user.id}`,
-          variable3: `Building__${contract?.data?.unit.property_fk.id}`,
-        }));
-      },
-    }
+    fetchContractDetails
   );
-
-  //   const {
-  //     data: paymentLink,
-  //     LinkIsLoading,
-  //     LinkError,
-  //   } = useQuery(["paymentLink"], () => paymentApi.sendPayment(), {
-  //     onSuccess: (link) => {
-  //       window.location.href = link;
-  //     },
-  //   });
-
-  //   console.log(paymentLink);
-
   const contractDetails = contract?.data;
 
-  const {
-    data: invoices,
-    isLoading: invoicesLoading,
-    error: invoicesError,
-  } = useQuery(
+  // Retreive invoices
+  const { data: invoices, isLoading: isInvoicesLoading } = useQuery(
     ["invoices", contractId],
-    () => invoiceApi.getInvoices(contractId),
-    {
-      onSuccess: (invoices) => {
-        const totalAmount = invoices?.data
-          ?.filter((invoice) => {
-            if (invoice.invoice_status.toLowerCase() !== "paid") {
-              return invoice;
-            }
-          })
-          .reduce((total, invoice) => {
-            return parseFloat(total) + parseFloat(invoice.invoice_amount);
-          }, parseFloat(0));
-        setTotal(totalAmount);
-        const invoiceNumbers =
-          invoices?.data
-            ?.filter((invoice) => {
-              if (invoice.invoice_status.toLowerCase() !== "paid") {
-                return invoice;
-              }
-            })
-            .map((invoice) => invoice.id) || [];
-        setPaymentInfo((prevPaymentInfo) => ({
-          ...prevPaymentInfo,
-          amount: totalAmount,
-          paymentType: 1,
-          invoices: invoiceNumbers,
-        }));
-      },
-    }
+    fetchInvoices
   );
+  const invoicesArray = invoices?.data;
 
-  function changeAmountFormat(amount) {
-    if (amount === null || amount === 0 || amount === "0") {
-      const zeroWithDecimals = Number.parseFloat(0).toFixed(3);
-      return zeroWithDecimals;
-    } else {
-      const amountFloat = parseFloat(amount);
-      const amountDecimal = amountFloat.toFixed(3);
-      const amountSeparator = amountDecimal
-        .toString()
-        .replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
-      return amountSeparator;
+  // This state to populate all invoices from backend into selectedInvoices (all invoices will be selected by default)
+  // This will be run only one time when the page loads.
+  useEffect(() => {
+    if (Array.isArray(invoicesArray) && invoicesArray.length > 0) {
+      const initialSelectedInvoices = invoicesArray.reduce((acc, invoice) => {
+        acc[invoice.id] = true; // Set all invoices as selected initially
+        return acc;
+      }, {});
+      setSelectedInvoices(initialSelectedInvoices);
     }
-  }
+  }, [invoicesArray]);
 
-  function handlePaymentMethod(e) {
-    if (e.target.name === "Knet") {
-      setSelectedPaymentMethod("Knet");
-    } else if (e.target.name === "CreditCard") {
-      setSelectedPaymentMethod("CreditCard");
-    }
-  }
+  // Calculate the total amount of seleceted invoices
+  const totalAmount = useMemo(() => {
+    return invoicesArray?.reduce((total, invoice) => {
+      return selectedInvoices[invoice.id]
+        ? total + parseFloat(invoice.invoice_amount)
+        : total;
+    }, 0);
+  }, [invoicesArray, selectedInvoices]);
 
   function redirectToPaymentLink(link) {
     window.location.href = link;
   }
 
-  useEffect(() => {
-    console.log("Im in useEffect");
+  // This invoices list will be used to show the invoices items in the checkout page
+  const invoicesList = invoices?.data?.map((invoice) => {
+    return (
+      <CheckoutItem
+        key={invoice.id}
+        id={invoice.id}
+        date={invoice.invoice_date}
+        title={invoice.invoice_title}
+        type={invoice.get_invoice_type_display}
+        start={invoice.from_date}
+        end={invoice.to_date}
+        amount={invoice.invoice_amount}
+        status={invoice.get_invoice_status_display}
+        isChecked={
+          !invoice.contract.flexible
+            ? true
+            : selectedInvoices[invoice.id]?.selected
+        }
+        disabled={!invoice.contract.flexible}
+        onSelectionChange={() => handleCheckboxChange(invoice.id)}
+      />
+    );
+  });
 
-    // setPaymentInfo((prevPaymentInfo) => ({
-    //   ...prevPaymentInfo,
-    //   amount: total,
-    //   paymentType: paymentType,
-    //   variable1: `ContractID__${contractDetails?.id}`,
-    //   variable2: `Tenant__${contractDetails?.tenant.user.first_name} ${contractDetails?.tenant.user.last_name}`,
-    //   variable3: `Building__${contractDetails?.unit.property_fk.name}`,
-    // }));
+  // Handle checkbox changes
+  const handleCheckboxChange = (invoiceId) => {
+    setSelectedInvoices((prevSelectedInvoices) => ({
+      ...prevSelectedInvoices,
+      [invoiceId]: !prevSelectedInvoices[invoiceId],
+    }));
+  };
 
-    const handlePaymentSubmission = async () => {
-      console.log(`I'm in handlePaymentSubmission function in useEffect`);
-      console.log(`Redirecting to PG`);
+  const formik = useFormik({
+    initialValues: {
+      amount: totalAmount ? totalAmount.toString() : "0",
+      paymentType: 1, // Knet = 1, Credit Card = 2
+      orderReferenceNumber: "",
+      variable1: `ContractID__${contractDetails?.id}`,
+      variable2: `Tenant__${contractDetails?.tenant.user.id}`,
+      variable3: `Building__${contractDetails?.unit.property_fk.id}`,
+      variable4: "",
+      variable5: "",
+      invoices: Object.entries(selectedInvoices)
+        .filter(([id, isSelected]) => isSelected)
+        .map(([id]) => id),
+    },
+    enableReinitialize: true,
+    // validationSchema: Yup.object({}),
+    onSubmit: async (values) => {
+      setIsSubmitting(true); // Set isSubmitting to true when submission starts
+
+      const paymentData = {
+        ...values,
+        // Ensure invoices are sent as an array of selected invoice IDs
+        invoices: Object.entries(selectedInvoices)
+          .filter(([id, isSelected]) => isSelected)
+          .map(([id]) => id),
+      };
+
       try {
-        const link = await paymentApi.sendPayment(paymentInfo);
-        console.log("Payment Link\n");
-        console.log(link);
-        redirectToPaymentLink(link.data.payment_url);
+        // Make the API call to submit the payment data
+        const response = await paymentApi.sendPayment(paymentData);
+        console.log("Payment response:", response);
+
+        // Redirect to the payment link, if provided in the response
+        if (response.data && response.data.payment_url) {
+          redirectToPaymentLink(response.data.payment_url);
+        } else {
+          // Handle case where the payment URL is not provided
+          console.error("Payment URL not provided in response");
+        }
       } catch (error) {
         console.error("Error sending payment:", error);
+        setIsSubmitting(false); // Set isSubmitting to false when submission on failure
       }
-    };
-    if (isSubmitting == true) {
-      console.log(`isSubmitting is true`);
-      handlePaymentSubmission();
-    } else {
-      console.log(`isSubmitting is false`);
-    }
-  }, [isSubmitting]);
-
-  async function handleSubmit() {
-    // setIsSubmitting(true);
-
-    const paymentType = selectedPaymentMethod === "Knet" ? 1 : 2;
-
-    // setPaymentInfo((prevPaymentInfo) => ({
-    //   ...prevPaymentInfo,
-    //   amount: total,
-    //   paymentType: paymentType,
-    //   variable1: `ContractID__${contractDetails?.id}`,
-    //   variable2: `Tenant__${contractDetails?.tenant.user.first_name} ${contractDetails?.tenant.user.last_name}`,
-    //   variable3: `Building__${contractDetails?.unit.property_fk.name}`,
-    // }));
-
-    // try {
-    //   const link = await paymentApi.sendPayment(paymentInfo);
-    //   redirectToPaymentLink(link);
-    // } catch (error) {
-    //   console.error("Error sending payment:", error);
-    // } finally {
-    //   setIsSubmitting(false); // Stop the loading spinner
-    // }
-  }
-
-  const invoicesList = invoices?.data
-    ?.filter((invoice) => {
-      if (invoice.invoice_status.toLowerCase() !== "paid") {
-        return invoice;
-      }
-    })
-    .map((invoice) => {
-      return (
-        <CheckoutItem
-          key={invoice.id}
-          id={invoice.id}
-          date={invoice.invoice_date}
-          title={invoice.invoice_title}
-          type={invoice.get_invoice_type_display}
-          start={invoice.from_date}
-          end={invoice.to_date}
-          amount={invoice.invoice_amount}
-          status={invoice.get_invoice_status_display}
-        />
-      );
-    });
+    },
+  });
 
   return (
     <div className="min-h-[100vh] bg-[#F7F6F2] lg:pt-4">
       <NavBar />
-      <div>
+      <form onSubmit={formik.handleSubmit}>
         <header className="bg-transparent">
           <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8 flex flex-col justify-between">
             <Breadcrumb
@@ -289,16 +229,12 @@ function Checkout() {
             </div>
             <div className="flex space-x-2 mb-3 max-w-md">
               <button
+                type="button"
                 className="flex items-center justify-center border border-gray-500 rounded-md w-full p-3 focus:ring-2"
                 //   onClick={handlePaymentMethod}
                 name="Knet"
               >
-                <img
-                  src={KNetLogo}
-                  className={`w-10 mx-2 ${
-                    selectedPaymentMethod === "CreditCard" && "grayscale"
-                  }`}
-                />
+                <img src={KNetLogo} className={`w-10 mx-2`} />
               </button>
               {/* <button
               disabled
@@ -331,7 +267,7 @@ function Checkout() {
         <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8 flex flex-col justify-between space-y-3 my-5">
           <div className="flex justify-between items-center">
             <h3>Subtotal</h3>
-            <h3>KD {changeAmountFormat(total)}</h3>
+            <h3>KD {totalAmount}</h3>
           </div>
           <div className="flex justify-between items-center">
             <h3>Fees</h3>
@@ -339,58 +275,33 @@ function Checkout() {
           </div>
           <div className="flex justify-between items-center">
             <h1 className="text-xl font-bold">Total</h1>
-            <h1 className="text-xl font-bold">
-              KD {changeAmountFormat(total)}
-            </h1>
+            <h1 className="text-xl font-bold">KD {totalAmount}</h1>
           </div>
           <div className="flex justify-center items-center mx-auto w-full">
-            {isSubmitting ? (
-              <button
-                className="rounded-md bg-primary px-7 py-3 w-full text-xl font-extrabold text-white transition duration-200 hover:bg-[52555C] hover:opacity-80 active:bg-[52555C]"
-                //   disabled
-                onClick={() => setIsSubmitting(!isSubmitting)}
-              >
+            <button
+              type="submit"
+              className={`rounded-md px-7 py-3 w-full text-xl font-extrabold transition duration-200 
+            ${
+              totalAmount > 0
+                ? "bg-primary hover:bg-[52555C] hover:opacity-80 active:bg-[52555C] text-white"
+                : "bg-gray-400 text-gray-500 cursor-not-allowed"
+            }`}
+              disabled={totalAmount <= 0 || isSubmitting}
+            >
+              {isSubmitting ? (
                 <span>
-                  <svg
-                    aria-hidden="true"
-                    className="inline w-6 h-6 mx-4 text-gray-200 animate-spin dark:text-gray-600 fill-secondary"
-                    viewBox="0 0 100 101"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-                      fill="currentColor"
-                    />
-                    <path
-                      d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-                      fill="currentFill"
-                    />
-                  </svg>
-                  Redirecting ...
+                  Redirecting...
+                  {/* Optional: Add a loader icon here */}
                 </span>
-              </button>
-            ) : (
-              <button
-                className="rounded-md bg-primary px-7 py-3 w-full text-xl font-extrabold text-white transition duration-200 hover:bg-[52555C] hover:opacity-80 active:bg-[52555C]"
-                onClick={() => setIsSubmitting(!isSubmitting)}
-                //   disabled={paymentInfo.amount === 0}
-              >
-                <span>Pay Now</span>
-              </button>
-            )}
-
-            {/* <button
-            className="rounded-md bg-primary px-7 py-3 w-full text-xl font-extrabold text-white transition duration-200 hover:bg-[52555C] hover:opacity-80 active:bg-[52555C]"
-            onClick={handleSubmit}
-          >
-            Pay Now
-          </button> */}
+              ) : (
+                <span>Pay Now!</span>
+              )}
+            </button>
           </div>
         </div>
 
         {/* </footer> */}
-      </div>
+      </form>
       <Footer />
     </div>
   );

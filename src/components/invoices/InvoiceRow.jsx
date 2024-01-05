@@ -32,7 +32,7 @@ function InvoiceRow({
           ) : null}
         </span>
       );
-    } else if (status == "Unpaid") {
+    } else if (status == "Not Paid" || status == "Overdue") {
       return (
         <span className="inline-flex items-center justify-center gap-1 rounded-full bg-red-50 px-2 py-1 text-xs font-semibold text-red-600">
           {status}
@@ -44,10 +44,16 @@ function InvoiceRow({
           {status}
         </span>
       );
+    } else if (status == "Upcoming") {
+      return (
+        <span className="inline-flex items-center gap-1 rounded-full bg-yellow-50 px-2 py-1 text-xs font-semibold text-yellow-600">
+          {status}
+        </span>
+      );
     } else {
       return (
         <span className="inline-flex items-center gap-1 rounded-full bg-yellow-50 px-2 py-1 text-xs font-semibold text-yellow-600">
-          Pending
+          {status}
         </span>
       );
     }

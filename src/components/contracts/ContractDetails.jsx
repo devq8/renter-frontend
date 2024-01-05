@@ -44,6 +44,7 @@ function ContractDetails() {
       return new Date(b.invoice_date) - new Date(a.invoice_date);
     })
     .map((invoice) => {
+      console.log("invoice", invoice);
       return (
         <InvoiceRow
           key={invoice.id}
@@ -54,6 +55,7 @@ function ContractDetails() {
           end={invoice.to_date}
           amount={invoice.invoice_amount}
           status={invoice.invoice_status}
+          paymentDate={invoice.payment?.payment_date}
         />
       );
     });

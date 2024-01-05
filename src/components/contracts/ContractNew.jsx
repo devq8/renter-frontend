@@ -102,7 +102,7 @@ function ContractNew() {
       first_payment_date: null,
       rent: 0,
       flexible: false,
-      notification_method: "SMS",
+      notification_method: "WhatsApp",
       notification_mobile: "",
       notification_email: "",
     },
@@ -156,7 +156,6 @@ function ContractNew() {
     onSubmit: (values) => {
       const notificationMethodMapping = {
         Email: "eml",
-        SMS: "sms",
         WhatsApp: "wap",
       };
 
@@ -567,7 +566,7 @@ function ContractNew() {
                 <div className="flex p-3">
                   <Radio
                     name={"notification_method"}
-                    options={["SMS", "WhatsApp", "Email"]}
+                    options={["WhatsApp", "Email"]}
                     onChange={formik.handleChange}
                     value={formik.values.notification_method}
                   />

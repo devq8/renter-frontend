@@ -1,8 +1,12 @@
 // import axios from "axios";
 import instance from "./index";
 
-function getInvoices(contract_id) {
-  // console.log("get invoices for tenant: ", tenant_id);
+function getInvoices(contract_id, status) {
+  if (contract_id && status) {
+    return instance.get(
+      `/api/invoices/?contract=${contract_id}&status=${status}`
+    );
+  }
   if (contract_id) {
     return instance.get(`/api/invoices/?contract=${contract_id}`);
   } else {
