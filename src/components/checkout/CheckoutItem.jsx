@@ -3,8 +3,7 @@ import { BsFillBuildingFill, BsReceipt } from "react-icons/bs";
 import Checkbox from "@mui/material/Checkbox";
 
 function CheckoutItem({
-  key,
-  id,
+  invoiceId,
   title,
   type,
   amount,
@@ -14,7 +13,7 @@ function CheckoutItem({
   defaultChecked,
 }) {
   return (
-    <li key={key}>
+    <li>
       {/* <input
         type="checkbox"
         id="invoice-item"

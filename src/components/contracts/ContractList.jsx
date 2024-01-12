@@ -18,12 +18,10 @@ function ContractList() {
     setSearch(e.target.value);
   };
 
-  const {
-    data: contracts,
-    isLoading,
-    error,
-  } = useQuery(["contracts"], () => api.getContracts());
-  // console.log(contracts?.data);
+  const { data: contracts, isLoading } = useQuery(["contracts"], () =>
+    api.getContracts()
+  );
+
   const contractsList = contracts?.data
     ?.filter((contract) => {
       if (search === "") {

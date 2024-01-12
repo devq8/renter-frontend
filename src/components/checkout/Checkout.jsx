@@ -15,6 +15,7 @@ import Footer from "../home/components/Footer";
 // import { BsFillBuildingFill, BsFillPersonFill } from "react-icons/bs";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import format from "../../utils/format";
 
 function Checkout() {
   const { id: contractId } = useParams(); // Get contract id from url
@@ -58,8 +59,8 @@ function Checkout() {
   const totalAmount = useMemo(() => {
     return invoicesArray?.reduce((total, invoice) => {
       return selectedInvoices[invoice.id]
-        ? total + parseFloat(invoice.invoice_amount)
-        : total;
+        ? parseFloat(total) + parseFloat(invoice.invoice_amount)
+        : parseFloat(total);
     }, 0);
   }, [invoicesArray, selectedInvoices]);
 
@@ -67,12 +68,24 @@ function Checkout() {
     window.location.href = link;
   }
 
+  // Sort the invoices by invoice_date
+  const sortedInvoices = useMemo(() => {
+    if (!invoicesArray) return [];
+
+    return [...invoicesArray].sort((a, b) => {
+      const dateA = new Date(a.invoice_date);
+      const dateB = new Date(b.invoice_date);
+      return dateA - dateB;
+    });
+  }, [invoicesArray]);
+
   // This invoices list will be used to show the invoices items in the checkout page
-  const invoicesList = invoices?.data?.map((invoice) => {
+  // Map the sorted invoices to CheckoutItem components
+  const invoicesList = sortedInvoices.map((invoice) => {
     return (
       <CheckoutItem
         key={invoice.id}
-        id={invoice.id}
+        invoiceId={invoice.id}
         date={invoice.invoice_date}
         title={invoice.invoice_title}
         type={invoice.get_invoice_type_display}
@@ -101,7 +114,7 @@ function Checkout() {
 
   const formik = useFormik({
     initialValues: {
-      amount: totalAmount ? totalAmount.toString() : "0",
+      amount: totalAmount ? parseFloat(totalAmount.toString()).toFixed(3) : "0",
       paymentType: 1, // Knet = 1, Credit Card = 2
       orderReferenceNumber: "",
       variable1: `ContractID__${contractDetails?.id}`,
@@ -120,6 +133,7 @@ function Checkout() {
 
       const paymentData = {
         ...values,
+        amount: parseFloat(values.amount).toFixed(3),
         // Ensure invoices are sent as an array of selected invoice IDs
         invoices: Object.entries(selectedInvoices)
           .filter(([id, isSelected]) => isSelected)
@@ -267,7 +281,7 @@ function Checkout() {
         <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8 flex flex-col justify-between space-y-3 my-5">
           <div className="flex justify-between items-center">
             <h3>Subtotal</h3>
-            <h3>KD {totalAmount}</h3>
+            <h3>KD {format.changeAmountFormat(totalAmount)}</h3>
           </div>
           <div className="flex justify-between items-center">
             <h3>Fees</h3>
@@ -275,7 +289,9 @@ function Checkout() {
           </div>
           <div className="flex justify-between items-center">
             <h1 className="text-xl font-bold">Total</h1>
-            <h1 className="text-xl font-bold">KD {totalAmount}</h1>
+            <h1 className="text-xl font-bold">
+              KD {format.changeAmountFormat(totalAmount)}
+            </h1>
           </div>
           <div className="flex justify-center items-center mx-auto w-full">
             <button

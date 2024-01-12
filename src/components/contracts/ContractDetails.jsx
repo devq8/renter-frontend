@@ -29,12 +29,9 @@ function ContractDetails() {
 
   const total_pending_amount = contract?.data?.total_pending_amount;
 
-  const {
-    data: invoices,
-    isLoading: invoicesLoading,
-    error: invoicesError,
-  } = useQuery(["invoices", contractId], () =>
-    invoiceApi.getInvoices(contractId)
+  const { data: invoices, isLoading: invoicesLoading } = useQuery(
+    ["invoices", contractId],
+    () => invoiceApi.getInvoices(contractId)
   );
 
   const contractDetails = contract?.data;
@@ -44,7 +41,6 @@ function ContractDetails() {
       return new Date(b.invoice_date) - new Date(a.invoice_date);
     })
     .map((invoice) => {
-      console.log("invoice", invoice);
       return (
         <InvoiceRow
           key={invoice.id}

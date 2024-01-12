@@ -17,19 +17,19 @@ function ContractRow({
 }) {
   const navigate = useNavigate();
   function getStatus(contract_status) {
-    if (contract_status === "Active") {
+    if (contract_status === "ACTIVE") {
       return (
         <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-600">
           Active
         </span>
       );
-    } else if (contract_status === "Blocked") {
+    } else if (contract_status === "BLOCKED") {
       return (
         <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-2 py-1 text-xs font-semibold text-red-600">
           Blocked
         </span>
       );
-    } else if (contract_status === "Expired") {
+    } else if (contract_status === "EXPIRED") {
       return (
         <span className="inline-flex items-center gap-1 rounded-full bg-yellow-50 px-2 py-1 text-xs font-semibold text-yellow-600">
           Expired
