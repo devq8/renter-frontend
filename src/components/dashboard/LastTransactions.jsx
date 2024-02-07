@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router";
 import api from "../../utils/api/invoices";
 import { useQuery } from "@tanstack/react-query";
-import format from "../../utils/format";
+import { changeAmountFormat } from "../../utils/format";
 
 function LastTransactions() {
   const navigate = useNavigate();
@@ -11,11 +11,7 @@ function LastTransactions() {
     navigate(`/invoices`);
   }
 
-  const {
-    data: invoices,
-    isLoading,
-    error,
-  } = useQuery(["invoices"], () => api.getInvoices());
+  const { data: invoices } = useQuery(["invoices"], () => api.getInvoices());
 
   const invoicesList = invoices?.data
     // Error when invoices has no payment, need to be fixed
@@ -40,7 +36,7 @@ function LastTransactions() {
           </td>
           <td className="flex p-4 whitespace-nowrap text-sm font-semibold text-gray-900 justify-between">
             <div className="mx-1">KD</div>
-            {format.changeAmountFormat(invoice.invoice_amount)}
+            {changeAmountFormat(invoice.invoice_amount)}
           </td>
         </tr>
       );

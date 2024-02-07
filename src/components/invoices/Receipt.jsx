@@ -1,22 +1,18 @@
 import React from "react";
 import { useParams } from "react-router";
-import apiPayment from "../../utils/api/payment";
+import { paymentDetails } from "../../utils/api/payment";
 import apiInvoice from "../../utils/api/invoices";
 import { useQuery } from "@tanstack/react-query";
 import ReceiptItem from "./ReceiptItem";
 import SimpleLogo from "../../assets/logo-simple.png";
 import Button from "../../utils/Button";
-import format from "../../utils/format";
+import { changeDateTimeFormat, changeAmountFormat } from "../../utils/format";
 
 function Receipt() {
   const { paymentid } = useParams();
 
-  const {
-    data: payment,
-    isLoading: paymentLoading,
-    error: paymentError,
-  } = useQuery(["payment", paymentid], () =>
-    apiPayment.paymentDetails(paymentid)
+  const { data: payment } = useQuery(["payment", paymentid], () =>
+    paymentDetails(paymentid)
   );
 
   const paymentDetails = payment?.data;
@@ -68,7 +64,7 @@ function Receipt() {
         </h1>
         <div className="flex items-center justify-center">
           <h3 className="mt-5 me-3">Receipt #{paymentDetails?.id}</h3>
-          <h3 className="mt-5 ms-3">{`${format.changeDateTimeFormat(
+          <h3 className="mt-5 ms-3">{`${changeDateTimeFormat(
             paymentDetails?.payment_date
           )}`}</h3>
         </div>
@@ -129,9 +125,7 @@ function Receipt() {
               Paid Amount
             </h1>
             <h1 className="text-xl font-bold text-secondary text-clip overflow-hidden">
-              {`KD ${format.changeAmountFormat(
-                paymentDetails?.payment_amount
-              )}`}
+              {`KD ${changeAmountFormat(paymentDetails?.payment_amount)}`}
             </h1>
           </div>
           <div className="flex justify-between items-center">

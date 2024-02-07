@@ -1,10 +1,10 @@
 import instance from "./index";
 
-function paymentResponse(data) {
+export function paymentResponse(data) {
   return instance.get(`/api/checkout/response/?data=${data}`);
 }
 
-function sendPayment(data) {
+export function sendPayment(data) {
   console.log("Im in sendPayment function");
   console.log(data);
 
@@ -21,12 +21,10 @@ function sendPayment(data) {
   });
 }
 
-function paymentDetails(paymentId) {
+export function paymentDetails(paymentId) {
   return instance.get(`/api/checkout/receipt/${paymentId}/`);
 }
 
-export default {
-  paymentResponse,
-  sendPayment,
-  paymentDetails,
-};
+export function getCheckoutDetails(unique_payment_identifier) {
+  return instance.get(`/api/checkout/${unique_payment_identifier}/`);
+}

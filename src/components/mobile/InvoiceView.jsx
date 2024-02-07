@@ -2,21 +2,19 @@ import { useQuery } from "@tanstack/react-query";
 import React from "react";
 import { useNavigate, useParams } from "react-router";
 import api from "../../utils/api/invoices";
-import format from "../../utils/format";
+import { changeAmountFormat, changeDatesFormat } from "../../utils/format";
 import Button from "../../utils/Button";
 import { BsFillBuildingFill } from "react-icons/bs";
 import AttachmentItem from "../invoices/AttachmentItem";
 
 function InvoiceView() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const { id: invoiceId } = useParams();
 
-  const {
-    data: invoice,
-    isLoading: invoiceLoading,
-    error: invoiceError,
-  } = useQuery(["invoice", invoiceId], () => api.getInvoiceDetails(invoiceId));
+  const { data: invoice } = useQuery(["invoice", invoiceId], () =>
+    api.getInvoiceDetails(invoiceId)
+  );
 
   const invoiceDetails = invoice?.data;
   console.log(invoiceDetails);
@@ -76,7 +74,7 @@ function InvoiceView() {
         <div className="flex justify-between p-4">
           <h1 className="text-base text-[#AEB3C2] font-bold">Total Amount</h1>
           <h1 className="text-base text-[#52555C] font-bold">
-            KD {format.changeAmountFormat(invoiceDetails?.invoice_amount)}
+            KD {changeAmountFormat(invoiceDetails?.invoice_amount)}
           </h1>
         </div>
       </div>
@@ -84,19 +82,19 @@ function InvoiceView() {
         <div className="flex justify-between px-4 py-2">
           <h1 className="text-base text-[#AEB3C2] font-bold">Invoice Date</h1>
           <h1 className="text-base text-[#52555C] font-bold">
-            {format.changeDatesFormat(invoiceDetails?.invoice_date)}
+            {changeDatesFormat(invoiceDetails?.invoice_date)}
           </h1>
         </div>
         <div className="flex justify-between px-4 py-2">
           <h1 className="text-base text-[#AEB3C2] font-bold">From</h1>
           <h1 className="text-base text-[#52555C] font-bold">
-            {format.changeDatesFormat(invoiceDetails?.from_date)}
+            {changeDatesFormat(invoiceDetails?.from_date)}
           </h1>
         </div>
         <div className="flex justify-between px-4 py-2">
           <h1 className="text-base text-[#AEB3C2] font-bold">To</h1>
           <h1 className="text-base text-[#52555C] font-bold">
-            {format.changeDatesFormat(invoiceDetails?.to_date)}
+            {changeDatesFormat(invoiceDetails?.to_date)}
           </h1>
         </div>
         <div className="flex justify-center m-3">

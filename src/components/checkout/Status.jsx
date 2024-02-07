@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import api from "../../utils/api/payment";
+import { paymentResponse } from "../../utils/api/payment";
 import { useQuery } from "@tanstack/react-query";
 import Success from "../../assets/images/success.png";
 import Error from "../../assets/images/error.png";
-import format from "../../utils/format";
+import { changeAmountFormat } from "../../utils/format";
 import Spinner from "../../utils/Spinner";
 import NavBar from "../navbar/Navbar";
 import Footer from "../home/components/Footer";
@@ -24,7 +24,7 @@ function Status() {
     data: response,
     isLoading,
     error,
-  } = useQuery(["payment", apiData], () => api.paymentResponse(apiData));
+  } = useQuery(["payment", apiData], () => paymentResponse(apiData));
 
   const paymentInfo = response?.data;
 
@@ -117,15 +117,13 @@ function Status() {
                 </div>
                 <div className="flex mx-8 justify-between">
                   <h2 className="font-bold pe-2">Paid Amount</h2>
-                  <h2>
-                    KD {format.changeAmountFormat(paymentInfo?.response.amount)}
-                  </h2>
+                  <h2>KD {changeAmountFormat(paymentInfo?.response.amount)}</h2>
                 </div>
                 <div className="flex mx-8 justify-between">
                   <h2 className="font-bold pe-2">Admin Charges</h2>
                   <h2>
                     KD{" "}
-                    {format.changeAmountFormat(
+                    {changeAmountFormat(
                       paymentInfo?.response.administrativeCharge
                     )}
                   </h2>
@@ -215,15 +213,14 @@ function Status() {
                   <div className="flex mx-8 justify-between">
                     <h2 className="font-bold pe-2">Amount</h2>
                     <h2>
-                      KD{" "}
-                      {format.changeAmountFormat(paymentInfo?.response.amount)}
+                      KD {changeAmountFormat(paymentInfo?.response.amount)}
                     </h2>
                   </div>
                   <div className="flex mx-8 justify-between">
                     <h2 className="font-bold pe-2">Admin Charges</h2>
                     <h2>
                       KD{" "}
-                      {format.changeAmountFormat(
+                      {changeAmountFormat(
                         paymentInfo?.response.administrativeCharge
                       )}
                     </h2>

@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router";
-import format from "../../utils/format";
+import { changeDatesFormat, changeAmountFormat } from "../../utils/format";
 
 function InvoiceRow({
   id,
@@ -19,9 +19,7 @@ function InvoiceRow({
         <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-600">
           Paid
           {paymentDate ? (
-            <span className="text-xs">
-              {format.changeDatesFormat(paymentDate)}
-            </span>
+            <span className="text-xs">{changeDatesFormat(paymentDate)}</span>
           ) : null}
         </span>
       );
@@ -58,20 +56,20 @@ function InvoiceRow({
     >
       <td className="px-4 py-4">{id}</td>
       <th className="px-4 py-4 text-gray-700 font-medium">
-        {format.changeDatesFormat(date)}{" "}
+        {changeDatesFormat(date)}{" "}
       </th>
       <td className="px-4 py-4">{title}</td>
       <td className="px-4 py-4">
-        {format.changeDatesFormat(start)} - {format.changeDatesFormat(end)}
+        {changeDatesFormat(start)} - {changeDatesFormat(end)}
       </td>
       <td className="flex justify-end items-center px-4 py-4">
-        {amount && `KD ${format.changeAmountFormat(amount)}`}
+        {amount && `KD ${changeAmountFormat(amount)}`}
       </td>
       <td className="px-4 py-4 text-center">
         {designStatus(status, paymentDate)}
       </td>
       {/* <td className="px-4 py-4 text-center">
-        {paymentDate && format.changeDatesFormat(paymentDate)}
+        {paymentDate && changeDatesFormat(paymentDate)}
       </td> */}
     </tr>
   );

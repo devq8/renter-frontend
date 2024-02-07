@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 function Toggle({ name, title, value, onChange }) {
   return (
     <label className="relative inline-flex items-center mb-4 cursor-pointer">

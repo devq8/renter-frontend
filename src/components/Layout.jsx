@@ -4,7 +4,13 @@ import PropertyList from "./properties/PropertyList";
 import ContractList from "./contracts/ContractList";
 import InvoiceList from "./invoices/InvoiceList";
 import Dashboard from "./dashboard/Dashboard";
-import { Route, Routes, useNavigate, useParams } from "react-router";
+import {
+  Route,
+  Routes,
+  useNavigate,
+  useParams,
+  useLocation,
+} from "react-router";
 import Navbar from "./navbar/Navbar";
 import { useUser } from "../utils/auth";
 import PropertyDetails from "./properties/PropertyDetails";
@@ -25,8 +31,12 @@ import Checkout from "./checkout/Checkout";
 export default function Layout() {
   const navigate = useNavigate();
   const user = useUser();
+  const location = useLocation();
 
-  if (!user?.data) navigate("/signin");
+  // Check if the current route is the Checkout page
+  const isCheckoutPage = location.pathname.startsWith("/checkout");
+
+  if (!user?.data && !isCheckoutPage) navigate("/signin");
 
   let { lan } = useParams();
   !lan ? (lan = "en") : (lan = lan);
@@ -69,7 +79,11 @@ export default function Layout() {
             <Route path="/contracts" element={<ContractList />} />
             <Route path="/contracts/:id" element={<ContractDetails />} />
             <Route path="/contracts/:id/new_invoice" element={<InvoiceNew />} />
-            <Route path="/contracts/:id/checkout" element={<Checkout />} />
+            {/* <Route path="/contracts/:id/checkout" element={<Checkout />} /> */}
+            <Route
+              path="/checkout/:unique_payment_identifier"
+              element={<Checkout />}
+            />
             <Route path="/contracts/new_contract" element={<ContractNew />} />
             <Route path="/invoices" element={<InvoiceList />} />
             <Route path="/invoices/new_invoice" element={<InvoiceNew />} />

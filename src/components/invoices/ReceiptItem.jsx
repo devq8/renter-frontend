@@ -1,15 +1,13 @@
 import React from "react";
 import api from "../../utils/api/invoices";
 import { useQuery } from "@tanstack/react-query";
-import format from "../../utils/format";
+import { changeDatesFormat, changeAmountFormat } from "../../utils/format";
 import ReceiptIcon from "./ReceiptIcon";
 
 function ReceiptItem({ invoiceId }) {
-  const {
-    data: invoice,
-    isLoading: Loading,
-    error: Error,
-  } = useQuery(["invoices", invoiceId], () => api.getInvoiceDetails(invoiceId));
+  const { data: invoice } = useQuery(["invoices", invoiceId], () =>
+    api.getInvoiceDetails(invoiceId)
+  );
 
   const invoiceDetails = invoice?.data;
 
@@ -47,15 +45,15 @@ function ReceiptItem({ invoiceId }) {
             <div className="flex justify-between mx-10">
               <h1 className="text-[#AEB3C2]">Period</h1>
               <h1 className="text-secondary">
-                {`${format.changeDatesFormat(
+                {`${changeDatesFormat(
                   invoiceDetails?.from_date
-                )} - ${format.changeDatesFormat(invoiceDetails?.to_date)}`}
+                )} - ${changeDatesFormat(invoiceDetails?.to_date)}`}
               </h1>
             </div>
             <div className="flex justify-between mx-10">
               <h1 className="text-[#AEB3C2]">Due Date</h1>
               <h1 className="text-secondary">
-                {format.changeDatesFormat(invoiceDetails?.from_date)}
+                {changeDatesFormat(invoiceDetails?.from_date)}
               </h1>
             </div>
             {invoiceDetails?.description && (
@@ -71,9 +69,7 @@ function ReceiptItem({ invoiceId }) {
             <div className="flex justify-between mx-10 py-3">
               <h1 className="text-[#AEB3C2] font-bold">Amount</h1>
               <h1 className="text-secondary text-lg font-semibold">
-                {`KD ${format.changeAmountFormat(
-                  invoiceDetails?.invoice_amount
-                )}`}
+                {`KD ${changeAmountFormat(invoiceDetails?.invoice_amount)}`}
               </h1>
             </div>
           </div>

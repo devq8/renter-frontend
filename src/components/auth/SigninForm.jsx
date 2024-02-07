@@ -33,7 +33,12 @@ function SigninForm() {
       login.mutate(values, {
         onError: (error) => {
           console.log(`There's an error: ${error.message}`);
-          setLoginError(error.message);
+          if (error.response && error.response.status === 401) {
+            // Check if the error status is 401 Unauthorized
+            setLoginError("Incorrect credentials");
+          } else {
+            setLoginError("An error occurred. Please try again later.");
+          }
           setIsLoading(false);
         },
         onSuccess: () => {

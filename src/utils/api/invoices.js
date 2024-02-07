@@ -24,6 +24,11 @@ function addInvoice(invoice) {
   return instance.post(`/api/invoices/add/`, invoice);
 }
 
+function deleteInvoiceDocument(document_id) {
+  console.log(`Delete Invoice Document ID: ${document_id}`);
+  return instance.delete(`/api/invoices/documents/${document_id}`);
+}
+
 // function getUnitsList(property_id) {
 //   return instance.get(`/api/units/${property_id}/`);
 // }
@@ -33,4 +38,9 @@ function addInvoice(invoice) {
 //   return instance.get(`/api/properties/${property_id}/`);
 // }
 
-export default { getInvoices, getInvoiceDetails, addInvoice };
+export default {
+  getInvoices,
+  getInvoiceDetails,
+  addInvoice,
+  deleteInvoiceDocument,
+};

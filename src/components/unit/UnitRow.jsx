@@ -1,6 +1,6 @@
 import React from "react";
-import format from "../../utils/format";
-import { AiFillEdit, AiFillDelete } from "react-icons/ai";
+import { changeAmountFormat, changeDatesFormat } from "../../utils/format";
+import { AiFillEdit } from "react-icons/ai";
 import { useNavigate } from "react-router";
 
 function UnitRow({
@@ -78,19 +78,19 @@ function UnitRow({
           {tenantFirstName} {tenantLastName}
         </td>
         <td className="px-6 py-4">
-          {rent && `KD ${format.changeAmountFormat(rent)}`}
+          {rent && `KD ${changeAmountFormat(rent)}`}
         </td>
         <td className="px-6 py-4">
           {startPeriod
-            ? `${format.changeDatesFormat(
-                startPeriod
-              )} - ${format.changeDatesFormat(endPeriod)}`
+            ? `${changeDatesFormat(startPeriod)} - ${changeDatesFormat(
+                endPeriod
+              )}`
             : ""}
         </td>
         <td className="px-6 py-4 text-end">
           {rent &&
-            (format.changeAmountFormat(overdueAmount)
-              ? `KD ${format.changeAmountFormat(overdueAmount)}`
+            (changeAmountFormat(overdueAmount)
+              ? `KD ${changeAmountFormat(overdueAmount)}`
               : `KD -`)}
         </td>
         <td className="px-6 py-4 text-center action-icons">

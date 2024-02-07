@@ -10,7 +10,6 @@ function CheckoutItem({
   isChecked,
   disabled,
   onSelectionChange,
-  defaultChecked,
 }) {
   return (
     <li>
@@ -28,8 +27,7 @@ function CheckoutItem({
       >
         <div className="flex">
           <Checkbox
-            // checked={isChecked}
-            defaultChecked
+            checked={isChecked}
             disabled={disabled}
             onChange={onSelectionChange}
           />

@@ -6,7 +6,7 @@ import apiProperties from "../../utils/api/properties";
 import apiUnits from "../../utils/api/units";
 import utils from "../../utils/api/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Input from "../../utils/form/Input";
 import Dropdown from "../../utils/form/Dropdown";

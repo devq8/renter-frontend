@@ -7,17 +7,13 @@ import Button from "../../utils/Button";
 import SearchBox from "../../utils/SearchBox";
 import Spinner from "../../utils/Spinner";
 import UnitRow from "../unit/UnitRow";
-import format from "../../utils/format";
+import { changeAmountFormat } from "../../utils/format";
 
 function PropertyDetails() {
   const { id: propertyId } = useParams();
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
-  const {
-    data: property,
-    isLoading: PropertyLoading,
-    error: PropertyError,
-  } = useQuery(["propertyOverview", propertyId], () =>
+  const { data: property } = useQuery(["propertyOverview", propertyId], () =>
     api.getPropertyOverview(propertyId)
   );
 
@@ -26,11 +22,9 @@ function PropertyDetails() {
   const handleSearch = (e) => {
     setSearch(e.target.value);
   };
-  const {
-    data: units,
-    isLoading,
-    error,
-  } = useQuery(["units", propertyId], () => api.getUnitsList(propertyId));
+  const { data: units, isLoading } = useQuery(["units", propertyId], () =>
+    api.getUnitsList(propertyId)
+  );
 
   const unitsList = units?.data
     ?.filter((unit) => {
@@ -125,16 +119,13 @@ function PropertyDetails() {
                   Total Rents
                 </h1>
                 <h1 className="text-[#52555C] font-bold text-xl line-clamp-1">
-                  {`KD ${format.changeAmountFormat(
-                    propertyDetails?.total_rents,
-                    0
-                  )}`}
+                  {`KD ${changeAmountFormat(propertyDetails?.total_rents, 0)}`}
                 </h1>
               </div>
               <div className="flex flex-col items-start justify-center my-5 mx-2 pl-5 border-l">
                 <h1 className="text-[#AEB3C2] text-sm font-bold">Last Month</h1>
                 <h1 className="text-[#52555C] font-bold text-xl line-clamp-1">
-                  {`KD ${format.changeAmountFormat(
+                  {`KD ${changeAmountFormat(
                     propertyDetails?.last_month_rents,
                     0
                   )}`}

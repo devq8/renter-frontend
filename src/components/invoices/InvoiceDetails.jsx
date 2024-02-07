@@ -4,11 +4,11 @@ import { useNavigate, useParams } from "react-router";
 import Breadcrumb from "../../utils/Breadcrumb";
 import Button from "../../utils/Button";
 import api from "../../utils/api/invoices";
-import format from "../../utils/format";
+import { changeDatesFormat, changeAmountFormat } from "../../utils/format";
 import { PhotoIcon } from "@heroicons/react/24/solid";
 import AttachmentItem from "./AttachmentItem";
-import HesabeCrypt from "hesabe-crypt";
-import aesjs from "aes-js";
+// import HesabeCrypt from "hesabe-crypt";
+// import aesjs from "aes-js";
 
 function InvoiceDetails() {
   const navigate = useNavigate();
@@ -22,8 +22,7 @@ function InvoiceDetails() {
   } = useQuery(["invoice", invoiceId], () => api.getInvoiceDetails(invoiceId));
 
   const invoiceDetails = invoice?.data;
-  // console.log(invoiceDetails.invoice_status);
-  // console.log(invoiceDetails);
+  console.log("Invoice Details", invoiceDetails);
 
   function showStatus(status) {
     if (status === "Paid") {
@@ -76,14 +75,20 @@ function InvoiceDetails() {
     navigate(`/invoices/${invoiceDetails?.payment?.id}/receipt`);
   }
 
-  const documentsList = [
-    <AttachmentItem
-      key={1}
-      fileName={"WaterConsumption.png"}
-      deleteIcon={true}
-    />,
-    <AttachmentItem key={2} fileName={"invoice.pdf"} deleteIcon={true} />,
-  ];
+  const documentsList =
+    invoiceDetails?.documents?.map((document, index) => {
+      return (
+        <AttachmentItem
+          key={index}
+          id={document.id}
+          invoiceID={invoiceDetails?.id}
+          description={document.description}
+          fileUrl={document.file}
+          deleteIcon={true}
+        />
+      );
+    }) || [];
+
   return (
     <div className="h-[100%] pb-5">
       <header className="bg-transparent">
@@ -145,20 +150,20 @@ function InvoiceDetails() {
                   Invoice Date
                 </h1>
                 <h1 className="text-[#52555C] font-bold text-xl line-clamp-1">
-                  {format.changeDatesFormat(invoiceDetails?.invoice_date)}
+                  {changeDatesFormat(invoiceDetails?.invoice_date)}
                 </h1>
               </div>
               <div className="flex flex-col items-start justify-center my-5 mx-2 pl-5 pr-10 border-l">
                 <h1 className="text-[#AEB3C2] text-sm font-bold">Period</h1>
                 <h1 className="text-[#52555C] font-bold text-xl line-clamp-1 ">
-                  {format.changeDatesFormat(invoiceDetails?.from_date)} -{" "}
-                  {format.changeDatesFormat(invoiceDetails?.to_date)}
+                  {changeDatesFormat(invoiceDetails?.from_date)} -{" "}
+                  {changeDatesFormat(invoiceDetails?.to_date)}
                 </h1>
               </div>
               <div className="flex flex-col items-start justify-center my-5 mx-2 pl-5 pr-10 border-l">
                 <h1 className="text-[#AEB3C2] text-sm font-bold">Amount</h1>
                 <h1 className="text-[#52555C] font-bold text-xl line-clamp-1 ">
-                  KD {format.changeAmountFormat(invoiceDetails?.invoice_amount)}
+                  KD {changeAmountFormat(invoiceDetails?.invoice_amount)}
                 </h1>
               </div>
             </div>
@@ -289,10 +294,14 @@ function InvoiceDetails() {
                 </p>
               </div>
             </div>
-            <h1 className="mx-3 text-base font-bold text-[#52555C]">
-              Uploaded Documents
-            </h1>
-            <div className="p-5 space-y-4">{documentsList}</div>
+            {documentsList.length > 0 && (
+              <div>
+                <h1 className="mx-3 text-base font-bold text-[#52555C]">
+                  Uploaded Documents
+                </h1>
+                <div className="p-5 space-y-4">{documentsList}</div>
+              </div>
+            )}
           </div>
         </div>
       </main>

@@ -7,7 +7,7 @@ import apiProperties from "../../utils/api/properties";
 import apiContracts from "../../utils/api/contracts";
 import apiTenants from "../../utils/api/tenants";
 import apiUnits from "../../utils/api/units";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import Input from "../../utils/form/Input";
 import Dropdown from "../../utils/form/Dropdown";
 import utils from "../../utils/api/utils";

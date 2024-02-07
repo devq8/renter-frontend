@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router";
-import format from "../../utils/format";
+import { changeAmountFormat } from "../../utils/format";
 
 function ContractRow({
   id,
@@ -62,10 +62,10 @@ function ContractRow({
       <td className="px-4 py-4">{daysToExpire} Days</td>
       <td className="flex justify-end px-4 py-4 text-end">
         <div className="me-1">KD</div>
-        <div>{amountDue && format.changeAmountFormat(amountDue, 0)}</div>
+        <div>{amountDue && changeAmountFormat(amountDue, 0)}</div>
       </td>
       <td className="px-4 py-4 text-gray-700 font-medium text-end">
-        {rent && `KD ${format.changeAmountFormat(rent, 0)}`}
+        {rent && `KD ${changeAmountFormat(rent, 0)}`}
       </td>
       <td className="px-4 py-4 flex justify-center items-center">
         {getStatus(status)}

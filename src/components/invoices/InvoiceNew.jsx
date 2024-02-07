@@ -8,7 +8,7 @@ import Input from "../../utils/form/Input";
 import Dropdown from "../../utils/form/Dropdown";
 import dayjs from "dayjs";
 import { useNavigate, useParams } from "react-router";
-import format from "../../utils/format";
+import { changeAmountFormat, changeDatesFormat } from "../../utils/format";
 import DateInput from "../../utils/form/DateInput";
 import TextareaInput from "../../utils/form/Textarea";
 import FileInput from "../../utils/form/FileInput";
@@ -264,9 +264,7 @@ function InvoiceNew() {
                     label="Rent"
                     required={true}
                     disabled={true}
-                    value={`KD ${format.changeAmountFormat(
-                      contract?.data.rent
-                    )}`}
+                    value={`KD ${changeAmountFormat(contract?.data.rent)}`}
                   />
                   <Input
                     label="Status"
@@ -290,13 +288,13 @@ function InvoiceNew() {
                     label="Contract Start Date"
                     required={true}
                     disabled={true}
-                    value={format.changeDatesFormat(contract?.data.start_date)}
+                    value={changeDatesFormat(contract?.data.start_date)}
                   />
                   <Input
                     label="Contract End Date"
                     required={true}
                     disabled={true}
-                    value={format.changeDatesFormat(contract?.data.end_date)}
+                    value={changeDatesFormat(contract?.data.end_date)}
                   />
                   <Input
                     label="Contract Ends In"

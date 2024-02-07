@@ -11,7 +11,7 @@ import Input from "../../utils/form/Input";
 import Dropdown from "../../utils/form/Dropdown";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import format from "../../utils/format";
+import { validateIBAN } from "../../utils/format";
 
 function PropertyNewUpdate() {
   const navigate = useNavigate();
@@ -21,7 +21,7 @@ function PropertyNewUpdate() {
   // Check if the property is in update mode or add mode
   const isUpdatingMode = propertyId != null;
 
-  const { data: propertyData, isLoading: PropertyLoading } = useQuery(
+  const { data: propertyData } = useQuery(
     ["property", propertyId],
     () => api.getPropertyOverview(propertyId),
     { enabled: isUpdatingMode }
@@ -145,7 +145,7 @@ function PropertyNewUpdate() {
       IBAN: Yup.string()
         .required("Required")
         .test("isValidIBAN", "Invalid IBAN", (value) =>
-          format.validateIBAN(value || "")
+          validateIBAN(value || "")
         ),
     }),
     onSubmit: (values) => {

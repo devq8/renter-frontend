@@ -10,7 +10,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { BsFillBuildingFill, BsFillPersonFill } from "react-icons/bs";
 import { IoCalendarSharp } from "react-icons/io5";
 import InvoiceRow from "./InvoiceRow";
-import format from "../../utils/format";
+import { changeDatesFormat } from "../../utils/format";
 import { toast } from "react-toastify";
 
 function ContractDetails() {
@@ -19,11 +19,7 @@ function ContractDetails() {
 
   const [isSending, setIsSending] = useState(false);
 
-  const {
-    data: contract,
-    isLoading,
-    error,
-  } = useQuery(["contract", contractId], () =>
+  const { data: contract, isLoading } = useQuery(["contract", contractId], () =>
     api.getContractDetails(contractId)
   );
 
@@ -35,6 +31,7 @@ function ContractDetails() {
   );
 
   const contractDetails = contract?.data;
+  console.log("Contract Details: ", contractDetails);
 
   const invoicesList = invoices?.data
     ?.sort((a, b) => {
@@ -62,7 +59,7 @@ function ContractDetails() {
 
   function handlePayment() {
     console.log("redirecting to payment page");
-    navigate(`/contracts/${contractDetails?.id}/checkout`);
+    navigate(`/checkout/${contractDetails?.tenant.unique_payment_identifier}`);
   }
 
   const sendInvoiceReminderMutation = useMutation(
@@ -196,13 +193,13 @@ function ContractDetails() {
                     Start Date
                   </h1>
                   <h1 className="text-[#52555C] text-sm font-bold">
-                    {format.changeDatesFormat(contractDetails?.start_date)}
+                    {changeDatesFormat(contractDetails?.start_date)}
                   </h1>
                 </div>
                 <div className="flex justify-between">
                   <h1 className="text-[#AEB3C2] text-sm font-bold">End Date</h1>
                   <h1 className="text-[#52555C] text-sm font-bold">
-                    {format.changeDatesFormat(contractDetails?.end_date)}
+                    {changeDatesFormat(contractDetails?.end_date)}
                   </h1>
                 </div>
                 <div className="flex justify-between">
@@ -210,9 +207,7 @@ function ContractDetails() {
                     First Invoice
                   </h1>
                   <h1 className="text-[#52555C] text-sm font-bold">
-                    {format.changeDatesFormat(
-                      contractDetails?.first_payment_date
-                    )}
+                    {changeDatesFormat(contractDetails?.first_payment_date)}
                   </h1>
                 </div>
               </div>
