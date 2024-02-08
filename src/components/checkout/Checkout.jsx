@@ -13,6 +13,10 @@ import ContractCard from "./ContractCard";
 import Stack from "@mui/material/Stack";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import Alert from "@mui/material/Alert";
+import CheckIcon from "@mui/icons-material/Check";
+import { Divider } from "@mui/material";
+
 // import { BsCreditCard2Back } from "react-icons/bs";
 // import VISALogo from "../../assets/images/visa.png";
 // import MasterCardLogo from "../../assets/images/mastercard.png";
@@ -32,6 +36,8 @@ function Checkout() {
 
   // On mount, select all invoices and calculate the initial total amount
   useEffect(() => {
+    if (!checkoutItems) return; // Return if checkoutItems is not available
+
     const allInvoicesIds = checkoutItems?.data.flatMap((contract) =>
       contract.pending_invoices.map((invoice) => invoice.id)
     );
@@ -51,6 +57,9 @@ function Checkout() {
 
   // On every change in selectedInvoices, recalculate the total amount
   useEffect(() => {
+    if (!checkoutItems) return; // Return if checkoutItems is not available
+
+    // Calculate the new total amount based on the selected invoices
     const newTotal = checkoutItems?.data.reduce(
       (accumulator, contract) =>
         accumulator +
@@ -180,7 +189,14 @@ function Checkout() {
               </Card>
             </div>
 
-            <div className="flex pt-3 justify-between items-center">
+            <div className="flex-col pt-3 justify-between items-center">
+              <Alert
+                sx={{ mb: 2 }}
+                icon={<CheckIcon fontSize="inherit" />}
+                severity="success"
+              >
+                Please select the invoices you want to pay
+              </Alert>
               <h1 className="text-xl font-bold tracking-tight text-gray-900">
                 Contracts
               </h1>
@@ -190,8 +206,16 @@ function Checkout() {
           </div>
         </header>
         {/* Invoice Summary Fixed Buttom Section */}
-        <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8 flex flex-col justify-between">
-          <div className="m-3 space-y-4">
+        <Divider variant="middle" />
+        <div className="mx-auto max-w-7xl px-4 pt-2 sm:px-6 lg:px-8 flex flex-col justify-between">
+          <div className="flex-col py-2 justify-between items-center">
+            <h1 className="text-xl font-bold tracking-tight text-gray-900 text-center">
+              Payment Summary
+            </h1>
+          </div>
+        </div>
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col justify-between">
+          <div className="m-2">
             <Box>
               <Card variant="solid">
                 <CardContent>
@@ -207,8 +231,10 @@ function Checkout() {
                       <Typography variant="h7">KD 0.000</Typography>
                     </Stack>
                     <Stack direction="row" justifyContent="space-between">
-                      <Typography variant="h6">Total</Typography>
-                      <Typography variant="h6">
+                      <Typography variant="h6" style={{ fontWeight: "bold" }}>
+                        Total
+                      </Typography>
+                      <Typography variant="h6" style={{ fontWeight: "bold" }}>
                         KD {changeAmountFormat(totalAmount)}
                       </Typography>
                     </Stack>
@@ -218,6 +244,7 @@ function Checkout() {
             </Box>
           </div>
         </div>
+        {/* Payment Button */}
         <div className="mx-auto max-w-sm px-6 sm:px-6 lg:px-8 flex flex-col justify-between space-y-3 my-5">
           <div className="flex justify-center items-center mx-auto w-full">
             <button
