@@ -22,7 +22,7 @@ function PropertyList() {
     isLoading,
     error,
   } = useQuery(["properties"], () => api.getProperties());
-
+  console.log("Properties: ", properties?.data);
   const propertiesList = properties?.data
     ?.filter((property) => {
       if (search === "") {

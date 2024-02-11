@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./App.css";
 import Signin from "./components/auth/Signin";
 import Signup from "./components/auth/Signup";
+import TenantSignup from "./components/auth/TenantSignup";
 import Layout from "./components/Layout";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -26,7 +27,8 @@ function App() {
             <Route path="/*" element={<Layout />} />
             <Route path="/signin" element={<Signin />} />
             <Route path="/signup" element={<Signup />} />
-            <Route path="/contracts/:id/checkout" element={<Checkout />} />
+            <Route path="/signup/tenant/:uid" element={<TenantSignup />} />
+            {/* <Route path="/contracts/:id/checkout" element={<Checkout />} /> */}
             <Route path="/checkout/response" element={<Status />} />
             <Route path="/" element={<Home />} />
           </Routes>

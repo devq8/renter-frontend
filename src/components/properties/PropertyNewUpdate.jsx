@@ -36,13 +36,27 @@ function PropertyNewUpdate() {
         navigate("/properties");
       },
       onError: (error) => {
-        let errorMessage = "";
-        if (error.response && error.response.data) {
-          errorMessage += `${
-            error.response.data.detail || error.response.data.message
-          }`;
-        }
+        // Initialize errorMessage with a default message
+        let errorMessage = "An error occurred";
 
+        if (error.response && error.response.data) {
+          console.log("Error:", error.response.data);
+
+          // Check if the error is for 'name' and is an array, replace default message
+          if (
+            error.response.data.name &&
+            Array.isArray(error.response.data.name)
+          ) {
+            errorMessage = error.response.data.name.join(", "); // Join all or just take the first one
+          } else if (error.response.data.detail) {
+            // If 'detail' is present, replace default message
+            errorMessage = error.response.data.detail;
+          } else if (error.response.data.message) {
+            // If 'message' is present, replace default message
+            errorMessage = error.response.data.message;
+          }
+          // If none of the above, the default error message is used
+        }
         console.log("Error: ", error);
         toast.error(errorMessage);
       },

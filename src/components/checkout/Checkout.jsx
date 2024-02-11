@@ -3,7 +3,7 @@ import { useParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { sendPayment, getCheckoutDetails } from "../../utils/api/payment";
-import { changeAmountFormat, changeDatesFormat } from "../../utils/format";
+import { changeAmountFormat } from "../../utils/format";
 import KNetLogo from "../../assets/images/knet.png";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
