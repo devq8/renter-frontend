@@ -2,8 +2,17 @@ import React from "react";
 import { useNavigate, useParams } from "react-router";
 import Breadcrumb from "../../utils/Breadcrumb";
 import "flowbite";
-import api from "../../utils/api/properties";
-import utils from "../../utils/api/utils";
+import {
+  getPropertyOverview,
+  addProperty,
+  updateProperty,
+} from "../../utils/api/properties";
+import {
+  getOwners,
+  getAreas,
+  getBanks,
+  getManagers,
+} from "../../utils/api/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -23,47 +32,44 @@ function PropertyNewUpdate() {
 
   const { data: propertyData } = useQuery(
     ["property", propertyId],
-    () => api.getPropertyOverview(propertyId),
+    () => getPropertyOverview(propertyId),
     { enabled: isUpdatingMode }
   );
 
-  const addPropertyMutation = useMutation(
-    (property) => api.addProperty(property),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(["properties"]);
-        toast.success("Property added successfully");
-        navigate("/properties");
-      },
-      onError: (error) => {
-        // Initialize errorMessage with a default message
-        let errorMessage = "An error occurred";
+  const addPropertyMutation = useMutation((property) => addProperty(property), {
+    onSuccess: () => {
+      queryClient.invalidateQueries(["properties"]);
+      toast.success("Property added successfully");
+      navigate("/properties");
+    },
+    onError: (error) => {
+      // Initialize errorMessage with a default message
+      let errorMessage = "An error occurred";
 
-        if (error.response && error.response.data) {
-          console.log("Error:", error.response.data);
+      if (error.response && error.response.data) {
+        console.log("Error:", error.response.data);
 
-          // Check if the error is for 'name' and is an array, replace default message
-          if (
-            error.response.data.name &&
-            Array.isArray(error.response.data.name)
-          ) {
-            errorMessage = error.response.data.name.join(", "); // Join all or just take the first one
-          } else if (error.response.data.detail) {
-            // If 'detail' is present, replace default message
-            errorMessage = error.response.data.detail;
-          } else if (error.response.data.message) {
-            // If 'message' is present, replace default message
-            errorMessage = error.response.data.message;
-          }
-          // If none of the above, the default error message is used
+        // Check if the error is for 'name' and is an array, replace default message
+        if (
+          error.response.data.name &&
+          Array.isArray(error.response.data.name)
+        ) {
+          errorMessage = error.response.data.name.join(", "); // Join all or just take the first one
+        } else if (error.response.data.detail) {
+          // If 'detail' is present, replace default message
+          errorMessage = error.response.data.detail;
+        } else if (error.response.data.message) {
+          // If 'message' is present, replace default message
+          errorMessage = error.response.data.message;
         }
-        console.log("Error: ", error);
-        toast.error(errorMessage);
-      },
-    }
-  );
+        // If none of the above, the default error message is used
+      }
+      console.log("Error: ", error);
+      toast.error(errorMessage);
+    },
+  });
   const updatePropertyMutation = useMutation(
-    ({ id, ...propertyData }) => api.updateProperty(propertyData, id),
+    ({ id, ...propertyData }) => updateProperty(propertyData, id),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["properties"]);
@@ -88,21 +94,21 @@ function PropertyNewUpdate() {
     data: areas,
     isLoading: areasLoading,
     // error: areasError,
-  } = useQuery(["areas"], () => utils.getAreas());
+  } = useQuery(["areas"], () => getAreas());
   const areasList = areas && areas.data ? areas?.data.map((area) => area) : [];
 
   const {
     data: banks,
     isLoading: banksLoading,
     // error: banksError,
-  } = useQuery(["banks"], () => utils.getBanks());
+  } = useQuery(["banks"], () => getBanks());
   const banksList = banks && banks.data ? banks?.data.map((bank) => bank) : [];
 
   const {
     data: managers,
     isLoading: managersLoading,
     // error: managersError,
-  } = useQuery(["managers"], () => utils.getManagers());
+  } = useQuery(["managers"], () => getManagers());
   const managersList =
     managers && managers?.data
       ? managers.data.map((manager) => ({
@@ -117,7 +123,7 @@ function PropertyNewUpdate() {
     data: owners,
     isLoading: ownersLoading,
     // error: ownersError,
-  } = useQuery(["owners"], () => utils.getOwners());
+  } = useQuery(["owners"], () => getOwners());
   const ownersList =
     owners && owners?.data
       ? owners.data.map((owner) => ({

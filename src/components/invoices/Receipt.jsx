@@ -1,7 +1,7 @@
 import React from "react";
 import { useParams } from "react-router";
 import { paymentDetails } from "../../utils/api/payment";
-import apiInvoice from "../../utils/api/invoices";
+import { getInvoiceDetails } from "../../utils/api/invoices";
 import { useQuery } from "@tanstack/react-query";
 import ReceiptItem from "./ReceiptItem";
 import SimpleLogo from "../../assets/logo-simple.png";
@@ -24,9 +24,7 @@ function Receipt() {
     data: invoice,
     isLoading: invoiceLoading,
     error: invoiceError,
-  } = useQuery(["invoice", invoiceId], () =>
-    apiInvoice.getInvoiceDetails(invoiceId)
-  );
+  } = useQuery(["invoice", invoiceId], () => getInvoiceDetails(invoiceId));
 
   const contract = invoice?.data?.contract;
 

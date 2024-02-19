@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import api from "../../utils/api/properties";
+import { getPropertyOverview, getUnitsList } from "../../utils/api/properties";
 import Breadcrumb from "../../utils/Breadcrumb";
 import Button from "../../utils/Button";
 import SearchBox from "../../utils/SearchBox";
@@ -14,7 +14,7 @@ function PropertyDetails() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const { data: property } = useQuery(["propertyOverview", propertyId], () =>
-    api.getPropertyOverview(propertyId)
+    getPropertyOverview(propertyId)
   );
 
   const propertyDetails = property?.data;
@@ -23,7 +23,7 @@ function PropertyDetails() {
     setSearch(e.target.value);
   };
   const { data: units, isLoading } = useQuery(["units", propertyId], () =>
-    api.getUnitsList(propertyId)
+    getUnitsList(propertyId)
   );
 
   const unitsList = units?.data

@@ -2,9 +2,9 @@ import React from "react";
 import { useNavigate, useParams } from "react-router";
 import Breadcrumb from "../../utils/Breadcrumb";
 import "flowbite";
-import apiProperties from "../../utils/api/properties";
-import apiUnits from "../../utils/api/units";
-import utils from "../../utils/api/utils";
+import { getPropertyOverview } from "../../utils/api/properties";
+import { getUnitDetails, addUnit, updateUnit } from "../../utils/api/units";
+import { getFloors, getUnitTypes } from "../../utils/api/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -25,34 +25,31 @@ function UnitNewUpdate() {
     data: property,
     // isLoading: PropertyLoading,
   } = useQuery(["propertyOverview", propertyId], () =>
-    apiProperties.getPropertyOverview(propertyId)
+    getPropertyOverview(propertyId)
   );
   const propertyDetails = property?.data;
 
   const {
     data: unitData,
     // isLoading: unitLoading,
-  } = useQuery(["unit", unitId], () => apiUnits.getUnitDetails(unitId), {
+  } = useQuery(["unit", unitId], () => getUnitDetails(unitId), {
     enabled: isUpdatingMode,
   });
 
-  const addUnitMutation = useMutation(
-    (unit) => apiUnits.addUnit(unit, propertyId),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(["units", propertyId]);
-        toast.success("Unit added successfully");
-        navigate(`/properties/${propertyId}`);
-      },
-      onError: (error) => {
-        console.log(error.response.data.name[0]);
-        toast.error("Error adding unit");
-      },
-    }
-  );
+  const addUnitMutation = useMutation((unit) => addUnit(unit, propertyId), {
+    onSuccess: () => {
+      queryClient.invalidateQueries(["units", propertyId]);
+      toast.success("Unit added successfully");
+      navigate(`/properties/${propertyId}`);
+    },
+    onError: (error) => {
+      console.log(error.response.data.name[0]);
+      toast.error("Error adding unit");
+    },
+  });
 
   const updateUnitMutation = useMutation(
-    ({ id, ...unitData }) => apiUnits.updateUnit(unitData, id),
+    ({ id, ...unitData }) => updateUnit(unitData, id),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["units"]);
@@ -77,14 +74,14 @@ function UnitNewUpdate() {
     data: types,
     isLoading: typesLoading,
     // error: typesError,
-  } = useQuery(["types"], () => utils.getUnitTypes());
+  } = useQuery(["types"], () => getUnitTypes());
   const typesList = types && types.data ? types.data.map((type) => type) : [];
 
   const {
     data: floors,
     isLoading: floorsLoading,
     // error: floorsError,
-  } = useQuery(["floors"], () => utils.getFloors());
+  } = useQuery(["floors"], () => getFloors());
   const floorsList =
     floors && floors.data ? floors.data.map((floor) => floor) : [];
 

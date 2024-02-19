@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router";
 import Breadcrumb from "../../utils/Breadcrumb";
 import Button from "../../utils/Button";
-import api from "../../utils/api/invoices";
+import { getInvoiceDetails } from "../../utils/api/invoices";
 import { changeDatesFormat, changeAmountFormat } from "../../utils/format";
 import { PhotoIcon } from "@heroicons/react/24/solid";
 import AttachmentItem from "./AttachmentItem";
@@ -19,7 +19,7 @@ function InvoiceDetails() {
     data: invoice,
     isLoading: invoiceLoading,
     error: invoiceError,
-  } = useQuery(["invoice", invoiceId], () => api.getInvoiceDetails(invoiceId));
+  } = useQuery(["invoice", invoiceId], () => getInvoiceDetails(invoiceId));
 
   const invoiceDetails = invoice?.data;
   console.log("Invoice Details", invoiceDetails);

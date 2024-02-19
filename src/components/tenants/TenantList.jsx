@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import Breadcrumb from "../../utils/Breadcrumb";
 import Button from "../../utils/Button";
 import SearchBox from "../../utils/SearchBox";
-import api from "../../utils/api/tenants";
+import { getTenants } from "../../utils/api/tenants";
 import TenantRow from "./TenantRow";
 import { useNavigate } from "react-router";
 import Spinner from "../../utils/Spinner";
@@ -16,8 +16,8 @@ function TenantList() {
   const {
     data: tenants,
     isLoading,
-    error,
-  } = useQuery(["tenants"], () => api.getTenants());
+    // error,
+  } = useQuery(["tenants"], () => getTenants());
 
   const handleSearch = (e) => {
     setSearch(e.target.value);

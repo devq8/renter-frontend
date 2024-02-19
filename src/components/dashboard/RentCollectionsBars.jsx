@@ -1,5 +1,5 @@
 import React from "react";
-import apiProperties from "../../utils/api/properties";
+import { getProperties } from "../../utils/api/properties";
 import { Bar } from "react-chartjs-2";
 import {
   Chart,
@@ -60,7 +60,7 @@ function RentCollectionsChart() {
     data: properties,
     isLoading,
     error,
-  } = useQuery(["properties"], () => apiProperties.getProperties());
+  } = useQuery(["properties"], () => getProperties());
 
   const labels = [
     monthNumberToName(currentMonth - 2),

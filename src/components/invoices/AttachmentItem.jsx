@@ -6,7 +6,7 @@ import DeleteForever from "@mui/icons-material/DeleteForever";
 import Button from "@mui/joy/Button";
 import { toast } from "react-toastify";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import apiInvoices from "../../utils/api/invoices";
+import { deleteInvoiceDocument } from "../../utils/api/invoices";
 
 function AttachmentItem({ id, invoiceID, description, fileUrl, deleteIcon }) {
   const [openDialog, setOpenDialog] = useState(false);
@@ -14,7 +14,7 @@ function AttachmentItem({ id, invoiceID, description, fileUrl, deleteIcon }) {
   console.log("ID is: ", id);
 
   const deleteInvoiceDocument = useMutation(
-    (documentID) => apiInvoices.deleteInvoiceDocument(documentID),
+    (documentID) => deleteInvoiceDocument(documentID),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(["invoice", invoiceID]);

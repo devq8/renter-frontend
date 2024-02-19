@@ -3,10 +3,10 @@ import { useNavigate } from "react-router";
 import Breadcrumb from "../../utils/Breadcrumb";
 import { Select, Option } from "@material-tailwind/react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
-import apiProperties from "../../utils/api/properties";
-import apiContracts from "../../utils/api/contracts";
-import apiTenants from "../../utils/api/tenants";
-import apiUnits from "../../utils/api/units";
+import { getProperties } from "../../utils/api/properties";
+import { addContract } from "../../utils/api/contracts";
+import { getTenants } from "../../utils/api/tenants";
+import { listUnit } from "../../utils/api/units";
 import { toast } from "react-toastify";
 import Input from "../../utils/form/Input";
 import Dropdown from "../../utils/form/Dropdown";
@@ -26,26 +26,23 @@ function ContractNew() {
 
   const [SelectedProperty, setSelectedProperty] = useState(null);
 
-  const addContractMutation = useMutation(
-    (contract) => apiContracts.addContract(contract),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(["contracts"]);
-        toast.success("Contract added successfully");
-        navigate(`/contracts/`);
-      },
-      onError: (error) => {
-        console.log(error.response.data.name[0]);
-        toast.error("Error adding contract");
-      },
-    }
-  );
+  const addContractMutation = useMutation((contract) => addContract(contract), {
+    onSuccess: () => {
+      queryClient.invalidateQueries(["contracts"]);
+      toast.success("Contract added successfully");
+      navigate(`/contracts/`);
+    },
+    onError: (error) => {
+      console.log(error.response.data.name[0]);
+      toast.error("Error adding contract");
+    },
+  });
 
   const {
     data: properties,
     isLoading: propertiesLoading,
     // error: propertiesError,
-  } = useQuery(["properties"], () => apiProperties.getProperties());
+  } = useQuery(["properties"], () => getProperties());
 
   const propertiesList =
     properties && properties.data
@@ -59,7 +56,7 @@ function ContractNew() {
     data: units,
     isLoading: unitsLoading,
     // error: unitsError,
-  } = useQuery(["units"], () => apiUnits.listUnit(true)); // List all vacant units
+  } = useQuery(["units"], () => listUnit(true)); // List all vacant units
 
   const unitsList =
     units && units.data
@@ -78,7 +75,7 @@ function ContractNew() {
     data: tenants,
     isLoading: tenantsLoading,
     // error: tenantsError,
-  } = useQuery(["tenants"], () => apiTenants.getTenants());
+  } = useQuery(["tenants"], () => getTenants());
 
   const tenantsList =
     tenants && tenants.data

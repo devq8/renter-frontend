@@ -15,6 +15,9 @@ import "./assets/scss/icons.scss";
 import Checkout from "./components/checkout/Checkout";
 import Status from "./components/checkout/Status";
 import { ToastContainer } from "react-toastify";
+import { CssVarsProvider } from "@mui/joy/styles";
+import CssBaseline from "@mui/joy/CssBaseline";
+import GlobalStyles from "@mui/joy/GlobalStyles";
 
 const queryClient = new QueryClient();
 
@@ -22,6 +25,17 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"en-gb"}>
+        <GlobalStyles
+          styles={{
+            ":root": {
+              "--Collapsed-breakpoint": "769px", // form will stretch when viewport is below `769px`
+              "--Cover-width": "50vw", // must be `vw` only
+              "--Form-maxWidth": "800px",
+              "--Transition-duration": "0.4s", // set to `none` to disable transition
+            },
+          }}
+        />
+
         <BrowserRouter>
           <Routes>
             <Route path="/*" element={<Layout />} />

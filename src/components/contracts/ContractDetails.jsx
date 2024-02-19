@@ -3,9 +3,9 @@ import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import Breadcrumb from "../../utils/Breadcrumb";
 import Spinner from "../../utils/Spinner";
-import api from "../../utils/api/contracts";
-import apiUtils from "../../utils/api/utils";
-import invoiceApi from "../../utils/api/invoices";
+import { getContractDetails } from "../../utils/api/contracts";
+import { sendInvoiceReminder } from "../../utils/api/utils";
+import { getInvoices } from "../../utils/api/invoices";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { BsFillBuildingFill, BsFillPersonFill } from "react-icons/bs";
 import { IoCalendarSharp } from "react-icons/io5";
@@ -20,14 +20,14 @@ function ContractDetails() {
   const [isSending, setIsSending] = useState(false);
 
   const { data: contract, isLoading } = useQuery(["contract", contractId], () =>
-    api.getContractDetails(contractId)
+    getContractDetails(contractId)
   );
 
   const total_pending_amount = contract?.data?.total_pending_amount;
 
   const { data: invoices, isLoading: invoicesLoading } = useQuery(
     ["invoices", contractId],
-    () => invoiceApi.getInvoices(contractId)
+    () => getInvoices(contractId)
   );
 
   const contractDetails = contract?.data;
@@ -63,7 +63,7 @@ function ContractDetails() {
   }
 
   const sendInvoiceReminderMutation = useMutation(
-    (contractId) => apiUtils.sendInvoiceReminder(contractId),
+    (contractId) => sendInvoiceReminder(contractId),
     {
       onMutate: () => {
         setIsSending(true);

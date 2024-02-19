@@ -1,6 +1,6 @@
 import React from "react";
 import { Line } from "react-chartjs-2";
-import apiProperties from "../../utils/api/properties";
+import { getProperties } from "../../utils/api/properties";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -78,7 +78,7 @@ function RentCollectionsChart() {
     data: properties,
     isLoading,
     error,
-  } = useQuery(["properties"], () => apiProperties.getProperties());
+  } = useQuery(["properties"], () => getProperties());
 
   let labels = [];
   if (properties?.data?.length > 0) {

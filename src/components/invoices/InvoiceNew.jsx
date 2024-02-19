@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import Breadcrumb from "../../utils/Breadcrumb";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import apiContracts from "../../utils/api/contracts";
-import apiProperties from "../../utils/api/properties";
-import apiInvoices from "../../utils/api/invoices";
+import { getContractDetails } from "../../utils/api/contracts";
+import { getProperties } from "../../utils/api/properties";
+import { addInvoice } from "../../utils/api/invoices";
 import Input from "../../utils/form/Input";
 import Dropdown from "../../utils/form/Dropdown";
 import dayjs from "dayjs";
@@ -29,7 +29,7 @@ function InvoiceNew() {
   // Fetch contract details if contract is available
   const { data: contract, contractLoading } = useQuery(
     ["contract", contractId],
-    () => apiContracts.getContractDetails(contractId),
+    () => getContractDetails(contractId),
     { enabled: isContractAvailable }
   );
 
@@ -44,7 +44,7 @@ function InvoiceNew() {
 
   useEffect(() => {
     if (!isContractAvailable) {
-      apiProperties.getProperties().then((response) => {
+      getProperties().then((response) => {
         setProperties(response.data);
       });
     }
@@ -76,20 +76,17 @@ function InvoiceNew() {
     { value: "OTHER", label: "Other" },
   ];
 
-  const addInvoiceMutation = useMutation(
-    (invoice) => apiInvoices.addInvoice(invoice),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(["invoices"]);
-        toast.success("Invoice added successfully");
-        navigate(-1);
-      },
-      onError: (error) => {
-        console.log(error.response.data.name[0]);
-        toast.error("Error adding invoice");
-      },
-    }
-  );
+  const addInvoiceMutation = useMutation((invoice) => addInvoice(invoice), {
+    onSuccess: () => {
+      queryClient.invalidateQueries(["invoices"]);
+      toast.success("Invoice added successfully");
+      navigate(-1);
+    },
+    onError: (error) => {
+      console.log(error.response.data.name[0]);
+      toast.error("Error adding invoice");
+    },
+  });
 
   const formik = useFormik({
     initialValues: {

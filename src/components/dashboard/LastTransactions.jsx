@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router";
-import api from "../../utils/api/invoices";
+import { getInvoices } from "../../utils/api/invoices";
 import { useQuery } from "@tanstack/react-query";
 import { changeAmountFormat } from "../../utils/format";
 
@@ -11,7 +11,7 @@ function LastTransactions() {
     navigate(`/invoices`);
   }
 
-  const { data: invoices } = useQuery(["invoices"], () => api.getInvoices());
+  const { data: invoices } = useQuery(["invoices"], () => getInvoices());
 
   const invoicesList = invoices?.data
     // Error when invoices has no payment, need to be fixed

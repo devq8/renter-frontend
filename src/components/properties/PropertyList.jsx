@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import Breadcrumb from "../../utils/Breadcrumb";
 import Button from "../../utils/Button";
-import api from "../../utils/api/properties";
+import { getProperties } from "../../utils/api/properties";
 import { useQuery } from "@tanstack/react-query";
 import PropertyRow from "./PropertyRow";
 import SearchBox from "../../utils/SearchBox";
@@ -20,8 +20,8 @@ function PropertyList() {
   const {
     data: properties,
     isLoading,
-    error,
-  } = useQuery(["properties"], () => api.getProperties());
+    // error,
+  } = useQuery(["properties"], () => getProperties());
   console.log("Properties: ", properties?.data);
   const propertiesList = properties?.data
     ?.filter((property) => {

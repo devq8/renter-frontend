@@ -1,5 +1,5 @@
 import React from "react";
-import apiProperties from "../utils/api/properties";
+import { getProperties } from "../utils/api/properties";
 import { useQuery } from "@tanstack/react-query";
 
 function Filter(props) {
@@ -12,9 +12,9 @@ function Filter(props) {
 
   const {
     data: properties,
-    isLoading: propertiesLoading,
-    error,
-  } = useQuery(["properties"], () => apiProperties.getProperties());
+    // isLoading: propertiesLoading,
+    // error,
+  } = useQuery(["properties"], () => getProperties());
   const propertiesOption =
     properties && properties.data
       ? properties.data.map((property) => (

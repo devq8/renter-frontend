@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import Breadcrumb from "../../utils/Breadcrumb";
 import Button from "../../utils/Button";
-import api from "../../utils/api/invoices";
+import { getInvoices } from "../../utils/api/invoices";
 import { useQuery } from "@tanstack/react-query";
 import InvoiceRow from "./InvoiceRow";
 import Spinner from "../../utils/Spinner";
@@ -40,7 +40,7 @@ function InvoiceList() {
     data: invoices,
     isLoading,
     error,
-  } = useQuery(["invoices"], () => api.getInvoices());
+  } = useQuery(["invoices"], () => getInvoices());
 
   const handleSearch = (e) => {
     setSearch(e.target.value);

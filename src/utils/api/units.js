@@ -2,11 +2,11 @@
 import instance from "./index";
 
 // ######################### Add ###########################
-function addUnit(unit, propertyId) {
+export function addUnit(unit, propertyId) {
   return instance.post(`/api/units/${propertyId}/add/`, unit);
 }
 
-function listUnit(vacant) {
+export function listUnit(vacant) {
   if (vacant) {
     return instance.get(`/api/units/?vacant=${vacant}`);
   } else {
@@ -14,21 +14,14 @@ function listUnit(vacant) {
   }
 }
 
-function getUnitDetails(unitId) {
+export function getUnitDetails(unitId) {
   return instance.get(`/api/units/details/${unitId}/`);
 }
 
-function updateUnit(unit, id) {
+export function updateUnit(unit, id) {
   try {
     return instance.patch(`/api/units/details/${id}/update/`, unit);
   } catch (error) {
     console.log("Error :", error);
   }
 }
-
-export default {
-  addUnit,
-  listUnit,
-  getUnitDetails,
-  updateUnit,
-};

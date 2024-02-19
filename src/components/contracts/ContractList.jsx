@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import Breadcrumb from "../../utils/Breadcrumb";
 import Button from "../../utils/Button";
-import api from "../../utils/api/contracts";
+import { getContracts } from "../../utils/api/contracts";
 import ContractRow from "./ContractRow";
 import SearchBox from "../../utils/SearchBox";
 import Spinner from "../../utils/Spinner";
@@ -19,7 +19,7 @@ function ContractList() {
   };
 
   const { data: contracts, isLoading } = useQuery(["contracts"], () =>
-    api.getContracts()
+    getContracts()
   );
 
   const contractsList = contracts?.data

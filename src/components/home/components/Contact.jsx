@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import api from "../../../utils/api/utils";
+import { sendContactUs } from "../../../utils/api/utils";
 import { useMutation } from "@tanstack/react-query";
 import Validation from "../../../utils/form/ContactFormValidation";
 import { toast, ToastContainer } from "react-toastify";
@@ -19,7 +19,7 @@ function Contact() {
   }
 
   const sendContactUsMutation = useMutation(
-    (formData) => api.sendContactUs(formData),
+    (formData) => sendContactUs(formData),
     {
       onSuccess: () => {
         setFormData({

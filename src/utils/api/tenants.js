@@ -1,16 +1,20 @@
 // import axios from "axios";
 import instance from "./index";
 
-function getTenants() {
+export function getTenants() {
   return instance.get("/api/tenants");
 }
 
-function addTenant(tenant) {
-  console.log("Adding tenant :", tenant);
-  if (!tenant.email || tenant.email.trim() === "") {
-    delete tenant.email;
+export function addTenant(formData, uid) {
+  console.log("I'm in addTenant function trying to upload tenant details");
+  for (let [key, value] of formData.entries()) {
+    console.log(`${key}: ${value}`);
   }
-  return instance.post("/api/auth/signup/", tenant);
-}
+  // Check and delete email if necessary
+  const email = formData.get("email");
+  if (!email || email.trim() === "") {
+    formData.delete("email");
+  }
 
-export default { getTenants, addTenant };
+  return instance.post(`/api/auth/signup/tenant/${uid}/`, formData);
+}

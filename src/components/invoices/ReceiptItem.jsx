@@ -1,12 +1,12 @@
 import React from "react";
-import api from "../../utils/api/invoices";
+import { getInvoiceDetails } from "../../utils/api/invoices";
 import { useQuery } from "@tanstack/react-query";
 import { changeDatesFormat, changeAmountFormat } from "../../utils/format";
 import ReceiptIcon from "./ReceiptIcon";
 
 function ReceiptItem({ invoiceId }) {
   const { data: invoice } = useQuery(["invoices", invoiceId], () =>
-    api.getInvoiceDetails(invoiceId)
+    getInvoiceDetails(invoiceId)
   );
 
   const invoiceDetails = invoice?.data;

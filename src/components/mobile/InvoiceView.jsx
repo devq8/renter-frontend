@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import React from "react";
 import { useNavigate, useParams } from "react-router";
-import api from "../../utils/api/invoices";
+import { getInvoiceDetails } from "../../utils/api/invoices";
 import { changeAmountFormat, changeDatesFormat } from "../../utils/format";
 import Button from "../../utils/Button";
 import { BsFillBuildingFill } from "react-icons/bs";
@@ -13,7 +13,7 @@ function InvoiceView() {
   const { id: invoiceId } = useParams();
 
   const { data: invoice } = useQuery(["invoice", invoiceId], () =>
-    api.getInvoiceDetails(invoiceId)
+    getInvoiceDetails(invoiceId)
   );
 
   const invoiceDetails = invoice?.data;

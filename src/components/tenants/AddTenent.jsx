@@ -1,13 +1,13 @@
 import React from "react";
 import { useNavigate } from "react-router";
 import Breadcrumb from "../../utils/Breadcrumb";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import Input from "../../utils/form/Input";
-import api from "../../utils/api/tenants";
-import { PhotoIcon } from "@heroicons/react/24/solid";
+import { addTenant } from "../../utils/api/tenants";
+// import { PhotoIcon } from "@heroicons/react/24/solid";
 
 function AddTenent() {
   const navigate = useNavigate();
@@ -17,7 +17,7 @@ function AddTenent() {
     navigate(-1);
   }
 
-  const addTenantMutation = useMutation((tenant) => api.addTenant(tenant), {
+  const addTenantMutation = useMutation((tenant) => addTenant(tenant), {
     onSuccess: () => {
       queryClient.invalidateQueries(["tenants"]);
       toast.success("Tenant added successfully");
