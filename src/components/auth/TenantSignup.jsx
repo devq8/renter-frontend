@@ -111,7 +111,7 @@ export default function TenantSignupForm() {
     onSuccess: () => {
       queryClient.invalidateQueries(["tenants"]);
       toast.success("Your information has been submitted successfully.");
-      //   navigate(`/`);
+      navigate(`/`);
     },
     onError: (error) => {
       if (error.response.data.error) {
@@ -341,17 +341,15 @@ export default function TenantSignupForm() {
     // Append mobile_verified to formData
     formData.append("mobile_verified", true);
 
-    setTimeout(() => {
-      try {
-        addTenantMutation.mutate(formData);
-      } catch (error) {
-        console.error("Error signing up :", error);
-        toast.error("Please try again later.");
-        setIsSubmitting(false); // Set isSubmitting to false when submission on failure
-      } finally {
-        setIsSubmitting(false); // Set isSubmitting to false when submission ends
-      }
-    }, 3000);
+    try {
+      addTenantMutation.mutate(formData);
+    } catch (error) {
+      console.error("Error signing up :", error);
+      toast.error("Please try again later.");
+      setIsSubmitting(false); // Set isSubmitting to false when submission on failure
+    } finally {
+      setIsSubmitting(false); // Set isSubmitting to false when submission ends
+    }
   }
 
   const formik = useFormik({
@@ -374,10 +372,9 @@ export default function TenantSignupForm() {
       mobile: Yup.string()
         .matches(/^\d{8}$/, "Please enter a valid Kuwait mobile number")
         .required("WhatsApp number is required"),
-      //   otp: Yup.string()
-      //     .required("OTP is required")
-      //     .matches(/^\d{4}$/, "OTP must be 4 digits"),
-
+      otp: Yup.string()
+        .required("OTP is required")
+        .matches(/^\d{4}$/, "OTP must be 4 digits"),
       email: Yup.string()
         .email("Invalid email address")
         .required("Email is required"),
@@ -396,35 +393,6 @@ export default function TenantSignupForm() {
     onSubmit: (values, { setSubmitting }) => {
       handleSubmit(values, { setSubmitting });
     },
-    // async (values) => {
-    //   console.log("Submit button is pressed!");
-    //   setIsSubmitting(true); // Set isSubmitting to true when submission starts
-
-    //   try {
-    //     console.log("Submitted values:", values);
-    //     // Make the API call to submit the payment data
-    //     const tenantData = {
-    //       english_name: values.english_name,
-    //       arabic_name: values.arabic_name,
-    //       mobile: values.mobile,
-    //       mobile_verified: true,
-    //       email: values.email,
-    //       email_verified: false,
-    //       password: values.password,
-    //       cid: values.cid,
-    //       address: values.address,
-    //       sponsor: values.sponsor,
-    //       paci: values.paci,
-    //     };
-    //     addTenantMutation.mutate(tenantData);
-    //   } catch (error) {
-    //     console.error("Error signing up :", error);
-    //     toast.error("Please try again later.");
-    //     setIsSubmitting(false); // Set isSubmitting to false when submission on failure
-    //   } finally {
-    //     setIsSubmitting(false); // Set isSubmitting to false when submission ends
-    //   }
-    // },
   });
 
   return (

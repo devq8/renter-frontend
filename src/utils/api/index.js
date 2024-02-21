@@ -31,9 +31,13 @@ function isTokenExpired(token) {
   return false;
 }
 
+const isDevelopment = process.env.NODE_ENV === "development";
+const baseURL = isDevelopment
+  ? "http://127.0.0.1:8000"
+  : "https://admin.wuc.com.kw";
+
 const instance = axios.create({
-  baseURL: "http://127.0.0.1:8000",
-  // baseURL: "https://admin.wuc.com.kw",
+  baseURL: baseURL,
 });
 
 instance.interceptors.request.use(
