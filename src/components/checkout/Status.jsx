@@ -28,6 +28,8 @@ function Status() {
 
   const paymentInfo = response?.data;
 
+  console.log("Payment Info :", paymentInfo);
+
   function handlePrint() {
     window.print();
   }

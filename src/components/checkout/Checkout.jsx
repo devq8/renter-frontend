@@ -34,6 +34,8 @@ function Checkout() {
     () => getCheckoutDetails(unique_payment_identifier)
   );
 
+  console.log("Checkout items : ", checkoutItems?.data);
+
   // On mount, select all invoices and calculate the initial total amount
   useEffect(() => {
     if (!checkoutItems) return; // Return if checkoutItems is not available
@@ -47,7 +49,7 @@ function Checkout() {
       (accumulator, contract) =>
         accumulator +
         contract.pending_invoices.reduce(
-          (sum, invoice) => sum + Number(invoice.invoice_amount),
+          (sum, invoice) => sum + Number(invoice.final_invoice_amount),
           0
         ),
       0
@@ -65,7 +67,10 @@ function Checkout() {
         accumulator +
         contract.pending_invoices
           .filter((invoice) => selectedInvoices.includes(invoice.id))
-          .reduce((sum, invoice) => sum + Number(invoice.invoice_amount), 0),
+          .reduce(
+            (sum, invoice) => sum + Number(invoice.final_invoice_amount),
+            0
+          ),
       0
     );
 
@@ -100,7 +105,7 @@ function Checkout() {
       paymentType: 1, // Knet = 1, Credit Card = 2
       orderReferenceNumber: "",
       variable1: "",
-      variable2: `Tenant__#${checkoutItems?.data[0]?.tenant.user.id}-${checkoutItems?.data[0]?.tenant.user.first_name}_${checkoutItems?.data[0]?.tenant.user.last_name}`,
+      variable2: `Tenant__#${checkoutItems?.data[0]?.tenant.user.id}-${checkoutItems?.data[0]?.tenant.user.english_name}`,
       variable3: "",
       variable4: "",
       variable5: "",
@@ -182,8 +187,7 @@ function Checkout() {
                     gutterBottom
                   ></Typography>
                   <Typography variant="h5" component="div">
-                    {checkoutItems?.data[0]?.tenant.user.first_name}{" "}
-                    {checkoutItems?.data[0]?.tenant.user.last_name}
+                    {checkoutItems?.data[0]?.tenant.user.english_name}
                   </Typography>
                 </CardContent>
               </Card>

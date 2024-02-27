@@ -43,7 +43,7 @@ export default function InvoiceCard({
           {/* Column - Amount */}
           <Stack direction="column" justifyContent="space-evenly">
             <Typography gutterBottom variant="h6" component="div">
-              KD {changeAmountFormat(invoice.invoice_amount)}
+              KD {changeAmountFormat(invoice.final_invoice_amount)}
             </Typography>
             <Chip
               label={invoice.invoice_status}

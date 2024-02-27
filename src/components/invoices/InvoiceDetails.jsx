@@ -68,11 +68,20 @@ function InvoiceDetails() {
 
   function handlePayment() {
     console.log("redirecting to payment page");
-    navigate(`/contracts/${invoiceDetails?.contract.id}/checkout`);
+    navigate(
+      `/checkout/${invoiceDetails?.contract.tenant.unique_payment_identifier}`
+    );
+    // navigate(`/contracts/${invoiceDetails?.contract.id}/checkout`);
   }
 
   function handlePrintInvoice() {
-    navigate(`/invoices/${invoiceDetails?.payment?.id}/receipt`);
+    const capturedPayment = invoiceDetails?.payments.find(
+      (payment) => payment.payment_status === "captured"
+    );
+    console.log("Payment details: ", capturedPayment);
+    if (capturedPayment) {
+      navigate(`/invoices/${capturedPayment.id}/receipt`);
+    }
   }
 
   const documentsList =
@@ -122,19 +131,19 @@ function InvoiceDetails() {
           <div className="flex flex-col bg-white rounded-md p-5">
             <div className="flex items-center justify-between p-3 text-3xl font-bold text-[#52555C]">
               <h1 className="mx-2">{invoiceDetails?.invoice_title}</h1>
-              {!invoiceDetails?.payment ? (
-                <Button
-                  color="#BD9A5F"
-                  text="Payment Link"
-                  type="link"
-                  onClick={handlePayment}
-                />
-              ) : (
+              {invoiceDetails?.invoice_status == "Paid" ? (
                 <Button
                   color="#BD9A5F"
                   text="Print Invoice"
                   type="print"
                   onClick={handlePrintInvoice}
+                />
+              ) : (
+                <Button
+                  color="#BD9A5F"
+                  text="Payment Link"
+                  type="link"
+                  onClick={handlePayment}
                 />
               )}
             </div>
@@ -163,7 +172,7 @@ function InvoiceDetails() {
               <div className="flex flex-col items-start justify-center my-5 mx-2 pl-5 pr-10 border-l">
                 <h1 className="text-[#AEB3C2] text-sm font-bold">Amount</h1>
                 <h1 className="text-[#52555C] font-bold text-xl line-clamp-1 ">
-                  KD {changeAmountFormat(invoiceDetails?.invoice_amount)}
+                  KD {changeAmountFormat(invoiceDetails?.final_invoice_amount)}
                 </h1>
               </div>
             </div>
@@ -193,8 +202,7 @@ function InvoiceDetails() {
             <div className="flex justify-between text-[#52555C]">
               <h1 className="mx-2 py-2 font-bold">Tenant Name</h1>
               <h1 className="mx-2 py-2 font-bold">
-                {invoiceDetails?.contract.tenant.user.first_name}{" "}
-                {invoiceDetails?.contract.tenant.user.last_name}
+                {invoiceDetails?.contract.tenant.user.english_name}
               </h1>
             </div>
             <div className="flex justify-between text-[#52555C]">

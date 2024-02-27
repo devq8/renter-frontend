@@ -21,7 +21,7 @@ export function sendPayment(data) {
   });
 }
 
-export function paymentDetails(paymentId) {
+export function getPaymentDetails(paymentId) {
   return instance.get(`/api/checkout/receipt/${paymentId}/`);
 }
 

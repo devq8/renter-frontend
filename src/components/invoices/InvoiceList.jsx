@@ -42,6 +42,8 @@ function InvoiceList() {
     error,
   } = useQuery(["invoices"], () => getInvoices());
 
+  console.log("Invoices List: ", invoices?.data);
+
   const handleSearch = (e) => {
     setSearch(e.target.value);
   };
@@ -51,10 +53,7 @@ function InvoiceList() {
       if (search === "") {
         return invoice;
       } else if (
-        invoice.contract.tenant.user.first_name
-          .toLowerCase()
-          .includes(search.toLowerCase()) ||
-        invoice.contract.tenant.user.last_name
+        invoice.contract.tenant.user.english_name
           .toLowerCase()
           .includes(search.toLowerCase()) ||
         invoice.id.toString().includes(search.toLowerCase()) ||
@@ -124,9 +123,9 @@ function InvoiceList() {
           floor={invoice.contract.unit.floor}
           unit={invoice.contract.unit.number}
           type={invoice.get_invoice_type_display}
-          amount={invoice.invoice_amount}
+          amount={invoice.final_invoice_amount}
           status={invoice.invoice_status}
-          date={invoice.invoice_date}
+          date={invoice.due_date}
           paymentDate={invoice.payment_date}
         />
       );

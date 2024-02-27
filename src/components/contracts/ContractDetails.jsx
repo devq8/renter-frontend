@@ -1,4 +1,6 @@
 import Button from "../../utils/Button";
+import BasicModal from "../../utils/Modal";
+import IconButtonMenu from "../../utils/IconButton";
 import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import Breadcrumb from "../../utils/Breadcrumb";
@@ -18,6 +20,7 @@ function ContractDetails() {
   const navigate = useNavigate();
 
   const [isSending, setIsSending] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data: contract, isLoading } = useQuery(["contract", contractId], () =>
     getContractDetails(contractId)
@@ -79,6 +82,17 @@ function ContractDetails() {
     }
   );
 
+  const menuItems = [
+    {
+      label: "Generate Future Invoices",
+      onClick: () => handleOpenModal,
+    },
+  ];
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
   return (
     <div className="">
       <header className="bg-transparent">
@@ -92,6 +106,7 @@ function ContractDetails() {
               Contract No. {contractDetails?.id} Details
             </h1>
             <div className="flex">
+              {/* <IconButtonMenu menuItems={menuItems} /> */}
               <Button
                 text={isSending ? "Sending..." : "Send Reminder"}
                 type="reminder"
@@ -224,12 +239,17 @@ function ContractDetails() {
                   </div>
                   <div className="flex flex-col ps-3 pe-1">
                     <h1 className="text-[#52555C] text-sm font-bold line-clamp-1">
-                      {contractDetails?.tenant.user.first_name}{" "}
-                      {contractDetails?.tenant.user.last_name}
+                      {contractDetails?.tenant.user.english_name}
                     </h1>
-                    <h1 className="text-[#52555C] text-sm font-bold line-clamp-1">
-                      {contractDetails?.notification_mobile}
-                    </h1>
+                    {contractDetails?.notification_mobile ? (
+                      <h1 className="text-[#52555C] text-sm font-bold line-clamp-1">
+                        {contractDetails?.notification_mobile}
+                      </h1>
+                    ) : (
+                      <h1 className="text-[#52555C] text-sm font-bold line-clamp-1">
+                        {contractDetails?.notification_email}
+                      </h1>
+                    )}
                   </div>
                 </div>
               </div>

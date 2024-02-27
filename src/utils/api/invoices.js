@@ -1,16 +1,21 @@
 // import axios from "axios";
 import instance from "./index";
 
-export function getInvoices(contract_id, status) {
+export function getInvoices({ contract_id = null, status = null } = {}) {
+  if (contract_id == null && status == null) {
+    return instance.get(`/api/invoices/`);
+  }
+
   if (contract_id && status) {
     return instance.get(
       `/api/invoices/?contract=${contract_id}&status=${status}`
     );
   }
-  if (contract_id) {
+
+  if (status == null && contract_id) {
     return instance.get(`/api/invoices/?contract=${contract_id}`);
-  } else {
-    return instance.get("/api/invoices/");
+  } else if (contract_id == null && status) {
+    return instance.get(`/api/invoices/?status=${status}`);
   }
 }
 

@@ -27,10 +27,7 @@ function ContractList() {
       if (search === "") {
         return contract;
       } else if (
-        contract.tenant.user.first_name
-          .toLowerCase()
-          .includes(search.toLowerCase()) ||
-        contract.tenant.user.last_name
+        contract.tenant.user.english_name
           .toLowerCase()
           .includes(search.toLowerCase()) ||
         contract.tenant.user.mobile

@@ -40,6 +40,14 @@ export function getUnitTypes(language) {
   }
 }
 
+export function getInvoiceTypes(language) {
+  if (language) {
+    return instance.get("/api/invoice_types/?language=" + language);
+  } else {
+    return instance.get("/api/invoice_types/");
+  }
+}
+
 export function getManagerName(uid) {
   return instance.get(`/api/managers/${uid}/`);
 }

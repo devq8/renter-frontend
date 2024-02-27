@@ -67,7 +67,7 @@ function InvoiceRow({
     >
       <td className="px-4 py-4">{id}</td>
       <th className="px-4 py-4 text-gray-700 font-medium">
-        {tenant.user.first_name} {tenant.user.last_name}
+        {tenant.user.english_name}
       </th>
       <td className="px-4 py-4">{property.name}</td>
       <td className="px-4 py-4">{floor}</td>

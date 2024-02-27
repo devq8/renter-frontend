@@ -1,6 +1,6 @@
 import React from "react";
 import { useParams } from "react-router";
-import { paymentDetails } from "../../utils/api/payment";
+import { getPaymentDetails } from "../../utils/api/payment";
 import { getInvoiceDetails } from "../../utils/api/invoices";
 import { useQuery } from "@tanstack/react-query";
 import ReceiptItem from "./ReceiptItem";
@@ -11,11 +11,11 @@ import { changeDateTimeFormat, changeAmountFormat } from "../../utils/format";
 function Receipt() {
   const { paymentid } = useParams();
 
-  const { data: payment } = useQuery(["payment", paymentid], () =>
-    paymentDetails(paymentid)
+  const { data: paymentData } = useQuery(["payment", paymentid], () =>
+    getPaymentDetails(paymentid)
   );
 
-  const paymentDetails = payment?.data;
+  const paymentDetails = paymentData?.data;
   // console.log(paymentDetails);
 
   const invoiceId = paymentDetails?.invoices[0];
@@ -28,7 +28,7 @@ function Receipt() {
 
   const contract = invoice?.data?.contract;
 
-  const invoicesList = payment?.data?.invoices?.map((invoice) => (
+  const invoicesList = paymentData?.data?.invoices?.map((invoice) => (
     <ReceiptItem key={invoice} invoiceId={invoice} />
   ));
 
@@ -38,10 +38,10 @@ function Receipt() {
 
   function showInvoiceStatus(status) {
     console.log(status);
-    if (status == "CAPTURED") {
+    if (status == "CAPTURED" || status == "captured") {
       return (
         <span className="inline-flex items-center justify-center gap-1 rounded-full bg-green-100 px-4 py-1 text-md font-semibold text-green-500">
-          {status}
+          Captured
         </span>
       );
     } else {
@@ -71,7 +71,7 @@ function Receipt() {
       <div className="mx-auto max-w-2xl px-8 mt-10 my-6 space-y-6">
         <div className="flex justify-between items-center">
           <h1 className="text-xl font-semibold text-[#AEB3C2]">Tenant</h1>
-          <h1 className="text-xl font-bold text-secondary">{`${contract?.tenant?.user?.first_name} ${contract?.tenant?.user?.last_name}`}</h1>
+          <h1 className="text-xl font-bold text-secondary">{`${contract?.tenant?.user?.english_name}`}</h1>
         </div>
         <div className="flex justify-between items-center">
           <h1 className="text-xl font-semibold text-[#AEB3C2]">Property</h1>

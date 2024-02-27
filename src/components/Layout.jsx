@@ -79,14 +79,12 @@ export default function Layout() {
             <Route path="/contracts" element={<ContractList />} />
             <Route path="/contracts/:id" element={<ContractDetails />} />
             <Route path="/contracts/:id/new_invoice" element={<InvoiceNew />} />
-            {/* <Route path="/contracts/:id/checkout" element={<Checkout />} /> */}
             <Route
               path="/checkout/:unique_payment_identifier"
               element={<Checkout />}
             />
             <Route path="/contracts/new_contract" element={<ContractNew />} />
             <Route path="/invoices" element={<InvoiceList />} />
-            <Route path="/invoices/new_invoice" element={<InvoiceNew />} />
             <Route path="/invoices/:id" element={<InvoiceDetails />} />
             <Route path="/invoices/mobile/:id" element={<InvoiceView />} />
             <Route path="/invoices/:id/pay" element={<PaymentForm />} />

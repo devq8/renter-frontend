@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Breadcrumb from "../../utils/Breadcrumb";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getContractDetails } from "../../utils/api/contracts";
-import { getProperties } from "../../utils/api/properties";
 import { addInvoice } from "../../utils/api/invoices";
+import { getInvoiceTypes } from "../../utils/api/utils";
 import Input from "../../utils/form/Input";
 import Dropdown from "../../utils/form/Dropdown";
 import dayjs from "dayjs";
@@ -20,61 +20,20 @@ function InvoiceNew() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  // ######################################################################
-  // ########### If the contract ID is available in the URL ###############
-  // ######################################################################
   const { id: contractId } = useParams();
-  const isContractAvailable = Boolean(contractId); // true if contractId is available
 
   // Fetch contract details if contract is available
-  const { data: contract, contractLoading } = useQuery(
-    ["contract", contractId],
-    () => getContractDetails(contractId),
-    { enabled: isContractAvailable }
+  const { data: contract } = useQuery(["contract", contractId], () =>
+    getContractDetails(contractId)
   );
 
-  // ######################################################################
-  // ########### If the contract ID is not available in the URL ###########
-  // ######################################################################
+  const { data: types, isLoading: typesIsLoading } = useQuery(
+    ["invoicesTypes"],
+    () => getInvoiceTypes()
+  );
 
-  const [properties, setProperties] = useState([]);
-  const [selectedProperty, setSelectedProperty] = useState(null);
-  const [units, setUnits] = useState([]);
-  const [selectedUnit, setSelectedUnit] = useState(null);
-
-  useEffect(() => {
-    if (!isContractAvailable) {
-      getProperties().then((response) => {
-        setProperties(response.data);
-      });
-    }
-  }, [isContractAvailable]);
-
-  const handlePropertyChange = (property) => {
-    setSelectedProperty(property);
-    setSelectedUnit(null); // Reset unit selection
-    // apiUnits.getUnitsByProperty(property.id).then(response => {
-    //   setUnits(response.data);
-    // });
-  };
-
-  // Fetch contract details if contract is not available
-  // const { data: allContracts } = useQuery(
-  //   ["contracts"],
-  //   () => apiContracts.getContracts(),
-  //   { enabled: !isContractAvailable }
-  // );
-
-  const invoiceTypes = [
-    { value: "RENT", label: "Rent" },
-    { value: "WATER", label: "Water" },
-    { value: "ELECT", label: "Electricity" },
-    { value: "INTERNET", label: "Internet" },
-    { value: "ADMIN", label: "Admin Fees" },
-    { value: "MAINTENANCE", label: "Maintenance" },
-    { value: "LEGAL", label: "Legal Fees" },
-    { value: "OTHER", label: "Other" },
-  ];
+  // const invoiceTypes = [];
+  const invoiceTypes = types?.data || [];
 
   const addInvoiceMutation = useMutation((invoice) => addInvoice(invoice), {
     onSuccess: () => {
@@ -90,19 +49,22 @@ function InvoiceNew() {
 
   const formik = useFormik({
     initialValues: {
-      contract: isContractAvailable && contract?.data ? contract.data.id : "",
+      contract: contractId || "",
       invoice_title: "",
       invoice_type: "",
       invoice_amount: 0,
+      discount_value: 0,
       invoice_date: "",
       from_date: "",
       to_date: "",
-      description: "",
+      due_date: "",
+      description: null,
     },
     validationSchema: Yup.object({
       invoice_title: Yup.string().required("Required"),
       invoice_type: Yup.string().required("Required"),
       invoice_amount: Yup.number().required("Required"),
+      discount_value: Yup.number(),
       invoice_date: Yup.date().required("Required"),
       from_date: Yup.date().required("Required"),
       to_date: Yup.date().required("Required"),
@@ -115,6 +77,7 @@ function InvoiceNew() {
         invoice_title: values.invoice_title,
         invoice_type: values.invoice_type,
         invoice_amount: values.invoice_amount,
+        discount_value: values.discount_value || null,
         invoice_date: values.invoice_date
           ? dayjs(values.invoice_date).format("YYYY-MM-DD")
           : null,
@@ -127,7 +90,7 @@ function InvoiceNew() {
         due_date: values.due_date
           ? dayjs(values.due_date).format("YYYY-MM-DD")
           : null,
-        description: values.description,
+        description: values.discount_value || null,
       };
       console.log("Submitted Data:", invoiceData);
       addInvoiceMutation.mutate(invoiceData);
@@ -142,28 +105,16 @@ function InvoiceNew() {
     <div>
       <header className="bg-transparent">
         <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8 flex flex-col justify-between">
-          {isContractAvailable ? (
-            <Breadcrumb
-              main={{ title: "Contracts", url: "/contracts" }}
-              sub={[
-                {
-                  title: `Contract No. ${contract?.data.id}`,
-                  url: `/contracts/${contract?.data.id}`,
-                },
-                { title: "Add New Invoice", url: "" },
-              ]}
-            />
-          ) : (
-            <Breadcrumb
-              main={{ title: "Invoices", url: "/invoices" }}
-              sub={[{ title: "Add New Invoice", url: "" }]}
-            />
-          )}
-          {/* <div className="flex flex-row justify-between">
-            <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-              Add New Invoice
-            </h1>
-          </div> */}
+          <Breadcrumb
+            main={{ title: "Contracts", url: "/contracts" }}
+            sub={[
+              {
+                title: `Contract No. ${contract?.data.id}`,
+                url: `/contracts/${contract?.data.id}`,
+              },
+              { title: "Add New Invoice", url: "" },
+            ]}
+          />
         </div>
       </header>
       <main>
@@ -182,27 +133,12 @@ function InvoiceNew() {
                 </p>
                 {/* First Row */}
                 <div className="flex p-3">
-                  {!isContractAvailable ? (
-                    <Dropdown
-                      name="property"
-                      label="Property"
-                      isClearable={true}
-                      isSearchable={true}
-                      options={properties.map((property) => ({
-                        value: property.id,
-                        label: property.name,
-                      }))}
-                      placeholder="Select property ..."
-                      onChange={handlePropertyChange}
-                    />
-                  ) : (
-                    <Input
-                      label="Property"
-                      required={true}
-                      disabled={true}
-                      value={contract?.data.unit.property_fk.name}
-                    />
-                  )}
+                  <Input
+                    label="Property"
+                    required={true}
+                    disabled={true}
+                    value={contract?.data.unit.property_fk.name}
+                  />
                   <Input
                     label="Unit"
                     required={true}
@@ -236,7 +172,7 @@ function InvoiceNew() {
                     label="Tenanat"
                     required={true}
                     disabled={true}
-                    value={`${contract?.data.tenant.user.first_name} ${contract?.data.tenant.user.last_name}`}
+                    value={contract?.data.tenant.user.english_name}
                   />
                   {contract?.data.get_notification_method_display ===
                   "Email" ? (
@@ -336,6 +272,7 @@ function InvoiceNew() {
                     isClearable={true}
                     isSearchable={true}
                     options={invoiceTypes}
+                    isLoading={typesIsLoading}
                     placeholder="Select invoice type ..."
                     onChange={(selectedOption) => {
                       formik.setFieldValue(
@@ -354,6 +291,9 @@ function InvoiceNew() {
                       formik.touched.invoice_type && formik.errors.invoice_type
                     }
                   />
+                </div>
+                {/* Third Row */}
+                <div className="flex p-3">
                   <Input
                     label="Invoice Amount"
                     name="invoice_amount"
@@ -369,8 +309,23 @@ function InvoiceNew() {
                       formik.errors.invoice_amount
                     }
                   />
+                  <Input
+                    label="Discount Value"
+                    name="discount_value"
+                    prefix="KD"
+                    type="number"
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    required={true}
+                    value={formik.values.discount_value ?? ""}
+                    disabled={false}
+                    errorMessage={
+                      formik.touched.discount_value &&
+                      formik.errors.discount_value
+                    }
+                  />
                 </div>
-                {/* Third Row */}
+                {/* Fourth Row */}
                 <div className="flex p-3">
                   <DateInput
                     label="Invoice Date"
@@ -402,6 +357,7 @@ function InvoiceNew() {
                     }
                   />
                 </div>
+                {/* Fifth Row */}
                 <div className="flex p-3">
                   <DateInput
                     label="Due Date"
@@ -409,11 +365,11 @@ function InvoiceNew() {
                     value={formik.values.due_date}
                     onChange={(date) => formik.setFieldValue("due_date", date)}
                     errorMessage={
-                      formik.touched.invoice_date && formik.errors.invoice_date
+                      formik.touched.due_date && formik.errors.due_date
                     }
                   />
                 </div>
-                {/* Third Row */}
+                {/* Sixth Row */}
                 <div className="flex-col p-3">
                   <TextareaInput
                     name="description"
@@ -423,7 +379,7 @@ function InvoiceNew() {
                     optional={true}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    value={formik.values.description}
+                    value={formik.values.description ?? ""}
                     errorMessage={
                       formik.touched.description && formik.errors.description
                     }

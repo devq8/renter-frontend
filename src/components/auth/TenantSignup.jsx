@@ -3,7 +3,7 @@ import Box from "@mui/joy/Box";
 import Button from "@mui/joy/Button";
 import FormControl from "@mui/joy/FormControl";
 import FormLabel, { formLabelClasses } from "@mui/joy/FormLabel";
-import IconButton, { IconButtonProps } from "@mui/joy/IconButton";
+import IconButton from "@mui/joy/IconButton";
 import Input from "@mui/joy/Input";
 import Typography from "@mui/joy/Typography";
 import Stack from "@mui/joy/Stack";
@@ -28,7 +28,7 @@ import {
 import { addTenant } from "../../utils/api/tenants";
 import WarningIcon from "@mui/icons-material/Warning";
 import Alert from "@mui/joy/Alert";
-import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import { useQueryClient, useMutation } from "@tanstack/react-query";
 import Logo from "../../assets/logo-nomargins.png";
 import { InputFileUpload } from "../../utils/InputFileUpload";
 import List from "@mui/material/List";
@@ -216,7 +216,7 @@ export default function TenantSignupForm() {
   const handleFileChange = (event) => {
     const newFiles = Array.from(event.target.files);
     const maxSize = 5 * 1024 * 1024; // 5MB
-    const maxFiles = 5; // Limit to 5 files
+    const maxFiles = 10; // Limit to 10 files
 
     // Filter out files larger than maxSize
     const validFiles = newFiles.filter((file) => file.size <= maxSize);
@@ -246,28 +246,27 @@ export default function TenantSignupForm() {
     setSelectedFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
   };
 
-  const fileIcons = {
-    pdf: PictureAsPdfIcon,
-    doc: InsertDriveFileIcon,
-    docx: InsertDriveFileIcon,
-    png: ImageIcon,
-    jpg: ImageIcon,
-    jpeg: ImageIcon,
-    bmp: ImageIcon,
-    gif: ImageIcon,
-    tif: ImageIcon,
-    tiff: ImageIcon,
-    webp: ImageIcon,
-    svg: ImageIcon,
-    heif: ImageIcon,
-    heic: ImageIcon,
-    raw: ImageIcon,
-    // Add more file type mappings here
-  };
-
   // Utility function to get the icon based on the file extension
   const getFileIcon = (file) => {
     const extension = file.name.split(".").pop().toLowerCase();
+    const fileIcons = {
+      pdf: PictureAsPdfIcon,
+      doc: InsertDriveFileIcon,
+      docx: InsertDriveFileIcon,
+      png: ImageIcon,
+      jpg: ImageIcon,
+      jpeg: ImageIcon,
+      bmp: ImageIcon,
+      gif: ImageIcon,
+      tif: ImageIcon,
+      tiff: ImageIcon,
+      webp: ImageIcon,
+      svg: ImageIcon,
+      heif: ImageIcon,
+      heic: ImageIcon,
+      raw: ImageIcon,
+      // Add more file type mappings here
+    };
     return fileIcons[extension] || FileCopyIcon;
   };
 
@@ -891,21 +890,20 @@ export default function TenantSignupForm() {
                       startDecorator={<InfoOutlined />}
                       my={2}
                       level="body-xs"
-                      justifyContent="center"
+                      sx={{ textAlign: "justify" }}
                     >
-                      You are allowed to upload up to 5 files. Max file size is
+                      You are allowed to upload up to 10 files. Max file size is
                       5MB.
                     </Typography>
                     <Typography
                       startDecorator={<InfoOutlined />}
                       level="body-xs"
-                      justifyContent="center"
+                      sx={{ textAlign: "justify" }}
                     >
                       Please ensure that you upload the following documents for
                       yourself and your family (including wife and children):
                       Civil IDs, Passports, and Marriage Certificate.
                     </Typography>
-
                     {renderFileNames()}
                   </FormControl>
                   <Stack gap={4}>

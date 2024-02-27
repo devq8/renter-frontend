@@ -5,6 +5,7 @@ import {
   AiFillBell,
   AiFillPrinter,
 } from "react-icons/ai";
+import { BsThreeDotsVertical } from "react-icons/bs";
 import { IoLinkSharp } from "react-icons/io5";
 
 function Button({ color, text, type, className_, disabled, onClick }) {
@@ -19,6 +20,7 @@ function Button({ color, text, type, className_, disabled, onClick }) {
           {type === "reminder" && <AiFillBell className="w-6 h-6" />}
           {type === "link" && <IoLinkSharp className="w-6 h-6" />}
           {type === "print" && <AiFillPrinter className="w-6 h-6" />}
+          {type === "other" && <BsThreeDotsVertical className="w-6 h-6" />}
         </span>
         <span className="line-clamp-1">{text}</span>
       </button>

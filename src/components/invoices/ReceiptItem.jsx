@@ -11,6 +11,27 @@ function ReceiptItem({ invoiceId }) {
 
   const invoiceDetails = invoice?.data;
 
+  console.log("Details: ", invoiceDetails);
+
+  const invoiceAmount = invoiceDetails?.invoice_amount;
+  const invoiceDiscountType = invoiceDetails?.discount_type;
+  const invoiceDiscountValue = invoiceDetails?.discount_value;
+
+  const getDiscountAmount = (
+    invoiceAmount,
+    invoiceDiscountType,
+    invoiceDiscountValue
+  ) => {
+    if (invoiceDiscountType == "PERCENTAGE") {
+      const discountPercentage = invoiceDiscountValue / 100;
+      return invoiceAmount * discountPercentage;
+    } else if (invoiceDiscountType == "AMOUNT") {
+      return invoiceAmount - invoiceDiscountValue;
+    } else {
+      return invoiceAmount;
+    }
+  };
+
   return (
     <li>
       <input
@@ -66,11 +87,27 @@ function ReceiptItem({ invoiceId }) {
             )}
 
             <hr />
-            <div className="flex justify-between mx-10 py-3">
-              <h1 className="text-[#AEB3C2] font-bold">Amount</h1>
-              <h1 className="text-secondary text-lg font-semibold">
-                {`KD ${changeAmountFormat(invoiceDetails?.invoice_amount)}`}
-              </h1>
+            <div className="flex flex-col space-y-4 py-3 mx-10">
+              <div className="flex justify-between">
+                <h1 className="text-[#AEB3C2] font-bold">Amount</h1>
+                <h1 className="text-secondary text-lg font-semibold">
+                  {`KD ${changeAmountFormat(invoiceDetails?.invoice_amount)}`}
+                </h1>
+              </div>
+              {invoiceDetails?.discount_type && (
+                <div className="flex justify-between">
+                  <h1 className="text-[#AEB3C2] font-bold">Discount</h1>
+                  <h1 className="text-secondary text-lg font-semibold">
+                    {`KD ${changeAmountFormat(
+                      getDiscountAmount(
+                        invoiceAmount,
+                        invoiceDiscountType,
+                        invoiceDiscountValue
+                      )
+                    )}`}
+                  </h1>
+                </div>
+              )}
             </div>
           </div>
         </div>

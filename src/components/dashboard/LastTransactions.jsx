@@ -11,36 +11,56 @@ function LastTransactions() {
     navigate(`/invoices`);
   }
 
-  const { data: invoices } = useQuery(["invoices"], () => getInvoices());
+  const {
+    data: invoices,
+    isLoading,
+    error,
+  } = useQuery(["invoices"], () => getInvoices({ status: "Paid" }));
 
-  const invoicesList = invoices?.data
-    // Error when invoices has no payment, need to be fixed
-    // ?.sort(
-    //   (a, b) =>
-    //     new Date(b.payment.payment_date) - new Date(a.payment.payment_date)
-    // )
-    // ?.slice(0, 10)
-    ?.map((invoice) => {
+  function InvoicesList({ invoices }) {
+    if (!invoices || invoices.length === 0) {
       return (
-        <tr key={invoice.id}>
+        <tr>
           <td className="p-4 whitespace-nowrap text-sm font-normal text-gray-900">
-            <span className="font-semibold">
-              {`${invoice.contract.tenant.user.first_name} ${invoice.contract.tenant.user.last_name}`}
-            </span>
-          </td>
-          <td className="p-4 whitespace-nowrap text-sm font-normal text-gray-500">
-            {invoice.contract.unit.property_fk.name}
-          </td>
-          <td className="p-4 whitespace-nowrap text-sm font-normal text-gray-500">
-            {invoice.contract.unit.number}
-          </td>
-          <td className="flex p-4 whitespace-nowrap text-sm font-semibold text-gray-900 justify-between">
-            <div className="mx-1">KD</div>
-            {changeAmountFormat(invoice.invoice_amount)}
+            <span className="font-semibold">No invoices available.</span>
           </td>
         </tr>
       );
-    });
+    } else {
+      const invoicesList = invoices
+        // Error when invoices has no payment, need to be fixed
+        .sort((a, b) => {
+          const dateA = new Date(a.invoice_date);
+          const dateB = new Date(b.invoice_date);
+          return dateB - dateA; // Adjust for desired sorting order
+          //     new Date(b.payment.payment_date) - new Date(a.payment.payment_date)
+        })
+        .slice(0, 10)
+        .map((invoice) => {
+          return (
+            <tr key={invoice.id}>
+              <td className="p-4 whitespace-nowrap text-sm font-normal text-gray-900">
+                <span className="font-semibold">
+                  {invoice.id} Date {invoice.invoice_date}{" "}
+                  {invoice.contract.tenant.user.english_name}
+                </span>
+              </td>
+              <td className="p-4 whitespace-nowrap text-sm font-normal text-gray-500">
+                {invoice.contract.unit.property_fk.name}
+              </td>
+              <td className="p-4 whitespace-nowrap text-sm font-normal text-gray-500">
+                {invoice.contract.unit.number}
+              </td>
+              <td className="flex p-4 whitespace-nowrap text-sm font-semibold text-gray-900 justify-between">
+                <div className="mx-1">KD</div>
+                {changeAmountFormat(invoice.final_invoice_amount)}
+              </td>
+            </tr>
+          );
+        });
+      return invoicesList;
+    }
+  }
 
   return (
     <div className="flex-1 mx-2 bg-white shadow rounded-lg p-4 sm:p-6 xl:p-8 ">
@@ -98,7 +118,25 @@ function LastTransactions() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white">{invoicesList}</tbody>
+                <tbody className="bg-white">
+                  {isLoading ? (
+                    <tr>
+                      <td className="p-4 whitespace-nowrap text-sm font-normal text-gray-900">
+                        <span className="font-semibold">Loading...</span>
+                      </td>
+                    </tr>
+                  ) : error ? (
+                    <tr>
+                      <td className="p-4 whitespace-nowrap text-sm font-normal text-gray-900">
+                        <span className="font-semibold">
+                          Error Loading Invoices!
+                        </span>
+                      </td>
+                    </tr>
+                  ) : (
+                    InvoicesList({ invoices: invoices?.data })
+                  )}
+                </tbody>
               </table>
             </div>
           </div>

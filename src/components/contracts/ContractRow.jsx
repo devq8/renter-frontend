@@ -54,12 +54,16 @@ function ContractRow({
         <div className="text-sm">{id}</div>
       </th>
       <td className="px-4 py-4 text-gray-700 font-medium">
-        {tenant.user.first_name} {tenant.user.last_name}
+        {tenant.user.english_name}
       </td>
       <td className="px-4 py-4">{unit.property_fk.name}</td>
       <td className="px-4 py-4">{unit.floor}</td>
       <td className="px-4 py-4">{unit.number}</td>
-      <td className="px-4 py-4">{daysToExpire} Days</td>
+      {daysToExpire <= 0 ? (
+        <td className="text-red-700 px-4 py-4">Expired</td>
+      ) : (
+        <td className="px-4 py-4">{daysToExpire} Days</td>
+      )}
       <td className="flex justify-end px-4 py-4 text-end">
         <div className="me-1">KD</div>
         <div>{amountDue && changeAmountFormat(amountDue, 0)}</div>
