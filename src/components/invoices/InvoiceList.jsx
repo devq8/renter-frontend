@@ -42,8 +42,6 @@ function InvoiceList() {
     error,
   } = useQuery(["invoices"], () => getInvoices());
 
-  console.log("Invoices List: ", invoices?.data);
-
   const handleSearch = (e) => {
     setSearch(e.target.value);
   };
@@ -122,8 +120,8 @@ function InvoiceList() {
           property={invoice.contract.unit.property_fk}
           floor={invoice.contract.unit.floor}
           unit={invoice.contract.unit.number}
-          type={invoice.get_invoice_type_display}
-          amount={invoice.final_invoice_amount}
+          type={invoice.invoice_type}
+          amount={invoice.payable_amount}
           status={invoice.invoice_status}
           date={invoice.due_date}
           paymentDate={invoice.payment_date}

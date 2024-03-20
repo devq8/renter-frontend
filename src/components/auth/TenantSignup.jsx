@@ -203,13 +203,36 @@ export default function TenantSignupForm() {
     }
   };
 
-  function handleSendOTP(mobile) {
+  async function handleSendOTP(mobile) {
+    let response = ""; // Change the declaration from const to let
+
     if (isClickable) {
       setOtpRequested(true);
       setIsClickable(false);
       setTimer(180); // 3 minutes in seconds
 
-      sendOTPCode(mobile); // Live production function
+      try {
+        response = await sendOTPCode(mobile); // Live production function
+        toast.success(`OTP sent successfully. Please check your WhatsApp.`);
+      } catch (error) {
+        setIsClickable(true);
+        setOtpRequested(false);
+
+        console.log("Error :", error);
+        if (error.response && error.response.status === 429) {
+          toast.error(
+            "You've made too many requests. Please try again in 3 minutes."
+          );
+        } else if (error.response && error.response.status === 409) {
+          toast.error(`Mobile number already exists!`);
+          setTimer(0);
+        } else {
+          toast.error(
+            "An error occurred while sending OTP. Please try again later."
+          );
+          setTimer(0);
+        }
+      }
     }
   }
 
@@ -943,11 +966,12 @@ export default function TenantSignupForm() {
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
           backgroundImage:
-            "url(https://images.unsplash.com/photo-1527181152855-fc03fc7949c8?auto=format&w=1000&dpr=2)",
-          [theme.getColorSchemeSelector("dark")]: {
-            backgroundImage:
-              "url(https://images.unsplash.com/photo-1572072393749-3ca9c8ea0831?auto=format&w=1000&dpr=2)",
-          },
+            "url(https://wuc-static.s3.eu-north-1.amazonaws.com/static/images/kuwait_towers.png)",
+          // For Dark Theme
+          // [theme.getColorSchemeSelector("dark")]: {
+          //   backgroundImage:
+          //     "url(https://images.unsplash.com/photo-1572072393749-3ca9c8ea0831?auto=format&w=1000&dpr=2)",
+          // },
         })}
       />
     </>

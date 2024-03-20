@@ -1,17 +1,29 @@
 import React from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import Breadcrumb from "../../utils/Breadcrumb";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import Input from "../../utils/form/Input";
-import { addTenant } from "../../utils/api/tenants";
+import { addTenant, getTenants, updateTenant } from "../../utils/api/tenants";
+
 // import { PhotoIcon } from "@heroicons/react/24/solid";
 
-function AddTenent() {
+function TenantNewUpdate() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
+  const { id: tenantId } = useParams();
+  const isUpdatingMode = tenantId != null;
+
+  const { data: tenantData } = useQuery(
+    ["tenant", tenantId],
+    () => getTenants(tenantId),
+    { enabled: isUpdatingMode }
+  );
+
+  console.log("Tenant Details :", tenantData);
 
   function handleCancel() {
     navigate(-1);
@@ -29,18 +41,49 @@ function AddTenent() {
     },
   });
 
+  const updateTenantMutation = useMutation(
+    ({ id, ...tenantData }) => updateTenant(tenantData, id),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["tenants"]);
+        toast.success("Tenant updated successfully");
+        navigate("/tenants");
+      },
+      onError: (error) => {
+        let errorMessage = "";
+        if (error.response && error.response.data) {
+          errorMessage += `${
+            error.response.data.details || error.response.data.message
+          }`;
+        }
+        console.log("Error updating tenant: ", error);
+        toast.error("Error updating tenant", errorMessage);
+      },
+    }
+  );
+
   const formik = useFormik({
     initialValues: {
-      first_name: "",
-      last_name: "",
-      email: "",
-      mobile: "",
-      cid: "",
-      address: "",
+      english_name:
+        isUpdatingMode && tenantData?.data
+          ? tenantData.data.user.english_name
+          : "",
+      arabic_name:
+        isUpdatingMode && tenantData?.data
+          ? tenantData.data.user.arabic_name
+          : "",
+      email:
+        isUpdatingMode && tenantData?.data ? tenantData.data.user.email : "",
+      mobile:
+        isUpdatingMode && tenantData?.data ? tenantData.data.user.mobile : "",
+      cid: isUpdatingMode && tenantData?.data ? tenantData.data.cid : "",
+      address:
+        isUpdatingMode && tenantData?.data ? tenantData.data.address : "",
     },
+    enableReinitialize: true,
     validationSchema: Yup.object({
-      first_name: Yup.string().required("Required"),
-      last_name: Yup.string().required("Required"),
+      english_name: Yup.string().required("Required"),
+      arabic_name: Yup.string().required("Required"),
       email: Yup.string().email("Invalid email address"),
       mobile: Yup.string()
         .matches(/^\d{8}$/, "Mobile must be exactly 8 digits")
@@ -50,8 +93,8 @@ function AddTenent() {
     }),
     onSubmit: (values) => {
       const tenantData = {
-        first_name: values.first_name,
-        last_name: values.last_name,
+        english_name: values.english_name,
+        arabic_name: values.arabic_name,
         email: values.email,
         mobile: values.mobile,
         cid: values.cid,
@@ -59,7 +102,11 @@ function AddTenent() {
         tenant: true,
       };
       console.log("Tenant data: ", tenantData);
-      addTenantMutation.mutate(tenantData);
+      if (isUpdatingMode) {
+        updateTenantMutation.mutate({ id: tenantId, ...tenantData });
+      } else {
+        addTenantMutation.mutate(tenantData);
+      }
     },
   });
 
@@ -67,13 +114,36 @@ function AddTenent() {
     <div className="">
       <header className="bg-transparent">
         <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8 flex flex-col justify-between">
-          <Breadcrumb
-            main={{ title: "Tenants", url: "/tenants" }}
-            sub={[{ title: "Add New Tenant", url: "" }]}
-          />
+          {isUpdatingMode ? (
+            <Breadcrumb
+              main={{ title: "Tenants", url: "/tenants" }}
+              sub={[
+                {
+                  title: tenantData?.data?.user.english_name,
+                  url: "",
+                },
+                {
+                  title: "Update Tenant",
+                  url: "",
+                },
+              ]}
+            />
+          ) : (
+            <Breadcrumb
+              main={{ title: "Tenants", url: "/tenants" }}
+              sub={[
+                {
+                  title: "Add New Tenant",
+                  url: "",
+                },
+              ]}
+            />
+          )}
           <div className="flex flex-row justify-between">
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-              Add New Tenants
+              {isUpdatingMode
+                ? `Update Tenant ${tenantData?.data.user.english_name}`
+                : "Add New Tenant"}
             </h1>
           </div>
         </div>
@@ -95,27 +165,27 @@ function AddTenent() {
                 {/* First Row */}
                 <div className="flex p-3">
                   <Input
-                    name="first_name"
+                    name="english_name"
                     type="text"
-                    label="First name"
+                    label="English name"
                     required={true}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    value={formik.values.first_name}
+                    value={formik.values.english_name}
                     errorMessage={
-                      formik.touched.first_name && formik.errors.first_name
+                      formik.touched.english_name && formik.errors.english_name
                     }
                   />
                   <Input
-                    name="last_name"
+                    name="arabic_name"
                     type="text"
-                    label="Last name"
+                    label="Arabic name"
                     required={true}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    value={formik.values.last_name}
+                    value={formik.values.arabic_name}
                     errorMessage={
-                      formik.touched.last_name && formik.errors.last_name
+                      formik.touched.arabic_name && formik.errors.arabic_name
                     }
                   />
                 </div>
@@ -222,7 +292,13 @@ function AddTenent() {
                   className="rounded-md bg-[#BD9A5F] px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#BD9A5F] hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#BD9A5F]"
                   disabled={addTenantMutation.isLoading}
                 >
-                  {addTenantMutation.isLoading ? "Saving..." : "Save"}
+                  {isUpdatingMode
+                    ? updateTenantMutation.isLoading
+                      ? "Updating..."
+                      : "Update"
+                    : addTenantMutation.isLoading
+                    ? "Saving..."
+                    : "Save"}
                 </button>
               </div>
             </form>
@@ -233,4 +309,4 @@ function AddTenent() {
   );
 }
 
-export default AddTenent;
+export default TenantNewUpdate;

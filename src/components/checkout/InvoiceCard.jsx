@@ -36,14 +36,14 @@ export default function InvoiceCard({
                 {invoice.invoice_title}
               </Typography>
               <Typography gutterBottom component="div" color="text.secondary">
-                {invoice.get_invoice_type_display}
+                {invoice.invoice_type}
               </Typography>
             </Stack>
           </Stack>
           {/* Column - Amount */}
           <Stack direction="column" justifyContent="space-evenly">
             <Typography gutterBottom variant="h6" component="div">
-              KD {changeAmountFormat(invoice.final_invoice_amount)}
+              KD {changeAmountFormat(invoice.remaining_amount)}
             </Typography>
             <Chip
               label={invoice.invoice_status}

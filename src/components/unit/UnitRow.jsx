@@ -88,10 +88,17 @@ function UnitRow({
             : ""}
         </td>
         <td className="px-6 py-4 text-end">
-          {rent &&
-            (changeAmountFormat(overdueAmount)
-              ? `KD ${changeAmountFormat(overdueAmount)}`
-              : `KD -`)}
+          {overdueAmount ? (
+            <div className="flex justify-between">
+              <div>KD </div>
+              <div>changeAmountFormat(overdueAmount)</div>{" "}
+            </div>
+          ) : (
+            <div className="flex justify-between">
+              <div>KD </div>
+              <div>-</div>
+            </div>
+          )}
         </td>
         <td className="px-6 py-4 text-center action-icons">
           <button onClick={handleEdit} className="inline-block items-center">

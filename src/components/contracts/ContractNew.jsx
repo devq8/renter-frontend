@@ -76,12 +76,12 @@ function ContractNew() {
     isLoading: tenantsLoading,
     // error: tenantsError,
   } = useQuery(["tenants"], () => getTenants());
-
+  console.log("Tenants Data:", tenants.data);
   const tenantsList =
     tenants && tenants.data
       ? tenants.data.map((tenant) => ({
           value: tenant.user.id,
-          label: `${tenant.user.first_name} ${tenant.user.last_name}`,
+          label: tenant.user.english_name,
         }))
       : [];
 

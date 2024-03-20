@@ -15,7 +15,7 @@ function LastTransactions() {
     data: invoices,
     isLoading,
     error,
-  } = useQuery(["invoices"], () => getInvoices({ status: "Paid" }));
+  } = useQuery(["invoices"], () => getInvoices(null, "Paid"));
 
   function InvoicesList({ invoices }) {
     if (!invoices || invoices.length === 0) {
@@ -39,21 +39,20 @@ function LastTransactions() {
         .map((invoice) => {
           return (
             <tr key={invoice.id}>
-              <td className="p-4 whitespace-nowrap text-sm font-normal text-gray-900">
+              <td className="px-4 py-3 whitespace-nowrap text-sm font-normal text-gray-900">
                 <span className="font-semibold">
-                  {invoice.id} Date {invoice.invoice_date}{" "}
                   {invoice.contract.tenant.user.english_name}
                 </span>
               </td>
-              <td className="p-4 whitespace-nowrap text-sm font-normal text-gray-500">
+              <td className="px-4 py-3 whitespace-nowrap text-sm font-normal text-gray-500">
                 {invoice.contract.unit.property_fk.name}
               </td>
-              <td className="p-4 whitespace-nowrap text-sm font-normal text-gray-500">
+              <td className="px-4 py-3 whitespace-nowrap text-sm font-normal text-gray-500">
                 {invoice.contract.unit.number}
               </td>
-              <td className="flex p-4 whitespace-nowrap text-sm font-semibold text-gray-900 justify-between">
+              <td className="flex px-4 py-3 whitespace-nowrap text-sm font-semibold text-gray-900 justify-between">
                 <div className="mx-1">KD</div>
-                {changeAmountFormat(invoice.final_invoice_amount)}
+                {changeAmountFormat(invoice.payable_amount)}
               </td>
             </tr>
           );

@@ -13,7 +13,7 @@ export default function ContractCard({
   handleCheckboxChange,
   selectedInvoices,
 }) {
-  const invoices = contract.pending_invoices.map((invoice) => {
+  const invoices = contract.invoices.map((invoice) => {
     return (
       <InvoiceCard
         key={invoice.id}
@@ -53,7 +53,7 @@ export default function ContractCard({
             </Stack>
             <Stack direction="column">
               <Typography gutterBottom variant="h5" component="div">
-                KD {changeAmountFormat(contract.total_outstanding_amount)}
+                KD {changeAmountFormat(contract.total_pending_amount)}
               </Typography>
             </Stack>
           </Stack>

@@ -172,7 +172,7 @@ function InvoiceDetails() {
               <div className="flex flex-col items-start justify-center my-5 mx-2 pl-5 pr-10 border-l">
                 <h1 className="text-[#AEB3C2] text-sm font-bold">Amount</h1>
                 <h1 className="text-[#52555C] font-bold text-xl line-clamp-1 ">
-                  KD {changeAmountFormat(invoiceDetails?.final_invoice_amount)}
+                  KD {changeAmountFormat(invoiceDetails?.payable_amount)}
                 </h1>
               </div>
             </div>

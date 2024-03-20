@@ -75,7 +75,12 @@ function InvoiceRow({
       <td className="px-4 py-4 text-center">{type}</td>
       <td className="px-4 py-4 text-center">{changeDatesFormat(date)}</td>
       <td className="px-4 py-4 text-gray-700 font-medium text-end">
-        {amount && `KD ${changeAmountFormat(amount)}`}
+        {amount && (
+          <div className="flex justify-between">
+            <div>KD</div>
+            <div>{changeAmountFormat(amount)}</div>
+          </div>
+        )}
       </td>
       <td className="px-4 py-4 ">{showInvoiceStatus(status, paymentDate)}</td>
     </tr>

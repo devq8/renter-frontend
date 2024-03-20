@@ -62,7 +62,7 @@ export function sendInvoiceReminder(contractID) {
 
 export function sendOTPCode(mobile) {
   return instance.post("/api/auth/send_verification/", {
-    phone: `+965${mobile}`,
+    phone: mobile,
   });
 }
 

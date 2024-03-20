@@ -25,7 +25,6 @@ function PropertyDetails() {
   const { data: units, isLoading } = useQuery(["units", propertyId], () =>
     getUnitsList(propertyId)
   );
-
   const unitsList = units?.data
     ?.filter((unit) => {
       if (search === "") {
@@ -51,8 +50,7 @@ function PropertyDetails() {
           number={unit.number}
           type={unit.unit_type}
           vacant={unit.vacant}
-          tenantFirstName={unit.active_contract?.tenant.user.first_name}
-          tenantLastName={unit.active_contract?.tenant.user.last_name}
+          tenantFirstName={unit.active_contract?.tenant.user.english_name}
           rent={unit.active_contract?.rent}
           startPeriod={unit.active_contract?.start_date}
           endPeriod={unit.active_contract?.end_date}

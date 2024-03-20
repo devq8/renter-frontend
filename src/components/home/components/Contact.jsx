@@ -8,6 +8,7 @@ function Contact() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    mobile: "",
     subject: "",
     message: "",
   });
@@ -25,6 +26,7 @@ function Contact() {
         setFormData({
           name: "",
           email: "",
+          mobile: "",
           subject: "",
           message: "",
         });
@@ -134,6 +136,46 @@ function Contact() {
                       </label>
                     </div>
                   )}
+                  {errors.mobile ? (
+                    <div className="lg:col-span-6 mb-5 relative">
+                      <input
+                        type="text"
+                        id="mobile"
+                        name="mobile"
+                        value={formData.mobile}
+                        onChange={handleChange}
+                        className="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border-1 appearance-none dark:text-white dark:border-red-500 border-red-600 dark:focus:border-red-500 focus:outline-none focus:ring-0 focus:border-red-600 peer"
+                        placeholder=" "
+                      />
+                      <label
+                        for="outlined_error"
+                        className="absolute text-sm text-red-600 dark:text-red-500 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1"
+                      >
+                        Mobile
+                      </label>
+                    </div>
+                  ) : (
+                    <div className="lg:col-span-6 mb-5 relative">
+                      <input
+                        type="text"
+                        id="mobile"
+                        name="mobile"
+                        value={formData.mobile}
+                        onChange={handleChange}
+                        className="block px-2.5 pb-2.5 pt-4 w-full text-sm text-gray-900 bg-transparent rounded-lg border-1 border-gray-300 appearance-none dark:text-white dark:border-gray-600 dark:focus:border-primary focus:outline-none focus:ring-0 focus:border-primary peer"
+                        placeholder=" "
+                      />
+                      <label
+                        htmlFor="mobile"
+                        className="absolute text-sm text-gray-500 dark:text-gray-400 duration-300 transform -translate-y-4 scale-75 top-2 z-10 origin-[0] bg-white dark:bg-gray-900 px-2 peer-focus:px-2 peer-focus:text-primary peer-focus:dark:text-primary peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:top-1/2 peer-focus:top-2 peer-focus:scale-75 peer-focus:-translate-y-4 left-1"
+                      >
+                        Mobile
+                      </label>
+                    </div>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1">
                   {errors.email ? (
                     <div className="lg:col-span-6 mb-5 relative">
                       <input
@@ -172,7 +214,6 @@ function Contact() {
                     </div>
                   )}
                 </div>
-
                 <div className="grid grid-cols-1">
                   {errors.subject ? (
                     <div className="mb-5 relative">

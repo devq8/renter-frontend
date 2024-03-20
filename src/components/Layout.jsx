@@ -1,5 +1,5 @@
 import TenantList from "./tenants/TenantList";
-import AddTenent from "./tenants/AddTenent";
+import TenantNewUpdate from "./tenants/TenentNewUpdate";
 import PropertyList from "./properties/PropertyList";
 import ContractList from "./contracts/ContractList";
 import InvoiceList from "./invoices/InvoiceList";
@@ -57,7 +57,8 @@ export default function Layout() {
           <Routes>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/tenants" element={<TenantList />} />
-            <Route path="/tenants/new_tenant" element={<AddTenent />} />
+            <Route path="/tenants/:id/update" element={<TenantNewUpdate />} />
+            <Route path="/tenants/new_tenant" element={<TenantNewUpdate />} />
             <Route path="/properties" element={<PropertyList />} />
             <Route path="/properties/:id" element={<PropertyDetails />} />
             <Route

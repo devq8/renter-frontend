@@ -19,6 +19,8 @@ function TenantList() {
     // error,
   } = useQuery(["tenants"], () => getTenants());
 
+  console.log("Tenants Data:", tenants?.data);
+
   const handleSearch = (e) => {
     setSearch(e.target.value);
   };
@@ -28,8 +30,9 @@ function TenantList() {
       if (search === "") {
         return tenant;
       } else if (
-        tenant.user.first_name?.toLowerCase().includes(search.toLowerCase()) ||
-        tenant.user.last_name?.toLowerCase().includes(search.toLowerCase()) ||
+        tenant.user.english_name
+          ?.toLowerCase()
+          .includes(search.toLowerCase()) ||
         tenant.user.mobile?.toLowerCase().includes(search.toLowerCase()) ||
         tenant.cid?.toLowerCase().includes(search.toLowerCase()) ||
         tenant.user.email?.toLowerCase().includes(search.toLowerCase())
@@ -41,12 +44,16 @@ function TenantList() {
       return (
         <TenantRow
           key={tenant.user.id}
-          firstName={tenant.user.first_name}
-          lastName={tenant.user.last_name}
+          id={tenant.user.id}
+          englishName={tenant.user.english_name}
           email={tenant.user.email}
           cid={tenant.cid}
           status={tenant.user.is_active}
           mobile={tenant.user.mobile}
+          manager={
+            tenant.manager.legal_name || tenant.manager.user.english_name
+          }
+          amountDue={tenant.amount_due}
         />
       );
     });
@@ -114,12 +121,14 @@ function TenantList() {
                       scope="col"
                       className="px-6 py-4 font-medium text-gray-900"
                     >
-                      Role
+                      Manager
                     </th>
                     <th
                       scope="col"
                       className="px-6 py-4 font-medium text-gray-900"
-                    ></th>
+                    >
+                      Amount Due
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 border-t border-gray-100">

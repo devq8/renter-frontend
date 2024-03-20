@@ -64,12 +64,17 @@ function ContractRow({
       ) : (
         <td className="px-4 py-4">{daysToExpire} Days</td>
       )}
-      <td className="flex justify-end px-4 py-4 text-end">
+      <td className="flex justify-between px-4 py-4 text-end">
         <div className="me-1">KD</div>
         <div>{amountDue && changeAmountFormat(amountDue, 0)}</div>
       </td>
       <td className="px-4 py-4 text-gray-700 font-medium text-end">
-        {rent && `KD ${changeAmountFormat(rent, 0)}`}
+        {rent && (
+          <div className="flex justify-between">
+            <div>KD</div>
+            <div>{changeAmountFormat(rent, 0)}</div>
+          </div>
+        )}
       </td>
       <td className="px-4 py-4 flex justify-center items-center">
         {getStatus(status)}

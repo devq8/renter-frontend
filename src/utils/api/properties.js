@@ -17,12 +17,10 @@ export function getPropertyOverview(property_id) {
   return instance.get(`/api/properties/${property_id}/`);
 }
 
-// ######################### Add ###########################
 export function addProperty(property) {
   return instance.post("/api/properties/add/", property);
 }
 
-// ######################### Update ###########################
 export function updateProperty(property, id) {
   try {
     return instance.patch(`/api/properties/${id}/update/`, property);

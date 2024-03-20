@@ -1,7 +1,20 @@
 import React from "react";
+import { useNavigate } from "react-router";
 import profile from "../../assets/profile.png";
+import { changeAmountFormat } from "../../utils/format";
 
-function TenantRow({ firstName, lastName, email, cid, status, mobile }) {
+function TenantRow({
+  id,
+  englishName,
+  email,
+  cid,
+  status,
+  mobile,
+  manager,
+  amountDue,
+}) {
+  const navigate = useNavigate();
+
   function showStatus(status) {
     if (status) {
       return (
@@ -20,15 +33,18 @@ function TenantRow({ firstName, lastName, email, cid, status, mobile }) {
     }
   }
 
-  function handleDelete() {
-    console.log("Handle Delete function called");
-  }
-  function handleEdit() {
-    console.log("Handle Edit function called");
+  function handleTenantDetails() {
+    navigate(`/tenants/${id}/update`);
   }
 
   return (
-    <tr className="hover:bg-gray-50">
+    <tr
+      className="hover:bg-gray-50"
+      onClick={handleTenantDetails}
+      style={{
+        cursor: "pointer",
+      }}
+    >
       <th className="flex gap-3 px-6 py-4 font-normal text-gray-900">
         <div className="relative h-10 w-10">
           <img
@@ -43,29 +59,21 @@ function TenantRow({ firstName, lastName, email, cid, status, mobile }) {
           )}
         </div>
         <div className="text-sm">
-          <div className="font-medium text-gray-700">
-            {firstName} {lastName}
-          </div>
+          <div className="font-medium text-gray-700">{englishName}</div>
           <div className="text-gray-400">{email}</div>
         </div>
       </th>
       <td className="px-6 py-4">{showStatus(status)}</td>
       <td className="px-6 py-4">{mobile}</td>
       <td className="px-6 py-4">{cid}</td>
-      <td className="px-6 py-4">
-        <div className="flex gap-2">
-          <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-600">
-            Tenant
-          </span>
-          <span className="inline-flex items-center gap-1 rounded-full bg-indigo-50 px-2 py-1 text-xs font-semibold text-indigo-600">
-            Owner
-          </span>
-          <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-600">
-            Admin
-          </span>
+      <td className="px-6 py-4">{manager}</td>
+      <td className="px-6 py-4 text-gray-700 font-medium text-end">
+        <div className="flex justify-between">
+          <div>KD</div>
+          <div>{changeAmountFormat(amountDue, 0)}</div>
         </div>
       </td>
-      <td className="px-6 py-4">
+      {/* <td className="px-6 py-4">
         <div className="flex justify-end gap-4">
           <a x-data="{ tooltip: 'Delete' }" onClick={handleDelete}>
             <svg
@@ -102,7 +110,7 @@ function TenantRow({ firstName, lastName, email, cid, status, mobile }) {
             </svg>
           </a>
         </div>
-      </td>
+      </td> */}
     </tr>
   );
 }

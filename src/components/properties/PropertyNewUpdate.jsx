@@ -128,7 +128,7 @@ function PropertyNewUpdate() {
     owners && owners?.data
       ? owners.data.map((owner) => ({
           value: owner.id,
-          label: `${owner.user.first_name} ${owner.user.last_name}`,
+          label: owner.user.english_name,
         }))
       : [];
 

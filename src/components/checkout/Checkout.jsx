@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "react-toastify";
@@ -17,11 +17,6 @@ import Alert from "@mui/material/Alert";
 import CheckIcon from "@mui/icons-material/Check";
 import { Divider } from "@mui/material";
 
-// import { BsCreditCard2Back } from "react-icons/bs";
-// import VISALogo from "../../assets/images/visa.png";
-// import MasterCardLogo from "../../assets/images/mastercard.png";
-// import { BsFillBuildingFill, BsFillPersonFill } from "react-icons/bs";
-
 function Checkout() {
   const { unique_payment_identifier } = useParams(); // Get unique_payment_identifier from url
   const [isSubmitting, setIsSubmitting] = useState(false); // New state for tracking form submission
@@ -34,22 +29,22 @@ function Checkout() {
     () => getCheckoutDetails(unique_payment_identifier)
   );
 
-  console.log("Checkout items : ", checkoutItems?.data);
+  // console.log("Checkout items : ", checkoutItems?.data);
 
   // On mount, select all invoices and calculate the initial total amount
   useEffect(() => {
     if (!checkoutItems) return; // Return if checkoutItems is not available
 
     const allInvoicesIds = checkoutItems?.data.flatMap((contract) =>
-      contract.pending_invoices.map((invoice) => invoice.id)
+      contract.invoices.map((invoice) => invoice.id)
     );
     setSelectedInvoices(allInvoicesIds);
 
     const initialTotal = checkoutItems?.data.reduce(
       (accumulator, contract) =>
         accumulator +
-        contract.pending_invoices.reduce(
-          (sum, invoice) => sum + Number(invoice.final_invoice_amount),
+        contract.invoices.reduce(
+          (sum, invoice) => sum + Number(invoice.remaining_amount),
           0
         ),
       0
@@ -65,12 +60,9 @@ function Checkout() {
     const newTotal = checkoutItems?.data.reduce(
       (accumulator, contract) =>
         accumulator +
-        contract.pending_invoices
+        contract.invoices
           .filter((invoice) => selectedInvoices.includes(invoice.id))
-          .reduce(
-            (sum, invoice) => sum + Number(invoice.final_invoice_amount),
-            0
-          ),
+          .reduce((sum, invoice) => sum + Number(invoice.remaining_amount), 0),
       0
     );
 
@@ -87,7 +79,7 @@ function Checkout() {
   // Below variable to show Contract Card and under each Contract Card, show Invoice Card embedded
   const contractsList = checkoutItems?.data?.map((contract) => {
     // Show Contract Card only if there are pending invoices
-    if (contract.pending_invoices.length > 0) {
+    if (contract.total_pending_amount > 0) {
       return (
         <ContractCard
           key={contract.id}

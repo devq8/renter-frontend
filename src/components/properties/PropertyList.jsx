@@ -42,7 +42,7 @@ function PropertyList() {
           name={property.name}
           area={property.area}
           address={property.address}
-          owner={property.owner}
+          owner={property.owner_name[0]}
         />
       );
     });
