@@ -27,6 +27,8 @@ import InvoiceNew from "./invoices/InvoiceNew";
 import ConnectionChecker from "../utils/ConnectionChecker";
 import Receipt from "./invoices/Receipt";
 import Checkout from "./checkout/Checkout";
+import Payments from "./invoices/Payments";
+import PaymentDetails from "./invoices/PaymentDetails";
 
 export default function Layout() {
   const navigate = useNavigate();
@@ -34,7 +36,9 @@ export default function Layout() {
   const location = useLocation();
 
   // Check if the current route is the Checkout page
-  const isCheckoutPage = location.pathname.startsWith("/checkout");
+  const isCheckoutPage =
+    location.pathname.startsWith("/checkout") ||
+    location.pathname.startsWith("/payments");
 
   if (!user?.data && !isCheckoutPage) navigate("/signin");
 
@@ -48,11 +52,11 @@ export default function Layout() {
   return (
     <>
       <div
-        className={`min-h-[100vh] bg-[#F7F6F2] lg:pt-4 ${
-          lan == "en" ? "text-left" : "text-right"
-        }`}
+        className={`min-h-[100vh] bg-[#F7F6F2] ${
+          !isCheckoutPage && "lg: pt-4"
+        } ${lan == "en" ? "text-left" : "text-right"}`}
       >
-        <Navbar first_name={first_name} email={email} />
+        {!isCheckoutPage && <Navbar first_name={first_name} email={email} />}
         <ConnectionChecker>
           <Routes>
             <Route path="/dashboard" element={<Dashboard />} />
@@ -84,6 +88,14 @@ export default function Layout() {
               path="/checkout/:unique_payment_identifier"
               element={<Checkout />}
             />
+            <Route
+              path="/payments/:unique_payment_identifier"
+              element={<Payments />}
+            />
+            <Route
+              path="/payments/:unique_payment_identifier/:payment_id"
+              element={<PaymentDetails />}
+            />
             <Route path="/contracts/new_contract" element={<ContractNew />} />
             <Route path="/invoices" element={<InvoiceList />} />
             <Route path="/invoices/:id" element={<InvoiceDetails />} />
@@ -91,7 +103,6 @@ export default function Layout() {
             <Route path="/invoices/:id/pay" element={<PaymentForm />} />
             <Route path="/invoices/:id/return" element={<PaymentReturn />} />
             <Route path="/invoices/:paymentid/receipt" element={<Receipt />} />
-            {/* <Route path="/checkout/response" element={<Status />} /> */}
           </Routes>
         </ConnectionChecker>
         <Footer />

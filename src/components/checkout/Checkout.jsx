@@ -16,11 +16,17 @@ import * as Yup from "yup";
 import Alert from "@mui/material/Alert";
 import CheckIcon from "@mui/icons-material/Check";
 import { Divider } from "@mui/material";
+import { Header } from "../navbar/Header";
+import Person from "@mui/icons-material/Person";
+import Button from "@mui/joy/Button";
+import CircularProgress from "@mui/joy/CircularProgress";
 
 function Checkout() {
   const { unique_payment_identifier } = useParams(); // Get unique_payment_identifier from url
   const [isSubmitting, setIsSubmitting] = useState(false); // New state for tracking form submission
   const [totalAmount, setTotalAmount] = useState(0); // New state for tracking total amount
+  const [subTotalAmount, setSubTotalAmount] = useState(0);
+  const [totalDiscount, setTotalDiscount] = useState(0);
   const [selectedInvoices, setSelectedInvoices] = useState([]);
 
   // Retreive Checkout Items details from backend
@@ -29,27 +35,32 @@ function Checkout() {
     () => getCheckoutDetails(unique_payment_identifier)
   );
 
-  // console.log("Checkout items : ", checkoutItems?.data);
+  console.log("Checkout items : ", checkoutItems?.data);
 
   // On mount, select all invoices and calculate the initial total amount
   useEffect(() => {
     if (!checkoutItems) return; // Return if checkoutItems is not available
 
+    // Select all invoices by default
     const allInvoicesIds = checkoutItems?.data.flatMap((contract) =>
       contract.invoices.map((invoice) => invoice.id)
     );
     setSelectedInvoices(allInvoicesIds);
 
-    const initialTotal = checkoutItems?.data.reduce(
-      (accumulator, contract) =>
-        accumulator +
-        contract.invoices.reduce(
-          (sum, invoice) => sum + Number(invoice.remaining_amount),
-          0
-        ),
-      0
-    );
-    setTotalAmount(initialTotal);
+    // Calculate the initial total amount
+    let initialSubTotal = 0;
+    let initialDiscount = 0;
+
+    checkoutItems?.data.forEach((contract) => {
+      contract.invoices.forEach((invoice) => {
+        initialSubTotal += Number(invoice.invoice_amount);
+        initialDiscount += Number(invoice.discount_value || 0);
+      });
+    });
+
+    setSubTotalAmount(initialSubTotal);
+    setTotalDiscount(initialDiscount);
+    setTotalAmount(initialSubTotal - initialDiscount);
   }, [checkoutItems]);
 
   // On every change in selectedInvoices, recalculate the total amount
@@ -57,16 +68,21 @@ function Checkout() {
     if (!checkoutItems) return; // Return if checkoutItems is not available
 
     // Calculate the new total amount based on the selected invoices
-    const newTotal = checkoutItems?.data.reduce(
-      (accumulator, contract) =>
-        accumulator +
-        contract.invoices
-          .filter((invoice) => selectedInvoices.includes(invoice.id))
-          .reduce((sum, invoice) => sum + Number(invoice.remaining_amount), 0),
-      0
-    );
+    let subTotalAmount = 0;
+    let totalDiscount = 0;
 
-    setTotalAmount(newTotal);
+    checkoutItems?.data.forEach((contract) => {
+      contract.invoices.forEach((invoice) => {
+        if (selectedInvoices.includes(invoice.id)) {
+          subTotalAmount += Number(invoice.invoice_amount);
+          totalDiscount += Number(invoice.discount_value || 0);
+        }
+      });
+    });
+
+    setSubTotalAmount(subTotalAmount);
+    setTotalDiscount(totalDiscount);
+    setTotalAmount(subTotalAmount - totalDiscount);
   }, [selectedInvoices, checkoutItems]);
 
   // Handle checkbox changes
@@ -150,8 +166,9 @@ function Checkout() {
   }
 
   return (
-    <div className="min-h-[100vh] bg-[#F7F6F2] lg:pt-4">
-      {/* <NavBar /> */}
+    <div className="min-h-[100vh] bg-[#F7F6F2]">
+      <Header uid={unique_payment_identifier} />
+
       <form onSubmit={formik.handleSubmit}>
         <header className="bg-transparent">
           <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8 flex flex-col justify-between">
@@ -162,22 +179,25 @@ function Checkout() {
             </div>
 
             {/* Tenant Details */}
-            <div className="m-3 space-y-4">
+            <div className="m-1 space-y-4">
               <Card
                 sx={{
                   minWidth: 275,
                   display: "flex",
-                  justifyContent: "space-between",
+                  justifyContent: "left",
                   alignItems: "center",
-                  padding: "1rem",
+                  // padding: "1rem",
                 }}
               >
+                <Person fontSize="large" sx={{ ml: 2, mr: 2 }} />
                 <CardContent>
                   <Typography
                     sx={{ fontSize: 14 }}
                     color="text.secondary"
                     gutterBottom
-                  ></Typography>
+                  >
+                    Name
+                  </Typography>
                   <Typography variant="h5" component="div">
                     {checkoutItems?.data[0]?.tenant.user.english_name}
                   </Typography>
@@ -219,7 +239,13 @@ function Checkout() {
                     <Stack direction="row" justifyContent="space-between">
                       <Typography variant="h7">Subtotal</Typography>
                       <Typography variant="h7">
-                        KD {changeAmountFormat(totalAmount)}
+                        KD {changeAmountFormat(subTotalAmount)}
+                      </Typography>
+                    </Stack>
+                    <Stack direction="row" justifyContent="space-between">
+                      <Typography variant="h7">Discount</Typography>
+                      <Typography variant="h7">
+                        KD {changeAmountFormat(totalDiscount)}
                       </Typography>
                     </Stack>
                     <Stack direction="row" justifyContent="space-between">
@@ -254,10 +280,7 @@ function Checkout() {
               disabled={totalAmount <= 0 || isSubmitting}
             >
               {isSubmitting ? (
-                <span>
-                  Redirecting...
-                  {/* Optional: Add a loader icon here */}
-                </span>
+                <span>Redirecting...</span>
               ) : (
                 <div className="flex items-center justify-center space-x-5">
                   <img src={KNetLogo} className={`w-10`} />
@@ -269,6 +292,19 @@ function Checkout() {
               <div className="error">{formik.errors.invoices}</div>
             ) : null}
           </div>
+          {/* <Box
+            sx={{
+              display: "flex",
+              gap: 2,
+              alignItems: "center",
+              justifyContent: "center",
+              flexWrap: "wrap",
+            }}
+          >
+            <Button startDecorator={<CircularProgress variant="solid" />}>
+              Loading…
+            </Button>
+          </Box> */}
         </div>
       </form>
     </div>

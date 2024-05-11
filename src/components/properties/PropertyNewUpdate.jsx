@@ -36,6 +36,8 @@ function PropertyNewUpdate() {
     { enabled: isUpdatingMode }
   );
 
+  console.log("Property Data: ", propertyData?.data);
+
   const addPropertyMutation = useMutation((property) => addProperty(property), {
     onSuccess: () => {
       queryClient.invalidateQueries(["properties"]);
@@ -113,11 +115,11 @@ function PropertyNewUpdate() {
     managers && managers?.data
       ? managers.data.map((manager) => ({
           value: manager.id,
-          label:
-            manager.legal_name ??
-            `${manager.user.first_name} ${manager.user.last_name}`,
+          label: manager.legal_name ?? manager.user.english_name,
         }))
       : [];
+
+  console.log("Managers List: ", managersList);
 
   const {
     data: owners,
@@ -131,6 +133,8 @@ function PropertyNewUpdate() {
           label: owner.user.english_name,
         }))
       : [];
+
+  console.log("Owners List: ", ownersList);
 
   const formik = useFormik({
     initialValues: {
@@ -180,7 +184,7 @@ function PropertyNewUpdate() {
         beneficiary: values.beneficiary,
         IBAN: values.IBAN,
       };
-      // console.log("Property data: ", propertyData);
+      console.log("Submit property data: ", propertyData);
       if (isUpdatingMode) {
         updatePropertyMutation.mutate({ id: propertyId, ...propertyData });
       } else {
@@ -391,8 +395,13 @@ function PropertyNewUpdate() {
                       )
                     }
                     value={managersList?.filter((option) =>
-                      formik.values.manager.includes(option.value)
+                      Array.isArray(formik.values.manager)
+                        ? formik.values.manager.includes(option.value)
+                        : false
                     )}
+                    // value={managersList?.filter((option) =>
+                    //   formik.values.manager.includes(option.value)
+                    // )}
                     onBlur={formik.handleBlur}
                     isMulti={true}
                     isLoading={managersLoading}
@@ -420,8 +429,13 @@ function PropertyNewUpdate() {
                     }
                     onBlur={formik.handleBlur}
                     value={ownersList?.filter((option) =>
-                      formik.values.owner.includes(option.value)
+                      Array.isArray(formik.values.owner)
+                        ? formik.values.owner.includes(option.value)
+                        : false
                     )}
+                    // value={ownersList?.filter((option) =>
+                    //   formik.values.owner.includes(option.value)
+                    // )}
                     isMulti={true}
                     isLoading={ownersLoading}
                     errorMessage={formik.touched.owner && formik.errors.owner}

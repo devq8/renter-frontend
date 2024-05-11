@@ -14,10 +14,12 @@ import "./assets/scss/tailwind.scss";
 import "./assets/scss/icons.scss";
 import Checkout from "./components/checkout/Checkout";
 import Status from "./components/checkout/Status";
+import PaymentDetails from "./components/invoices/PaymentDetails";
 import { ToastContainer } from "react-toastify";
 import { CssVarsProvider } from "@mui/joy/styles";
 import CssBaseline from "@mui/joy/CssBaseline";
 import GlobalStyles from "@mui/joy/GlobalStyles";
+import Sheet from "@mui/joy/Sheet";
 
 const queryClient = new QueryClient();
 
@@ -42,8 +44,7 @@ function App() {
             <Route path="/signin" element={<Signin />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/signup/tenant/:uid" element={<TenantSignup />} />
-            {/* <Route path="/contracts/:id/checkout" element={<Checkout />} /> */}
-            <Route path="/checkout/response" element={<Status />} />
+            <Route path="/checkout/response" element={<PaymentDetails />} />
             <Route path="/" element={<Home />} />
           </Routes>
           <ToastContainer />

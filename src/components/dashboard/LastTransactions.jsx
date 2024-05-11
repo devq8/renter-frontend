@@ -15,7 +15,11 @@ function LastTransactions() {
     data: invoices,
     isLoading,
     error,
-  } = useQuery(["invoices"], () => getInvoices(null, "Paid"));
+  } = useQuery(["invoices"], () =>
+    getInvoices({ uid: null, contract_id: null, invoice_status: "Paid" })
+  );
+
+  // console.log("Invoices:", invoices?.data);
 
   function InvoicesList({ invoices }) {
     if (!invoices || invoices.length === 0) {

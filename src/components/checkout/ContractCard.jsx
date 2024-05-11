@@ -28,7 +28,7 @@ export default function ContractCard({
   });
 
   return (
-    <Box sx={{ mb: 6 }}>
+    <Box sx={{ mb: 0 }}>
       <Card>
         <Box sx={{ p: 2 }}>
           <Stack direction="row" justifyContent="space-between">

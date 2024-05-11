@@ -1,7 +1,23 @@
 import instance from "./index";
 
-export function paymentResponse(data) {
-  return instance.get(`/api/checkout/response/?data=${data}`);
+export function paymentResponse(data = null, payment_id = null) {
+  // console.log("Fn data:", data);
+  // console.log("Fn Payment ID:", payment_id);
+  let url = "/api/checkout/response/";
+  let queryParams = [];
+
+  if (data) {
+    queryParams.push(`data=${data}`);
+  } else if (payment_id) {
+    queryParams.push(`payment_id=${payment_id}`);
+  }
+
+  if (queryParams.length > 0) {
+    url += `?${queryParams.join("&")}`;
+  }
+
+  // console.log("URL:", url);
+  return instance.get(url);
 }
 
 export function sendPayment(data) {
@@ -23,6 +39,10 @@ export function sendPayment(data) {
 
 export function getPaymentDetails(paymentId) {
   return instance.get(`/api/checkout/receipt/${paymentId}/`);
+}
+
+export function getPaymentsList(uid) {
+  return instance.get(`/api/payments/?uid=${uid}`);
 }
 
 export function getCheckoutDetails(unique_payment_identifier) {

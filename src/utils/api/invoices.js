@@ -1,20 +1,23 @@
 // import axios from "axios";
 import instance from "./index";
 
-export function getInvoices(contract_id = null, invoice_status = null) {
-  console.log("Contract: ", contract_id);
-  console.log("Status: ", invoice_status);
-
+export function getInvoices({
+  contract_id = null,
+  invoice_status = null,
+  uid = null,
+} = {}) {
   let url = "/api/invoices/";
+  let queryParams = [];
 
-  if (contract_id && invoice_status) {
-    url += `?contract=${contract_id}&status=${invoice_status}`;
-  } else if (contract_id) {
-    url += `?contract=${contract_id}`;
-  } else if (invoice_status) {
-    url += `?status=${invoice_status}`;
+  if (uid) queryParams.push(`uid=${uid}`);
+  if (contract_id) queryParams.push(`contract=${contract_id}`);
+  if (invoice_status) queryParams.push(`status=${invoice_status}`);
+
+  if (queryParams.length > 0) {
+    url += `?${queryParams.join("&")}`;
   }
 
+  console.log("URL:", url);
   return instance.get(url);
 }
 

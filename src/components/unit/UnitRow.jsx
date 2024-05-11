@@ -78,7 +78,7 @@ function UnitRow({
           {tenantFirstName} {tenantLastName}
         </td>
         <td className="px-6 py-4">
-          {rent && `KD ${changeAmountFormat(rent)}`}
+          {rent && `KD ${changeAmountFormat(rent, 0)}`}
         </td>
         <td className="px-6 py-4">
           {startPeriod
@@ -91,7 +91,7 @@ function UnitRow({
           {overdueAmount ? (
             <div className="flex justify-between">
               <div>KD </div>
-              <div>changeAmountFormat(overdueAmount)</div>{" "}
+              <div>{changeAmountFormat(overdueAmount)}</div>{" "}
             </div>
           ) : (
             <div className="flex justify-between">

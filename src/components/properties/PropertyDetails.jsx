@@ -25,6 +25,7 @@ function PropertyDetails() {
   const { data: units, isLoading } = useQuery(["units", propertyId], () =>
     getUnitsList(propertyId)
   );
+  console.log("Units:", units?.data);
   const unitsList = units?.data
     ?.filter((unit) => {
       if (search === "") {

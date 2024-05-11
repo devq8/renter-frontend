@@ -13,18 +13,23 @@ import "./styles.css";
 function Status() {
   const navigate = useNavigate();
   const [apiData, setApiData] = useState("");
+  const [referenceToken, setReferenceToken] = useState("");
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const dataParam = urlParams.get("data");
+    const tokenParam = urlParams.get("token");
     setApiData(dataParam);
+    setReferenceToken(tokenParam);
   }, []);
 
   const {
     data: response,
     isLoading,
     error,
-  } = useQuery(["payment", apiData], () => paymentResponse(apiData));
+  } = useQuery(["payment", apiData || referenceToken], () =>
+    paymentResponse(apiData, referenceToken)
+  );
 
   const paymentInfo = response?.data;
 

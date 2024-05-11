@@ -187,6 +187,7 @@ function TenantNewUpdate() {
                     errorMessage={
                       formik.touched.arabic_name && formik.errors.arabic_name
                     }
+                    direction="rtl"
                   />
                 </div>
                 {/* Second Row */}

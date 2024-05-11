@@ -7,13 +7,27 @@ import Stack from "@mui/material/Stack";
 import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
 import { changeAmountFormat, changeDatesFormat } from "../../utils/format";
+import ShowerIcon from "@mui/icons-material/Shower";
+import BoltIcon from "@mui/icons-material/Bolt";
+import ApartmentIcon from "@mui/icons-material/Apartment";
+import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 
-export default function InvoiceCard({
-  invoice,
-  onChange,
-  flexible,
-  isChecked,
-}) {
+export default function InvoiceCard({ invoice }) {
+  switch (invoice.invoice_type.toLowerCase()) {
+    case "rent":
+      invoice.icon = <ApartmentIcon fontSize="large" />;
+      break;
+    case "electricity":
+      invoice.icon = <BoltIcon fontSize="large" />;
+      break;
+    case "water":
+      invoice.icon = <ShowerIcon fontSize="large" />;
+      break;
+    default:
+      invoice.icon = <ReceiptLongIcon fontSize="large" />;
+      break;
+  }
+
   return (
     <Card variant="outlined">
       <Box sx={{ p: 2 }}>
@@ -24,13 +38,10 @@ export default function InvoiceCard({
             direction="row"
             justifyContent="space-between"
             alignItems="center"
-            spacing={1}
+            spacing={2}
           >
-            <Checkbox
-              checked={isChecked}
-              disabled={!flexible}
-              onChange={onChange}
-            />
+            {invoice.icon}
+            {/* <ShowerIcon fontSize="large" /> */}
             <Stack direction="column" alignItems="start">
               <Typography gutterBottom variant="h6" component="div">
                 {invoice.invoice_title}
@@ -45,11 +56,6 @@ export default function InvoiceCard({
             <Typography gutterBottom variant="h6" component="div">
               KD {changeAmountFormat(invoice.invoice_amount)}
             </Typography>
-            <Chip
-              label={invoice.invoice_status}
-              color="warning"
-              variant="outlined"
-            />
           </Stack>
         </Stack>
       </Box>
@@ -65,7 +71,7 @@ export default function InvoiceCard({
         >
           <Stack direction="column" spacing={1}>
             <Typography gutterBottom variant="body2">
-              Invoice issued on {changeDatesFormat(invoice.invoice_date)}
+              Invoice date {changeDatesFormat(invoice.invoice_date)}
             </Typography>
             <Typography gutterBottom variant="body2">
               Period from <b>{changeDatesFormat(invoice.from_date)}</b> to{" "}

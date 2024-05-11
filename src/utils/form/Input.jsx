@@ -17,6 +17,7 @@ function Input(props) {
     pattern,
     disabled,
     prefix,
+    direction,
     ...inputProps
   } = props;
 
@@ -49,6 +50,7 @@ function Input(props) {
             disabled={disabled}
             onChange={onChange}
             onBlur={onBlur}
+            dir={direction || "ltr"}
           />
         </div>
       ) : (
@@ -63,6 +65,7 @@ function Input(props) {
           disabled={disabled}
           onChange={onChange}
           onBlur={onBlur}
+          dir={direction || "ltr"}
         />
       )}
       {errorMessage && (
