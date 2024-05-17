@@ -124,7 +124,7 @@ function Payments() {
                   Name
                 </Typography>
                 <Typography variant="h5" component="div">
-                  {paymentItems && paymentItems[0].tenant_name}
+                  {paymentItems && paymentItems.tenant.user.english_name}
                 </Typography>
               </CardContent>
             </Card>
@@ -144,7 +144,7 @@ function Payments() {
               >
                 <DataGrid
                   autoHeight
-                  rows={paymentItems.map((payment) => ({
+                  rows={paymentItems.payments.map((payment) => ({
                     id: payment.id,
                     payment_date: changeDateTimeFormat(payment.payment_date),
                     payment_method:

@@ -19,8 +19,6 @@ export function updateTenant(tenant, id) {
 }
 
 export function addTenant(formData, uid) {
-  console.log("I'm in addTenant function trying to upload tenant details");
-
   // Check and delete email if necessary
   const email = formData.get("email");
   if (!email || email.trim() === "") {

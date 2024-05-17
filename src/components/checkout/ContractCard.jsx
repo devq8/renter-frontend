@@ -51,11 +51,11 @@ export default function ContractCard({
                 {contract.unit.number}
               </Typography>
             </Stack>
-            <Stack direction="column">
+            {/* <Stack direction="column">
               <Typography gutterBottom variant="h5" component="div">
                 KD {changeAmountFormat(contract.total_pending_amount)}
               </Typography>
-            </Stack>
+            </Stack> */}
           </Stack>
           <Typography color="text.secondary" variant="body2">
             This contract has been started on{" "}

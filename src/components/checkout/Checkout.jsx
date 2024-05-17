@@ -35,14 +35,19 @@ function Checkout() {
     () => getCheckoutDetails(unique_payment_identifier)
   );
 
-  console.log("Checkout items : ", checkoutItems?.data);
+  console.log("Checkout items : ", checkoutItems?.data?.contracts);
+
+  const totalOutstandingAmount = checkoutItems?.data?.contracts?.reduce(
+    (acc, contract) => acc + contract.total_pending_amount,
+    0
+  );
 
   // On mount, select all invoices and calculate the initial total amount
   useEffect(() => {
     if (!checkoutItems) return; // Return if checkoutItems is not available
 
     // Select all invoices by default
-    const allInvoicesIds = checkoutItems?.data.flatMap((contract) =>
+    const allInvoicesIds = checkoutItems?.data?.contracts.flatMap((contract) =>
       contract.invoices.map((invoice) => invoice.id)
     );
     setSelectedInvoices(allInvoicesIds);
@@ -51,7 +56,7 @@ function Checkout() {
     let initialSubTotal = 0;
     let initialDiscount = 0;
 
-    checkoutItems?.data.forEach((contract) => {
+    checkoutItems?.data?.contracts.forEach((contract) => {
       contract.invoices.forEach((invoice) => {
         initialSubTotal += Number(invoice.invoice_amount);
         initialDiscount += Number(invoice.discount_value || 0);
@@ -71,7 +76,7 @@ function Checkout() {
     let subTotalAmount = 0;
     let totalDiscount = 0;
 
-    checkoutItems?.data.forEach((contract) => {
+    checkoutItems?.data?.contracts.forEach((contract) => {
       contract.invoices.forEach((invoice) => {
         if (selectedInvoices.includes(invoice.id)) {
           subTotalAmount += Number(invoice.invoice_amount);
@@ -93,7 +98,7 @@ function Checkout() {
   };
 
   // Below variable to show Contract Card and under each Contract Card, show Invoice Card embedded
-  const contractsList = checkoutItems?.data?.map((contract) => {
+  const contractsList = checkoutItems?.data?.contracts.map((contract) => {
     // Show Contract Card only if there are pending invoices
     if (contract.total_pending_amount > 0) {
       return (
@@ -113,7 +118,7 @@ function Checkout() {
       paymentType: 1, // Knet = 1, Credit Card = 2
       orderReferenceNumber: "",
       variable1: "",
-      variable2: `Tenant__#${checkoutItems?.data[0]?.tenant.user.id}-${checkoutItems?.data[0]?.tenant.user.english_name}`,
+      variable2: `Tenant__#${checkoutItems?.data?.tenant.user.id}-${checkoutItems?.data?.tenant.user.english_name}`,
       variable3: "",
       variable4: "",
       variable5: "",
@@ -132,10 +137,10 @@ function Checkout() {
       const updatedValues = {
         ...values,
         invoices: selectedInvoices,
-        variable1: `ContractIDs__${checkoutItems?.data
+        variable1: `ContractIDs__${checkoutItems?.data?.contracts
           .map((contract) => `#${contract.id}`)
           .join("_")}`,
-        variable3: `Building__${checkoutItems?.data
+        variable3: `Building__${checkoutItems?.data?.contracts
           .map((contract) =>
             contract.unit.property_fk.name.replace(/\s+/g, "_")
           )
@@ -199,23 +204,36 @@ function Checkout() {
                     Name
                   </Typography>
                   <Typography variant="h5" component="div">
-                    {checkoutItems?.data[0]?.tenant.user.english_name}
+                    {checkoutItems?.data?.tenant.user.english_name}
                   </Typography>
                 </CardContent>
               </Card>
             </div>
 
             <div className="flex-col pt-3 justify-between items-center">
-              <Alert
-                sx={{ mb: 2 }}
-                icon={<CheckIcon fontSize="inherit" />}
-                severity="success"
-              >
-                Please select the invoices you want to pay
-              </Alert>
-              <h1 className="text-xl font-bold tracking-tight text-gray-900">
-                Contracts
-              </h1>
+              {totalOutstandingAmount == 0 ? (
+                <Alert
+                  sx={{ mb: 2 }}
+                  icon={<CheckIcon fontSize="inherit" />}
+                  severity="success"
+                >
+                  No invoices to pay
+                </Alert>
+              ) : (
+                <>
+                  <Alert
+                    sx={{ mb: 2 }}
+                    icon={<CheckIcon fontSize="inherit" />}
+                    severity="success"
+                  >
+                    Please select the invoices you want to pay
+                  </Alert>
+
+                  <h1 className="text-xl font-bold tracking-tight text-gray-900">
+                    Contracts
+                  </h1>
+                </>
+              )}
             </div>
             {/* Contract Card */}
             <div className="m-3 space-y-4">{contractsList}</div>
@@ -277,7 +295,12 @@ function Checkout() {
                 ? "bg-primary hover:bg-[52555C] hover:opacity-80 active:bg-[52555C] text-white"
                 : "bg-gray-400 text-gray-500 cursor-not-allowed"
             }`}
-              disabled={totalAmount <= 0 || isSubmitting}
+              disabled={
+                totalAmount <= 0 ||
+                isSubmitting ||
+                totalOutstandingAmount == 0 ||
+                checkoutItems?.status != 200
+              }
             >
               {isSubmitting ? (
                 <span>Redirecting...</span>
