@@ -91,10 +91,86 @@ function Checkout() {
   }, [selectedInvoices, checkoutItems]);
 
   // Handle checkbox changes
-  const handleCheckboxChange = (invoiceId, isChecked) => {
-    setSelectedInvoices((prev) =>
-      isChecked ? [...prev, invoiceId] : prev.filter((id) => id !== invoiceId)
+  // const handleCheckboxChange = (invoiceId, isChecked) => {
+  //   // Update the selected invoices based on the checkbox change
+  //   setSelectedInvoices((prev) =>
+  //     isChecked ? [...prev, invoiceId] : prev.filter((id) => id !== invoiceId)
+  //   );
+  // };
+
+  const handleCheckboxChange = (invoiceId, isChecked, contract) => {
+    // Helper function to get all invoices for a given month
+    const getInvoicesForMonth = (month, year) => {
+      return contract.invoices
+        .filter((invoice) => {
+          const dueDate = new Date(invoice.due_date);
+          return dueDate.getMonth() === month && dueDate.getFullYear() === year;
+        })
+        .map((invoice) => invoice.id);
+    };
+
+    // Helper function to get all unpaid invoices before a given month
+    const getUnpaidInvoicesBeforeMonth = (month, year) => {
+      return contract.invoices
+        .filter((invoice) => {
+          const dueDate = new Date(invoice.due_date);
+          return (
+            dueDate.getFullYear() < year ||
+            (dueDate.getFullYear() === year && dueDate.getMonth() < month)
+          );
+        })
+        .map((invoice) => invoice.id);
+    };
+
+    // Helper function to get all unpaid invoices from a given month onwards
+    const getUnpaidInvoicesFromMonthOnward = (month, year) => {
+      return contract.invoices
+        .filter((invoice) => {
+          const dueDate = new Date(invoice.due_date);
+          return (
+            dueDate.getFullYear() > year ||
+            (dueDate.getFullYear() === year && dueDate.getMonth() >= month)
+          );
+        })
+        .map((invoice) => invoice.id);
+    };
+
+    // Get the details of the current invoice
+    const currentInvoice = contract.invoices.find(
+      (invoice) => invoice.id === invoiceId
     );
+    const currentInvoiceDueDate = new Date(currentInvoice.due_date);
+    const currentMonth = currentInvoiceDueDate.getMonth();
+    const currentYear = currentInvoiceDueDate.getFullYear();
+
+    // Get all invoices for the current month
+    const currentMonthInvoices = getInvoicesForMonth(currentMonth, currentYear);
+
+    // Get all unpaid invoices before the current month
+    const unpaidInvoicesBeforeCurrentMonth = getUnpaidInvoicesBeforeMonth(
+      currentMonth,
+      currentYear
+    );
+
+    // Get all unpaid invoices from the current month onwards
+    const unpaidInvoicesFromCurrentMonthOnward =
+      getUnpaidInvoicesFromMonthOnward(currentMonth, currentYear);
+
+    if (isChecked) {
+      // If checked, add all invoices for the current month and unpaid invoices before the current month
+      setSelectedInvoices((prev) => [
+        ...new Set([
+          ...prev,
+          ...currentMonthInvoices,
+          ...unpaidInvoicesBeforeCurrentMonth,
+        ]),
+      ]);
+    } else {
+      // If unchecked, remove all invoices for the current month and onward
+      setSelectedInvoices((prev) =>
+        prev.filter((id) => !unpaidInvoicesFromCurrentMonthOnward.includes(id))
+      );
+    }
   };
 
   // Below variable to show Contract Card and under each Contract Card, show Invoice Card embedded

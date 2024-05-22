@@ -13,19 +13,23 @@ export default function ContractCard({
   handleCheckboxChange,
   selectedInvoices,
 }) {
-  const invoices = contract.invoices.map((invoice) => {
-    return (
-      <InvoiceCard
-        key={invoice.id}
-        invoice={invoice}
-        flexible={contract.flexible}
-        onChange={(event) =>
-          handleCheckboxChange(invoice.id, event.target.checked)
-        }
-        isChecked={selectedInvoices.includes(invoice.id)}
-      />
-    );
-  });
+  const invoices = contract.invoices
+    .slice() // Create a shallow copy to avoid mutating the original array
+    .sort((a, b) => new Date(a.due_date) - new Date(b.due_date)) // Sort invoices by due date
+    .map((invoice) => {
+      return (
+        <InvoiceCard
+          key={invoice.id}
+          invoice={invoice}
+          flexible={contract.flexible}
+          onChange={
+            (event) =>
+              handleCheckboxChange(invoice.id, event.target.checked, contract) // Pass contract here
+          }
+          isChecked={selectedInvoices.includes(invoice.id)}
+        />
+      );
+    });
 
   return (
     <Box sx={{ mb: 0 }}>
@@ -57,11 +61,16 @@ export default function ContractCard({
               </Typography>
             </Stack> */}
           </Stack>
-          <Typography color="text.secondary" variant="body2">
-            This contract has been started on{" "}
-            {changeDatesFormat(contract.start_date)} and the monthly rent is KD{" "}
-            {changeAmountFormat(contract.rent)}.
-          </Typography>
+          <Stack direction="column">
+            <Typography color="text.secondary" variant="body2">
+              This contract has been started on{" "}
+              {changeDatesFormat(contract.start_date)} and the monthly rent is
+              KD {changeAmountFormat(contract.rent)}.
+            </Typography>
+            <Typography color="text.secondary" variant="body2">
+              Contract #{contract.id}
+            </Typography>
+          </Stack>
         </Box>
         <Divider />
         <Box sx={{ p: 2 }}>

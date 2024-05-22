@@ -25,5 +25,7 @@ export function addTenant(formData, uid) {
     formData.delete("email");
   }
 
+  console.log("Creating new tenant using these data:", formData);
+
   return instance.post(`/api/auth/signup/tenant/${uid}/`, formData);
 }

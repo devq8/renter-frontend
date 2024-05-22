@@ -65,7 +65,9 @@ export default function InvoiceCard({
         >
           <Stack direction="column" spacing={1}>
             <Typography gutterBottom variant="body2">
-              Invoice issued on {changeDatesFormat(invoice.invoice_date)}
+              Invoice #{invoice.id} issued on{" "}
+              {changeDatesFormat(invoice.invoice_date)} and due on{" "}
+              {changeDatesFormat(invoice.due_date)}
             </Typography>
             <Typography gutterBottom variant="body2">
               Period from <b>{changeDatesFormat(invoice.from_date)}</b> to{" "}

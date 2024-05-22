@@ -29,6 +29,7 @@ import Receipt from "./invoices/Receipt";
 import Checkout from "./checkout/Checkout";
 import Payments from "./invoices/Payments";
 import PaymentDetails from "./invoices/PaymentDetails";
+import MetersList from "./meters/MetersList";
 
 export default function Layout() {
   const navigate = useNavigate();
@@ -103,6 +104,7 @@ export default function Layout() {
             <Route path="/invoices/:id/pay" element={<PaymentForm />} />
             <Route path="/invoices/:id/return" element={<PaymentReturn />} />
             <Route path="/invoices/:paymentid/receipt" element={<Receipt />} />
+            <Route path="/meters" element={<MetersList />} />
           </Routes>
         </ConnectionChecker>
         <Footer />

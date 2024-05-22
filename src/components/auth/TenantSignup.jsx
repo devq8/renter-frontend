@@ -14,7 +14,7 @@ import * as Yup from "yup";
 import { toast } from "react-toastify";
 import FormHelperText from "@mui/joy/FormHelperText";
 import Key from "@mui/icons-material/Key";
-import CircularProgress from "@mui/material/CircularProgress";
+import CircularProgress from "@mui/joy/CircularProgress";
 import InfoOutlined from "@mui/icons-material/InfoOutlined";
 import { IMaskInput } from "react-imask";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
@@ -339,15 +339,15 @@ export default function TenantSignupForm() {
     return () => clearInterval(interval);
   }, [isClickable, timer]);
 
-  async function handleSubmit(values, { setSubmitting }) {
+  async function handleSubmit(values) {
+    setIsSubmitting(true);
+
     if (selectedFiles.length < 1) {
       toast.error("Please upload at least one file.");
       setIsSubmitting(false);
-      setSubmitting(false);
       return;
     }
 
-    setIsSubmitting(true);
     const formData = new FormData();
 
     // Append other form data
@@ -363,7 +363,13 @@ export default function TenantSignupForm() {
     // Append mobile_verified to formData
     formData.append("mobile_verified", true);
 
+    // Log the formData content
+    for (let pair of formData.entries()) {
+      console.log(pair[0] + ": " + pair[1]);
+    }
+
     try {
+      console.log("Trying to submit data:", formData);
       addTenantMutation.mutate(formData);
     } catch (error) {
       console.error("Error signing up :", error);
@@ -410,10 +416,11 @@ export default function TenantSignupForm() {
         .matches(/^\d{12}$/, "Civil ID must be 12 digits")
         .required("Civil ID is required"),
       address: Yup.string().required("Address is required"),
-      sponsor: Yup.string().required("Sponsor name is required"),
+      sponsor: Yup.string(),
+      paci: Yup.string(),
     }),
-    onSubmit: (values, { setSubmitting }) => {
-      handleSubmit(values, { setSubmitting });
+    onSubmit: (values) => {
+      handleSubmit(values);
     },
   });
 
@@ -713,7 +720,7 @@ export default function TenantSignupForm() {
                         slotProps={{ input: { component: OtpMaskAdapter } }}
                         endDecorator={
                           checkingOTP ? (
-                            <CircularProgress size={20} />
+                            <CircularProgress size="sm" />
                           ) : verificationResult === "success" ? (
                             <CheckCircleOutlined color="success" />
                           ) : verificationResult === "error" ? (
@@ -863,7 +870,7 @@ export default function TenantSignupForm() {
                       value={formik.values.address}
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
-                      placeholder="As written in your civil id"
+                      placeholder="As written in your Civil ID"
                     />
                     {formik.touched.address && formik.errors.address && (
                       <FormHelperText sx={{ color: "error.main" }}>
@@ -887,7 +894,7 @@ export default function TenantSignupForm() {
                       value={formik.values.sponsor}
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
-                      placeholder="As written in your civil id"
+                      placeholder="As written in your Civil ID"
                     />
                   </FormControl>
                   <FormControl>
@@ -899,12 +906,11 @@ export default function TenantSignupForm() {
                       value={formik.values.paci}
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
-                      placeholder="As written in your civil id"
+                      placeholder="As written in your Civil ID"
                     />
                     <FormHelperText>(Optional)</FormHelperText>
                   </FormControl>
                   <FormControl>
-                    {/* <FormLabel>Upload Civil ID</FormLabel> */}
                     <InputFileUpload
                       text={"Upload Documents"}
                       onFileChange={(event) => handleFileChange(event)}
@@ -933,10 +939,13 @@ export default function TenantSignupForm() {
                     <Button
                       type="submit"
                       fullWidth
-                      disabled={isSubmitting ? true : false}
-                      loading={isSubmitting ? true : false}
+                      disabled={isSubmitting}
+                      loading={isSubmitting}
+                      startDecorator={
+                        isSubmitting ? <CircularProgress size="sm" /> : null
+                      }
                     >
-                      Register
+                      {isSubmitting ? "Loading..." : "Register"}
                     </Button>
                   </Stack>
                 </form>

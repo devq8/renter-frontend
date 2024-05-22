@@ -9,7 +9,7 @@ import { useLogout } from "../../utils/auth";
 import { IoIosStats, IoIosPerson } from "react-icons/io";
 import { BsFillBuildingFill } from "react-icons/bs";
 import { AiFillFileText } from "react-icons/ai";
-import { IoReceipt } from "react-icons/io5";
+import { IoReceipt, IoSpeedometer } from "react-icons/io5";
 
 const Navbar = (first_name, email) => {
   // const { first_name, email } = props;
@@ -52,6 +52,12 @@ const Navbar = (first_name, email) => {
       current: false,
       path: "/invoices",
       icon: <IoReceipt className="mr-3" />,
+    },
+    {
+      name: "Meters",
+      current: false,
+      path: "/meters",
+      icon: <IoSpeedometer className="mr-3" />,
     },
   ];
   const userNavigation = [
