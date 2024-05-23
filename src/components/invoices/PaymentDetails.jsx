@@ -21,11 +21,8 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 function PaymentDetails() {
   const { unique_payment_identifier, payment_id } = useParams();
   const navigate = useNavigate();
-  // console.log("Payment ID:", payment_id);
-  // console.log("uid:", unique_payment_identifier);
   let [searchParams] = useSearchParams();
   const data = searchParams.get("data");
-  // console.log("Data: ", data);
 
   const {
     data: payments,
@@ -165,9 +162,28 @@ function PaymentDetails() {
                     </Stack> */}
                     <Stack direction="row" justifyContent="space-between">
                       <Typography variant="h7" style={{ fontWeight: "bold" }}>
-                        Payment Method
+                        Payment Status
                       </Typography>
-                      <Typography variant="h7" style={{ fontWeight: "bold" }}>
+                      <Typography
+                        variant="h7"
+                        style={{
+                          fontWeight: "bold",
+                          color:
+                            paymentItems.payment.payment_status.toLowerCase() !==
+                            "captured"
+                              ? "red"
+                              : "green",
+                        }}
+                      >
+                        {paymentItems.payment.payment_status
+                          .charAt(0)
+                          .toUpperCase() +
+                          paymentItems.payment.payment_status.slice(1)}
+                      </Typography>
+                    </Stack>
+                    <Stack direction="row" justifyContent="space-between">
+                      <Typography variant="h7">Payment Method</Typography>
+                      <Typography variant="h7">
                         {paymentItems.payment.payment_method}
                       </Typography>
                     </Stack>

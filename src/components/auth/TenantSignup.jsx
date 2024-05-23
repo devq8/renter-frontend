@@ -471,6 +471,7 @@ export default function TenantSignupForm() {
                 style={{ width: "auto", height: 32 }}
               />
             </Box>
+            {/* <Typography>Language Changer</Typography> */}
           </Box>
           {managerName === "" || managerName === null ? (
             // Show an alert if the URL is invalid
@@ -534,10 +535,10 @@ export default function TenantSignupForm() {
                 <Stack gap={1}>
                   <Typography level="h3">Tenant Registration</Typography>
 
-                  <Typography level="body-sm">
+                  <FormLabel level="body-sm">
                     You are registering for a property that is managed by{" "}
                     <b>{managerName}</b>.
-                  </Typography>
+                  </FormLabel>
                 </Stack>
 
                 {/* <Button
@@ -614,7 +615,7 @@ export default function TenantSignupForm() {
                       type="text"
                       name="arabic_name"
                       disabled={managerName === "" || managerName === null}
-                      placeholder="As written in your civil id"
+                      placeholder="As written in your Civil ID"
                       onChange={formik.handleChange}
                       onBlur={formik.handleBlur}
                       value={formik.values.arabic_name}
@@ -908,7 +909,9 @@ export default function TenantSignupForm() {
                       onBlur={formik.handleBlur}
                       placeholder="As written in your Civil ID"
                     />
-                    <FormHelperText>(Optional)</FormHelperText>
+                    <FormHelperText sx={{ color: "black" }}>
+                      (Optional)
+                    </FormHelperText>
                   </FormControl>
                   <FormControl>
                     <InputFileUpload
@@ -919,7 +922,7 @@ export default function TenantSignupForm() {
                       startDecorator={<InfoOutlined />}
                       my={2}
                       level="body-xs"
-                      sx={{ textAlign: "justify" }}
+                      sx={{ textAlign: "justify", color: "black" }}
                     >
                       You are allowed to upload up to 10 files. Max file size is
                       5MB.
@@ -927,7 +930,7 @@ export default function TenantSignupForm() {
                     <Typography
                       startDecorator={<InfoOutlined />}
                       level="body-xs"
-                      sx={{ textAlign: "justify" }}
+                      sx={{ textAlign: "justify", color: "black" }}
                     >
                       Please ensure that you upload the following documents for
                       yourself and your family (including wife and children):
@@ -953,7 +956,11 @@ export default function TenantSignupForm() {
             </Box>
           )}
           <Box component="footer" sx={{ py: 2 }}>
-            <Typography level="body-xs" textAlign="center">
+            <Typography
+              level="body-xs"
+              textAlign="center"
+              sx={{ color: "black" }}
+            >
               © Warba United Co. {new Date().getFullYear()}
             </Typography>
           </Box>

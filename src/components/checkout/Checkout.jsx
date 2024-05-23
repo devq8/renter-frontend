@@ -35,8 +35,6 @@ function Checkout() {
     () => getCheckoutDetails(unique_payment_identifier)
   );
 
-  console.log("Checkout items : ", checkoutItems?.data?.contracts);
-
   const totalOutstandingAmount = checkoutItems?.data?.contracts?.reduce(
     (acc, contract) => acc + contract.total_pending_amount,
     0
@@ -91,13 +89,6 @@ function Checkout() {
   }, [selectedInvoices, checkoutItems]);
 
   // Handle checkbox changes
-  // const handleCheckboxChange = (invoiceId, isChecked) => {
-  //   // Update the selected invoices based on the checkbox change
-  //   setSelectedInvoices((prev) =>
-  //     isChecked ? [...prev, invoiceId] : prev.filter((id) => id !== invoiceId)
-  //   );
-  // };
-
   const handleCheckboxChange = (invoiceId, isChecked, contract) => {
     // Helper function to get all invoices for a given month
     const getInvoicesForMonth = (month, year) => {
@@ -305,14 +296,30 @@ function Checkout() {
                     Please select the invoices you want to pay
                   </Alert>
 
-                  <h1 className="text-xl font-bold tracking-tight text-gray-900">
-                    Contracts
-                  </h1>
+                  {isCheckoutItemsLoading || (
+                    <h1 className="text-xl font-bold tracking-tight text-gray-900">
+                      Contracts
+                    </h1>
+                  )}
                 </>
               )}
             </div>
             {/* Contract Card */}
-            <div className="m-3 space-y-4">{contractsList}</div>
+            {isCheckoutItemsLoading ? (
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "200px",
+                }}
+              >
+                <CircularProgress />
+              </Box>
+            ) : (
+              <div className="m-3 space-y-4">{contractsList}</div>
+            )}
+            {/* <div className="m-3 space-y-4">{contractsList}</div> */}
           </div>
         </header>
         {/* Invoice Summary Fixed Buttom Section */}
