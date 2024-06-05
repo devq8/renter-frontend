@@ -29,17 +29,22 @@ function TenantNewUpdate() {
     navigate(-1);
   }
 
-  const addTenantMutation = useMutation((tenant) => addTenant(tenant), {
-    onSuccess: () => {
-      queryClient.invalidateQueries(["tenants"]);
-      toast.success("Tenant added successfully");
-      navigate("/tenants");
+  const addTenantMutation = useMutation(
+    (tenant) => {
+      // addTenant(tenant)
     },
-    onError: (error) => {
-      console.log("Error adding tenant: ", error.response.data);
-      toast.error("Error adding tenant");
-    },
-  });
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["tenants"]);
+        toast.success("Tenant added successfully");
+        navigate("/tenants");
+      },
+      onError: (error) => {
+        console.log("Error adding tenant: ", error.response.data);
+        toast.error("Error adding tenant");
+      },
+    }
+  );
 
   const updateTenantMutation = useMutation(
     ({ id, ...tenantData }) => updateTenant(tenantData, id),
@@ -79,28 +84,39 @@ function TenantNewUpdate() {
       cid: isUpdatingMode && tenantData?.data ? tenantData.data.cid : "",
       address:
         isUpdatingMode && tenantData?.data ? tenantData.data.address : "",
+      sponsor:
+        isUpdatingMode && tenantData?.data ? tenantData.data.sponsor : "",
+      paci: isUpdatingMode && tenantData?.data ? tenantData.data.paci : "",
     },
     enableReinitialize: true,
     validationSchema: Yup.object({
       english_name: Yup.string().required("Required"),
       arabic_name: Yup.string().required("Required"),
-      email: Yup.string().email("Invalid email address"),
+      email: Yup.string().email("Invalid email address").nullable(),
       mobile: Yup.string()
         .matches(/^\d{8}$/, "Mobile must be exactly 8 digits")
         .required("Required"),
-      cid: Yup.string().matches(/^\d{12}$/, "CID must be exactly 12 digits"),
-      address: Yup.string(),
+      cid: Yup.string()
+        .matches(/^\d{12}$/, "CID must be exactly 12 digits")
+        .required("Required"),
+      address: Yup.string().required("Required"),
+      sponsor: Yup.string().nullable(),
+      paci: Yup.string().nullable(),
     }),
     onSubmit: (values) => {
       const tenantData = {
-        english_name: values.english_name,
-        arabic_name: values.arabic_name,
-        email: values.email,
-        mobile: values.mobile,
         cid: values.cid,
         address: values.address,
-        tenant: true,
+        sponsor: values.sponsor,
+        paci: values.paci,
+        user: {
+          email: values.email,
+          english_name: values.english_name,
+          arabic_name: values.arabic_name,
+          mobile: values.mobile,
+        },
       };
+
       console.log("Tenant data: ", tenantData);
       if (isUpdatingMode) {
         updateTenantMutation.mutate({ id: tenantId, ...tenantData });
@@ -171,7 +187,7 @@ function TenantNewUpdate() {
                     required={true}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    value={formik.values.english_name}
+                    value={formik.values.english_name || ""}
                     errorMessage={
                       formik.touched.english_name && formik.errors.english_name
                     }
@@ -183,7 +199,7 @@ function TenantNewUpdate() {
                     required={true}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    value={formik.values.arabic_name}
+                    value={formik.values.arabic_name || ""}
                     errorMessage={
                       formik.touched.arabic_name && formik.errors.arabic_name
                     }
@@ -200,7 +216,7 @@ function TenantNewUpdate() {
                     required={true}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    value={formik.values.mobile}
+                    value={formik.values.mobile || ""}
                     errorMessage={formik.touched.mobile && formik.errors.mobile}
                   />
                   <Input
@@ -211,7 +227,7 @@ function TenantNewUpdate() {
                     required={false}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    value={formik.values.email}
+                    value={formik.values.email || ""}
                     errorMessage={formik.touched.email && formik.errors.email}
                   />
                 </div>
@@ -222,10 +238,10 @@ function TenantNewUpdate() {
                     type="text"
                     label="Civil ID Number"
                     placeholder="e.g. 123456789012"
-                    required={false}
+                    required={true}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    value={formik.values.cid}
+                    value={formik.values.cid || ""}
                     errorMessage={formik.touched.cid && formik.errors.cid}
                   />
                   <Input
@@ -233,13 +249,38 @@ function TenantNewUpdate() {
                     type="text"
                     label="Address"
                     placeholder="e.g. Khaitan - Block 9 - Street 25 - Building 13"
-                    required={false}
+                    required={true}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    value={formik.values.address}
+                    value={formik.values.address || ""}
                     errorMessage={
                       formik.touched.address && formik.errors.address
                     }
+                  />
+                </div>
+                {/* Fourth Row */}
+                <div className="flex p-3">
+                  <Input
+                    name="sponsor"
+                    type="text"
+                    label="Sponsor"
+                    required={false}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    value={formik.values.sponsor || ""}
+                    errorMessage={
+                      formik.touched.sponsor && formik.errors.sponsor
+                    }
+                  />
+                  <Input
+                    name="paci"
+                    type="text"
+                    label="PACI"
+                    required={false}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    value={formik.values.paci || ""}
+                    errorMessage={formik.touched.paci && formik.errors.paci}
                   />
                 </div>
               </div>

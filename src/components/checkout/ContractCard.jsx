@@ -87,7 +87,7 @@ export default function ContractCard({
                 </Typography>
                 <Chip
                   color="primary"
-                  label={contract.unit.unit_type}
+                  label={contract.unit.unit_type?.name ?? ""}
                   size="small"
                 />
               </Stack>

@@ -13,7 +13,12 @@ function Button({ color, text, type, className_, disabled, onClick }) {
 
   return (
     <div className="hide-on-print">
-      <button className={className} onClick={onClick} disabled={disabled}>
+      <button
+        className={className}
+        onClick={onClick}
+        disabled={disabled}
+        type="button"
+      >
         <span className="inline-block mr-2 ">
           {type === "add" && <AiFillPlusCircle className="w-6 h-6" />}
           {type === "edit" && <AiFillEdit className="w-6 h-6" />}

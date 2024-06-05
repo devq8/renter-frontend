@@ -1,3 +1,5 @@
+import { parseISO, format } from "date-fns";
+
 export function changeAmountFormat(amount, decimal = 3) {
   // console.log(`Amount: ${amount}`);
   // console.log(`Decimals: ${decimal}`);
@@ -26,14 +28,12 @@ export function changeDatesFormat(date) {
 }
 
 export function changeDateTimeFormat(date) {
-  const dateObj = new Date(date);
-  const newDateFormat = dateObj.toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
-  const newTimeFormat = dateObj.toLocaleTimeString();
-
+  if (date === null || date === undefined) {
+    return "";
+  }
+  const dateObj = parseISO(date);
+  const newDateFormat = format(dateObj, "dd/MM/yyyy");
+  const newTimeFormat = format(dateObj, "hh:mm a");
   return `${newDateFormat} ${newTimeFormat}`;
 }
 

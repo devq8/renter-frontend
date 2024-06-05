@@ -11,7 +11,7 @@ const { useUser, useLogin, useRegister, useLogout, AuthLoader } = configureAuth(
       // YES 1) check token expiration
       //     2) if expired, return null
       //     3) if not expired, return user
-      console.log("Checking token ...");
+
       const token = storage.getToken();
       if (token) {
         const decoded = jwt_decode(token);

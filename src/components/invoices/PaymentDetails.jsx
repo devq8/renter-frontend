@@ -19,7 +19,7 @@ import PrintIcon from "@mui/icons-material/Print";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 function PaymentDetails() {
-  const { unique_payment_identifier, payment_id } = useParams();
+  const { payment_id } = useParams();
   const navigate = useNavigate();
   let [searchParams] = useSearchParams();
   const data = searchParams.get("data");
@@ -32,12 +32,12 @@ function PaymentDetails() {
     paymentResponse(data, payment_id)
   );
   const paymentItems = payments?.data;
-  console.log("Payments:", paymentItems);
+  const upi = paymentItems?.payment?.unique_payment_identifier;
 
   if (isLoading) {
     return (
       <div className="min-h-[100vh] bg-[#F7F6F2]">
-        <Header uid={unique_payment_identifier} />
+        <Header uid={upi} />
         <div className="bg-transparent">
           <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8 flex justify-center items-center">
             <CircularProgress />
@@ -50,7 +50,7 @@ function PaymentDetails() {
   if (error) {
     return (
       <div className="min-h-[100vh] bg-[#F7F6F2]">
-        <Header uid={unique_payment_identifier} />
+        <Header uid={upi} />
         <div className="bg-transparent">
           <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8 flex justify-center items-center">
             <div>Error loading payment details.</div>
@@ -85,7 +85,7 @@ function PaymentDetails() {
 
   return (
     <div className="min-h-[100vh] bg-[#F7F6F2]">
-      <Header uid={unique_payment_identifier} />
+      <Header uid={upi} />
       <div className="bg-transparent">
         <div className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8 flex flex-col justify-between">
           <div className="flex flex-row py-3 justify-between items-center">

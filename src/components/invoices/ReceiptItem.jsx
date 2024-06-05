@@ -1,37 +1,8 @@
 import React from "react";
-import { getInvoiceDetails } from "../../utils/api/invoices";
-import { useQuery } from "@tanstack/react-query";
 import { changeDatesFormat, changeAmountFormat } from "../../utils/format";
 import ReceiptIcon from "./ReceiptIcon";
 
-function ReceiptItem({ invoiceId }) {
-  const { data: invoice } = useQuery(["invoices", invoiceId], () =>
-    getInvoiceDetails(invoiceId)
-  );
-
-  const invoiceDetails = invoice?.data;
-
-  console.log("Details: ", invoiceDetails);
-
-  const invoiceAmount = invoiceDetails?.invoice_amount;
-  const invoiceDiscountType = invoiceDetails?.discount_type;
-  const invoiceDiscountValue = invoiceDetails?.discount_value;
-
-  const getDiscountAmount = (
-    invoiceAmount,
-    invoiceDiscountType,
-    invoiceDiscountValue
-  ) => {
-    if (invoiceDiscountType == "PERCENTAGE") {
-      const discountPercentage = invoiceDiscountValue / 100;
-      return invoiceAmount * discountPercentage;
-    } else if (invoiceDiscountType == "AMOUNT") {
-      return invoiceAmount - invoiceDiscountValue;
-    } else {
-      return invoiceAmount;
-    }
-  };
-
+function ReceiptItem({ invoice }) {
   return (
     <li>
       <input
@@ -47,67 +18,62 @@ function ReceiptItem({ invoiceId }) {
       >
         <div className="flex flex-col w-full">
           {/* First Row */}
-          <div className="flex">
+          <div className="flex justify-between lg:mx-10 sm:mx-2">
             {/* Type Icon */}
-            <div className="flex bg-white w-[48px] h-[48px] rounded-md items-center justify-center">
-              <ReceiptIcon type={invoiceDetails?.get_invoice_type_display} />
-            </div>
-            <div className="flex items-center justify-between mx-2">
-              <div className="flex-col mx-2">
-                <div className="font-bold">{invoiceDetails?.invoice_title}</div>
-                <div className="text-gray-400 text-sm">
-                  {invoiceDetails?.get_invoice_type_display}
+            <div className="flex ">
+              <div className="flex bg-white w-[48px] h-[48px] rounded-md items-center justify-center">
+                <ReceiptIcon type={invoice.invoice_type} />
+              </div>
+              <div className="flex items-center justify-between mx-2">
+                <div className="flex-col mx-2">
+                  <div className="font-bold">
+                    {invoice.contract.unit.property_fk.name}
+                  </div>
+                  <div className="text-gray-400 text-sm">
+                    {invoice?.contract.unit.number}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-          <hr className="my-5" />
+          <hr className="my-5 lg:mx-10 sm:mx-2" />
+          <div className="flex-col lg:mx-10 sm:mx-2">
+            <div className="font-bold">{invoice.invoice_title}</div>
+            <div className="text-gray-400 text-sm">{invoice.invoice_type}</div>
+          </div>
+          <hr className="my-5 lg:mx-10 sm:mx-2" />
           <div className="space-y-2">
-            <div className="flex justify-between mx-10">
+            <div className="flex justify-between lg:mx-10 sm:mx-2">
               <h1 className="text-[#AEB3C2]">Period</h1>
               <h1 className="text-secondary">
-                {`${changeDatesFormat(
-                  invoiceDetails?.from_date
-                )} - ${changeDatesFormat(invoiceDetails?.to_date)}`}
+                {`${changeDatesFormat(invoice.from_date)} - ${changeDatesFormat(
+                  invoice.to_date
+                )}`}
               </h1>
             </div>
-            <div className="flex justify-between mx-10">
+            <div className="flex justify-between lg:mx-10 sm:mx-2">
               <h1 className="text-[#AEB3C2]">Due Date</h1>
               <h1 className="text-secondary">
-                {changeDatesFormat(invoiceDetails?.from_date)}
+                {changeDatesFormat(invoice.due_date)}
               </h1>
             </div>
-            {invoiceDetails?.description && (
-              <div className="flex flex-col justify-between mx-10 pb-3">
+            {invoice.description && (
+              <div className="flex flex-col justify-between lg:mx-10 sm:mx-2 pb-3">
                 <h1 className="text-[#AEB3C2] mb-3">Description</h1>
                 <h1 className="text-secondary text-justify">
-                  {invoiceDetails?.description}
+                  {invoice.description}
                 </h1>
               </div>
             )}
 
-            <hr />
-            <div className="flex flex-col space-y-4 py-3 mx-10">
+            <hr className="lg:mx-10 sm:mx-2" />
+            <div className="flex flex-col space-y-4 py-3 lg:mx-10 sm:mx-2">
               <div className="flex justify-between">
                 <h1 className="text-[#AEB3C2] font-bold">Amount</h1>
                 <h1 className="text-secondary text-lg font-semibold">
-                  {`KD ${changeAmountFormat(invoiceDetails?.invoice_amount)}`}
+                  {`KD ${changeAmountFormat(invoice.invoice_amount)}`}
                 </h1>
               </div>
-              {invoiceDetails?.discount_type && (
-                <div className="flex justify-between">
-                  <h1 className="text-[#AEB3C2] font-bold">Discount</h1>
-                  <h1 className="text-secondary text-lg font-semibold">
-                    {`KD ${changeAmountFormat(
-                      getDiscountAmount(
-                        invoiceAmount,
-                        invoiceDiscountType,
-                        invoiceDiscountValue
-                      )
-                    )}`}
-                  </h1>
-                </div>
-              )}
             </div>
           </div>
         </div>

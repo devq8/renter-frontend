@@ -93,11 +93,13 @@ export function Header({ uid }) {
             paddingRight: 5,
           }}
         >
-          <img
-            src={Logo}
-            alt="Warba United Logo"
-            style={{ width: "auto", height: 32 }}
-          />
+          <a href="http://wuc.com.kw">
+            <img
+              src={Logo}
+              alt="Warba United Logo"
+              style={{ width: "auto", height: 32 }}
+            />
+          </a>
         </Box>
         {navigation.map((topBarItem) => (
           <Button

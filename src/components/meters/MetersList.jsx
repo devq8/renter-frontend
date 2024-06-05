@@ -4,10 +4,12 @@ import SearchBox from "../../utils/SearchBox";
 import { useQuery } from "@tanstack/react-query";
 import { getMeters } from "../../utils/api/meters";
 import MeterRow from "./MeterRow";
+import { useNavigate } from "react-router";
+import Button from "../../utils/Button";
 
 function MetersList() {
   const [search, setSearch] = useState("");
-
+  const navigate = useNavigate();
   const handleSearch = (e) => {
     setSearch(e.target.value);
   };
@@ -18,9 +20,7 @@ function MetersList() {
     error,
   } = useQuery(["meters"], () => getMeters());
 
-  console.log("Meters List:", meters?.data);
-
-  const metersList = (
+  const metersList = meters?.data.map((meter) => {
     //   meters?.data
     // ?.filter((meter) => {
     //   if (search === "") {
@@ -32,8 +32,8 @@ function MetersList() {
     //   }
     // })
     // .map((meter) => {
-    <MeterRow />
-  );
+    return <MeterRow key={meter.id} meter={meter} />;
+  });
   // });
 
   return (
@@ -45,9 +45,11 @@ function MetersList() {
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
               Meters
             </h1>
-            {/* <div onClick={() => navigate("/invoices/new_invoice")}>
-              <Button color="#BD9A5F" text="Add New Invoice" type="add" />
-            </div> */}
+            <div className="flex">
+              <div onClick={() => navigate("/meters/bulk_readings")}>
+                <Button color="#BD9A5F" text="Enter Bulk Readings" type="add" />
+              </div>
+            </div>
           </div>
         </div>
       </header>
@@ -66,55 +68,37 @@ function MetersList() {
                     scope="col"
                     className="px-4 py-4 font-medium text-gray-900"
                   >
-                    Invoice No
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-4 font-medium text-gray-900"
-                  >
-                    Tenant
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-4 font-medium text-gray-900"
-                  >
                     Property
                   </th>
                   <th
                     scope="col"
                     className="px-6 py-4 font-medium text-gray-900"
                   >
-                    Floor
+                    Number
                   </th>
                   <th
                     scope="col"
                     className="px-6 py-4 font-medium text-gray-900"
                   >
-                    Unit
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-6 py-4 font-medium text-gray-900 text-center"
-                  >
                     Type
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-4 font-medium text-gray-900 text-center"
+                    className="px-6 py-4 font-medium text-gray-900"
                   >
-                    Due Date
+                    Last Reading
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-4 font-medium text-gray-900 text-end"
+                    className="px-6 py-4 font-medium text-gray-900"
                   >
-                    Amount
+                    Last Reading Date
                   </th>
                   <th
                     scope="col"
-                    className="px-6 py-4 font-medium text-gray-900 flex justify-center items-center"
+                    className="px-6 py-4 font-medium text-gray-900"
                   >
-                    Status
+                    Tenant
                   </th>
                 </tr>
               </thead>

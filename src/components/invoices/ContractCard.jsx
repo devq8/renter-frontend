@@ -23,7 +23,7 @@ export default function ContractCard({ contract }) {
             <Stack direction="column" alignItems="left">
               <Stack direction="row" justifyContent="space-between">
                 <Typography color="text.secondary" variant="h7">
-                  {contract.unit.property_fk.name}
+                  {contract.unit.property_fk?.name ?? ""}
                 </Typography>
               </Stack>
               <Stack
@@ -38,7 +38,7 @@ export default function ContractCard({ contract }) {
                   spacing={{ xs: 1, sm: 2, md: 3 }}
                 >
                   <Typography gutterBottom variant="h5" component="div">
-                    {contract.unit.number}
+                    {contract.unit.number ?? ""}
                   </Typography>
                 </Stack>
               </Stack>
@@ -55,7 +55,7 @@ export default function ContractCard({ contract }) {
           >
             <Stack direction="column">
               <Typography gutterBottom variant="body2">
-                Contract No. {contract.id}
+                Contract No. {contract.id ?? ""}
               </Typography>
               <Stack direction="row" spacing={1}>
                 <Typography gutterBottom variant="body2">
@@ -63,7 +63,7 @@ export default function ContractCard({ contract }) {
                 </Typography>
                 <Chip
                   color="primary"
-                  label={contract.unit.unit_type}
+                  label={contract.unit.unit_type?.name ?? ""}
                   size="small"
                 />
               </Stack>

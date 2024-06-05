@@ -1,5 +1,6 @@
 import React from "react";
 import "./Input.css";
+import { AiOutlineMinusCircle } from "react-icons/ai";
 
 function Input(props) {
   //   const [focused, setFocused] = useState(false);
@@ -13,6 +14,7 @@ function Input(props) {
     required,
     onChange,
     onBlur,
+    onRemoveRow,
     errorMessage,
     pattern,
     disabled,
@@ -20,6 +22,8 @@ function Input(props) {
     direction,
     ...inputProps
   } = props;
+
+  const buttonClass = direction === "rtl" ? "mr-3" : "ml-3";
 
   return (
     <div className="flex flex-col w-[50%] px-2">
@@ -52,21 +56,33 @@ function Input(props) {
             onBlur={onBlur}
             dir={direction || "ltr"}
           />
+          {onRemoveRow && props.index !== 0 && (
+            <button type="button" onClick={onRemoveRow} className={buttonClass}>
+              <AiOutlineMinusCircle size={20} />
+            </button>
+          )}
         </div>
       ) : (
-        <input
-          {...inputProps}
-          type={type}
-          id={name}
-          name={name}
-          value={value}
-          className="border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary focus:border-primary block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary dark:focus:border-primary"
-          placeholder={placeholder}
-          disabled={disabled}
-          onChange={onChange}
-          onBlur={onBlur}
-          dir={direction || "ltr"}
-        />
+        <div className="flex">
+          <input
+            {...inputProps}
+            type={type}
+            id={name}
+            name={name}
+            value={value}
+            className="border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-primary focus:border-primary block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary dark:focus:border-primary"
+            placeholder={placeholder}
+            disabled={disabled}
+            onChange={onChange}
+            onBlur={onBlur}
+            dir={direction || "ltr"}
+          />
+          {onRemoveRow && props.index !== 0 && (
+            <button type="button" onClick={onRemoveRow} className={buttonClass}>
+              <AiOutlineMinusCircle size={20} />
+            </button>
+          )}
+        </div>
       )}
       {errorMessage && (
         <p className="mt-2 text-sm text-red-600 dark:text-red-500">

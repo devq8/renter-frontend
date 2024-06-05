@@ -11,7 +11,11 @@ export function getTenants(tenant_id) {
 }
 
 export function updateTenant(tenant, id) {
+  console.log("Im inside updateTenant function");
+  console.log("New tenant data:", tenant);
+
   try {
+    console.log("Update tenant", tenant);
     return instance.patch(`/api/tenants/${id}/update/`, tenant);
   } catch (error) {
     console.log("error", error);

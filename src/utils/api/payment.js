@@ -21,9 +21,6 @@ export function paymentResponse(data = null, payment_id = null) {
 }
 
 export function sendPayment(data) {
-  console.log("Im in sendPayment function");
-  console.log(data);
-
   return instance.post("/api/checkout/request/", {
     amount: data.amount,
     orderReferenceNumber: data.orderReferenceNumber,
@@ -43,6 +40,10 @@ export function getPaymentDetails(paymentId) {
 
 export function getPaymentsList(uid) {
   return instance.get(`/api/payments/?uid=${uid}`);
+}
+
+export function getAllPaymentsList() {
+  return instance.get(`/api/payments/all/`);
 }
 
 export function getCheckoutDetails(unique_payment_identifier) {

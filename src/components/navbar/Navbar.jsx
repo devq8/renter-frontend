@@ -6,7 +6,7 @@ import DarkLogo from "../../assets/dark-logo.png";
 import LightLogo from "../../assets/logo.png";
 import { useNavigate, useLocation } from "react-router";
 import { useLogout } from "../../utils/auth";
-import { IoIosStats, IoIosPerson } from "react-icons/io";
+import { IoIosStats, IoIosPerson, IoIosCash } from "react-icons/io";
 import { BsFillBuildingFill } from "react-icons/bs";
 import { AiFillFileText } from "react-icons/ai";
 import { IoReceipt, IoSpeedometer } from "react-icons/io5";
@@ -27,37 +27,43 @@ const Navbar = (first_name, email) => {
       name: "Dashboard",
       current: true,
       path: "/dashboard",
-      icon: <IoIosStats className="mr-3" />,
+      icon: <IoIosStats className="mr-1" />,
     },
     {
       name: "Tenants",
       current: false,
       path: "/tenants",
-      icon: <IoIosPerson className="mr-3" />,
+      icon: <IoIosPerson className="mr-1" />,
     },
     {
       name: "Properties",
       current: false,
       path: "/properties",
-      icon: <BsFillBuildingFill className="mr-3" />,
+      icon: <BsFillBuildingFill className="mr-1" />,
     },
     {
       name: "Contracts",
       current: false,
       path: "/contracts",
-      icon: <AiFillFileText className="mr-3" />,
+      icon: <AiFillFileText className="mr-1" />,
     },
     {
       name: "Invoices",
       current: false,
       path: "/invoices",
-      icon: <IoReceipt className="mr-3" />,
+      icon: <IoReceipt className="mr-1" />,
+    },
+    {
+      name: "Payments",
+      current: false,
+      path: "/payment",
+      icon: <IoIosCash className="mr-1" />,
     },
     {
       name: "Meters",
       current: false,
       path: "/meters",
-      icon: <IoSpeedometer className="mr-3" />,
+      icon: <IoSpeedometer className="mr-1" />,
     },
   ];
   const userNavigation = [
@@ -88,18 +94,18 @@ const Navbar = (first_name, email) => {
     >
       {({ open }) => (
         <>
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="flex h-20 items-center justify-between">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-4">
+            <div className="flex h-18 items-center justify-between">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
                   <img
-                    className="h-10 "
+                    className="h-9 "
                     src={LightLogo}
                     alt="Warba United Co. Logo"
                   />
                 </div>
                 <div className="hidden md:block">
-                  <div className="ml-10 flex items-baseline space-x-0">
+                  <div className="ml-4 flex items-baseline space-x-0">
                     {navigation.map((item) => (
                       <a
                         key={item.name}
@@ -126,13 +132,13 @@ const Navbar = (first_name, email) => {
               </div>
               <div className="hidden md:block">
                 <div className="ml-4 flex items-center md:ml-6">
-                  <button
+                  {/* <button
                     type="button"
                     className="rounded-full bg-[#F7F6F2] p-1 text-[#52555C] hover:text-[#BD9A5F] focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-[#BD9A5F]"
                   >
                     <span className="sr-only">View notifications</span>
                     <BellIcon className="h-6 w-6" aria-hidden="true" />
-                  </button>
+                  </button> */}
 
                   {/* Profile dropdown */}
                   <Menu as="div" className="relative ml-3">

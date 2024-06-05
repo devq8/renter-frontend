@@ -32,7 +32,7 @@ function PropertyDetails() {
         return unit;
       } else if (
         unit.number.toLowerCase().includes(search.toLowerCase()) ||
-        unit.unit_type.toLowerCase().includes(search.toLowerCase()) ||
+        unit.unit_type.name.toLowerCase().includes(search.toLowerCase()) ||
         unit.floor.toLowerCase().includes(search.toLowerCase()) ||
         unit.active_contract?.tenant.user.mobile
           .toLowerCase()
@@ -49,7 +49,7 @@ function PropertyDetails() {
           property={propertyId}
           floor={unit.floor}
           number={unit.number}
-          type={unit.unit_type}
+          type={unit.unit_type.name}
           vacant={unit.vacant}
           tenantFirstName={unit.active_contract?.tenant.user.english_name}
           rent={unit.active_contract?.rent}
@@ -96,7 +96,7 @@ function PropertyDetails() {
               <div className="flex flex-col items-start justify-center my-5 mx-2 pl-4">
                 <h1 className="text-[#AEB3C2] text-sm font-bold">Area</h1>
                 <h1 className="text-[#52555C] font-bold text-xl line-clamp-1 w-28">
-                  {propertyDetails?.area ?? "N/A"}
+                  {propertyDetails?.area?.name ?? "N/A"}
                 </h1>
               </div>
               <div className="flex flex-col items-start justify-center my-5 mx-2 pl-5 border-l">

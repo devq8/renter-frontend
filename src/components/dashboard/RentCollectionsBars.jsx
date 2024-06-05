@@ -21,7 +21,7 @@ Chart.register(
   Legend
 );
 
-function RentCollectionsChart() {
+function RentCollectionsChart({ dashboardData }) {
   const options = {
     responsive: true,
     type: "bar",
@@ -56,12 +56,6 @@ function RentCollectionsChart() {
     return months[monthNumber];
   }
 
-  const {
-    data: properties,
-    isLoading,
-    error,
-  } = useQuery(["properties"], () => getProperties());
-
   const labels = [
     monthNumberToName(currentMonth - 2),
     monthNumberToName(currentMonth - 1),
@@ -87,7 +81,7 @@ function RentCollectionsChart() {
     "rgb(201, 203, 207)",
   ];
 
-  const datasets = properties?.data?.map((property, index) => {
+  const datasets = dashboardData?.map((property, index) => {
     let borderColor = `${borderColors[index % borderColors.length]}`;
     let backgroundColor = `${
       backgroundColors[index % backgroundColors.length]
@@ -108,8 +102,6 @@ function RentCollectionsChart() {
       borderWidth: 1,
     };
   });
-
-  // console.log(datasets);
 
   const data = {
     labels,

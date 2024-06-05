@@ -21,6 +21,7 @@ function ContractList() {
   const { data: contracts, isLoading } = useQuery(["contracts"], () =>
     getContracts()
   );
+  console.log("contracts", contracts);
 
   const contractsList = contracts?.data
     ?.filter((contract) => {
@@ -34,10 +35,8 @@ function ContractList() {
           .toLowerCase()
           .includes(search.toLowerCase()) ||
         contract.unit.number.toLowerCase().includes(search.toLowerCase()) ||
-        contract.unit.get_floor_display
-          .toLowerCase()
-          .includes(search.toLowerCase()) ||
-        contract.unit.get_unit_type_display
+        contract.unit.floor.toLowerCase().includes(search.toLowerCase()) ||
+        contract.unit.unit_type.name
           .toLowerCase()
           .includes(search.toLowerCase()) ||
         contract.unit.property_fk.name

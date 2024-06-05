@@ -5,8 +5,21 @@ import Button from "../../utils/Button";
 import RentCollectionsChart from "./RentCollectionsChart";
 import RentCollectionsBars from "./RentCollectionsBars";
 import LastTransactions from "./LastTransactions";
+import { getLastCollections, getLastInvoices } from "../../utils/api/dashboard";
 
 export default function Dashboard() {
+  const {
+    data: dashboard,
+    isLoading,
+    error,
+  } = useQuery(["dashboard"], () => getLastCollections());
+
+  const {
+    data: lastInvoices,
+    lastInvoicesIsLoading,
+    lastInvoicesError,
+  } = useQuery(["lastInvoices"], () => getLastInvoices());
+
   return (
     <>
       <header className="bg-transparent">
@@ -22,11 +35,15 @@ export default function Dashboard() {
       <main>
         <div className="md:flex md:mx-auto md:max-w-7xl md:py-3 mt-4 p-2">
           <div className="flex flex-col space-y-4 md:w-[50%] md:me-1 mx-2 mb-4">
-            <RentCollectionsChart />
-            <RentCollectionsBars />
+            <RentCollectionsChart dashboardData={dashboard?.data} />
+            <RentCollectionsBars dashboardData={dashboard?.data} />
           </div>
           <div className="flex flex-col space-y-4 md:w-[50%] md:ms-1">
-            <LastTransactions />
+            <LastTransactions
+              lastInvoicesData={lastInvoices?.data}
+              isLoading={lastInvoicesIsLoading}
+              error={lastInvoicesError}
+            />
           </div>
         </div>
       </main>

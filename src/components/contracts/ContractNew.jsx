@@ -44,6 +44,8 @@ function ContractNew() {
     // error: propertiesError,
   } = useQuery(["properties"], () => getProperties());
 
+  console.log("Properties:", properties?.data);
+
   const propertiesList =
     properties && properties.data
       ? properties.data.map((property) => ({
@@ -58,25 +60,34 @@ function ContractNew() {
     // error: unitsError,
   } = useQuery(["units"], () => listUnit(true)); // List all vacant units
 
+  console.log("Units:", units?.data);
+
   const unitsList =
     units && units.data
       ? units.data.map((unit) => ({
           value: unit.id,
-          property: unit.property_fk,
+          property_fk: unit.property_fk.id, // Extracting the property ID
           label: unit.number,
+          vacant: unit.vacant, // Ensure to include the vacant status
         }))
       : [];
 
   const filteredUnits = unitsList.filter(
-    (unit) => unit.property === SelectedProperty
+    (unit) => unit.property_fk === SelectedProperty && unit.vacant === true
   );
+
+  useEffect(() => {
+    console.log("Filtered Units:", filteredUnits);
+  }, [filteredUnits]);
 
   const {
     data: tenants,
     isLoading: tenantsLoading,
     // error: tenantsError,
   } = useQuery(["tenants"], () => getTenants());
-  console.log("Tenants Data:", tenants.data);
+
+  // console.log("Tenants Data:", tenants?.data);
+
   const tenantsList =
     tenants && tenants.data
       ? tenants.data.map((tenant) => ({
@@ -179,6 +190,18 @@ function ContractNew() {
       addContractMutation.mutate(contractData);
     },
   });
+
+  useEffect(() => {
+    console.log("Units List:", unitsList);
+  }, [unitsList]);
+
+  useEffect(() => {
+    console.log("Selected Property:", SelectedProperty);
+  }, [SelectedProperty]);
+
+  useEffect(() => {
+    console.log("Filtered Units:", filteredUnits);
+  }, [filteredUnits]);
 
   return (
     <div className="">
@@ -304,46 +327,46 @@ function ContractNew() {
                   {/* </div> */}
                   <div
                     id="defaultModal"
-                    tabindex="-1"
+                    tabIndex="-1"
                     aria-hidden="true"
-                    class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-modal md:h-full"
+                    className="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-modal md:h-full"
                   >
-                    <div class="relative p-4 w-full max-w-2xl h-full md:h-auto">
+                    <div className="relative p-4 w-full max-w-2xl h-full md:h-auto">
                       {/* Modal content */}
-                      <div class="relative p-4 bg-white rounded-lg shadow dark:bg-gray-800 sm:p-5">
+                      <div className="relative p-4 bg-white rounded-lg shadow dark:bg-gray-800 sm:p-5">
                         {/* Modal header */}
-                        <div class="flex justify-between items-center pb-4 mb-4 rounded-t border-b sm:mb-5 dark:border-gray-600">
-                          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                        <div className="flex justify-between items-center pb-4 mb-4 rounded-t border-b sm:mb-5 dark:border-gray-600">
+                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                             Add Product
                           </h3>
                           <button
                             type="button"
-                            class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                            className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
                             data-modal-toggle="defaultModal"
                           >
                             <svg
                               aria-hidden="true"
-                              class="w-5 h-5"
+                              className="w-5 h-5"
                               fill="currentColor"
                               viewBox="0 0 20 20"
                               xmlns="http://www.w3.org/2000/svg"
                             >
                               <path
-                                fill-rule="evenodd"
+                                fillRule="evenodd"
                                 d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                clip-rule="evenodd"
+                                clipRule="evenodd"
                               ></path>
                             </svg>
-                            <span class="sr-only">Close modal</span>
+                            <span className="sr-only">Close modal</span>
                           </button>
                         </div>
                         {/* Modal body */}
                         {/* <form action="#">
-                          <div class="grid gap-4 mb-4 sm:grid-cols-2">
+                          <div className="grid gap-4 mb-4 sm:grid-cols-2">
                             <div>
                               <label
                                 for="name"
-                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                               >
                                 Name
                               </label>
@@ -351,7 +374,7 @@ function ContractNew() {
                                 type="text"
                                 name="name"
                                 id="name"
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                 placeholder="Type product name"
                                 required=""
                               />
@@ -359,7 +382,7 @@ function ContractNew() {
                             <div>
                               <label
                                 for="brand"
-                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                               >
                                 Brand
                               </label>
@@ -367,7 +390,7 @@ function ContractNew() {
                                 type="text"
                                 name="brand"
                                 id="brand"
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                 placeholder="Product brand"
                                 required=""
                               />
@@ -375,7 +398,7 @@ function ContractNew() {
                             <div>
                               <label
                                 for="price"
-                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                               >
                                 Price
                               </label>
@@ -383,7 +406,7 @@ function ContractNew() {
                                 type="number"
                                 name="price"
                                 id="price"
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                 placeholder="$2999"
                                 required=""
                               />
@@ -391,13 +414,13 @@ function ContractNew() {
                             <div>
                               <label
                                 for="category"
-                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                               >
                                 Category
                               </label>
                               <select
                                 id="category"
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                               >
                                 <option selected="">Select category</option>
                                 <option value="TV">TV/Monitors</option>
@@ -406,27 +429,27 @@ function ContractNew() {
                                 <option value="PH">Phones</option>
                               </select>
                             </div>
-                            <div class="sm:col-span-2">
+                            <div className="sm:col-span-2">
                               <label
                                 for="description"
-                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                                className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                               >
                                 Description
                               </label>
                               <textarea
                                 id="description"
                                 rows="4"
-                                class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                                className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
                                 placeholder="Write product description here"
                               ></textarea>
                             </div>
                           </div>
                           <button
                             type="submit"
-                            class="text-white inline-flex items-center bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                            className="text-white inline-flex items-center bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                           >
                             <svg
-                              class="mr-1 -ml-1 w-6 h-6"
+                              className="mr-1 -ml-1 w-6 h-6"
                               fill="currentColor"
                               viewBox="0 0 20 20"
                               xmlns="http://www.w3.org/2000/svg"
@@ -536,7 +559,6 @@ function ContractNew() {
                           type="number"
                           id="rent"
                           name="rent"
-                          defaultValue={0}
                           className="rounded-none rounded-r-md border text-gray-900 focus:ring-primary focus:border-primary block flex-1 min-w-0 w-full text-sm border-gray-300 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary dark:focus:border-primary"
                           onChange={formik.handleChange}
                           onBlur={formik.handleBlur}

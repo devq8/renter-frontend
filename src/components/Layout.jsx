@@ -30,6 +30,9 @@ import Checkout from "./checkout/Checkout";
 import Payments from "./invoices/Payments";
 import PaymentDetails from "./invoices/PaymentDetails";
 import MetersList from "./meters/MetersList";
+import MeterBulkReadings from "./meters/MeterBulkReadings";
+import ContractEnd from "./contracts/ContractEnd";
+import PaymentList from "./payments/PaymentList";
 
 export default function Layout() {
   const navigate = useNavigate();
@@ -85,6 +88,7 @@ export default function Layout() {
             <Route path="/contracts" element={<ContractList />} />
             <Route path="/contracts/:id" element={<ContractDetails />} />
             <Route path="/contracts/:id/new_invoice" element={<InvoiceNew />} />
+            <Route path="/contracts/:id/end" element={<ContractEnd />} />
             <Route
               path="/checkout/:unique_payment_identifier"
               element={<Checkout />}
@@ -104,7 +108,12 @@ export default function Layout() {
             <Route path="/invoices/:id/pay" element={<PaymentForm />} />
             <Route path="/invoices/:id/return" element={<PaymentReturn />} />
             <Route path="/invoices/:paymentid/receipt" element={<Receipt />} />
+            <Route path="/payment" element={<PaymentList />} />
             <Route path="/meters" element={<MetersList />} />
+            <Route
+              path="/meters/bulk_readings"
+              element={<MeterBulkReadings />}
+            />
           </Routes>
         </ConnectionChecker>
         <Footer />

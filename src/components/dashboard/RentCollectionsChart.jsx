@@ -23,7 +23,7 @@ ChartJS.register(
   Legend
 );
 
-function RentCollectionsChart() {
+function RentCollectionsChart({ dashboardData }) {
   const options = {
     responsive: true,
     plugins: {
@@ -74,15 +74,9 @@ function RentCollectionsChart() {
     return last12Months;
   }
 
-  const {
-    data: properties,
-    isLoading,
-    error,
-  } = useQuery(["properties"], () => getProperties());
-
   let labels = [];
-  if (properties?.data?.length > 0) {
-    const item = properties?.data[0].last_year_collections;
+  if (dashboardData?.length > 0) {
+    const item = dashboardData[0].last_year_collections;
     labels = item.map((month) => month["month"]);
     labels = labels.reverse();
   } else {
@@ -109,7 +103,7 @@ function RentCollectionsChart() {
     "rgba(201, 203, 207, 0.2)",
   ];
 
-  const datasets = properties?.data?.map((property, index) => {
+  const datasets = dashboardData?.map((property, index) => {
     let borderColor = `${colors[index % colors.length]}`;
     let backgroundColor = `${background[index % background.length]}`;
     const collections = property.last_year_collections;

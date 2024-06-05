@@ -30,11 +30,11 @@ function ContractDetails() {
 
   const { data: invoices, isLoading: invoicesLoading } = useQuery(
     ["invoices", contractId],
-    () => getInvoices(contractId)
+    () =>
+      getInvoices({ uid: null, contract_id: contractId, invoice_status: null })
   );
 
   const contractDetails = contract?.data;
-  console.log("Contract Details: ", contractDetails);
 
   const invoicesList = invoices?.data
     ?.sort((a, b) => {
@@ -83,9 +83,13 @@ function ContractDetails() {
   );
 
   const menuItems = [
+    // {
+    //   label: "Generate Future Invoices",
+    //   onClick: () => handleOpenModal,
+    // },
     {
-      label: "Generate Future Invoices",
-      onClick: () => handleOpenModal,
+      label: "End Contract",
+      onClick: () => navigate(`/contracts/${contractDetails.id}/end`),
     },
   ];
 
@@ -106,14 +110,14 @@ function ContractDetails() {
               Contract No. {contractDetails?.id} Details
             </h1>
             <div className="flex">
-              {/* <IconButtonMenu menuItems={menuItems} /> */}
-              <Button
+              <IconButtonMenu menuItems={menuItems} />
+              {/* <Button
                 text={isSending ? "Sending..." : "Send Reminder"}
                 type="reminder"
                 className_="bg-[#52555C]"
                 disabled={isSending}
                 onClick={() => sendInvoiceReminderMutation.mutate(contractId)}
-              />
+              /> */}
               <Button
                 color="#BD9A5F"
                 text="Add New Invoice"
@@ -145,7 +149,7 @@ function ContractDetails() {
                         {contractDetails.unit.property_fk.name}
                       </h1>
                       <h1 className="text-[#52555C] font-bold text-xs line-clamp-1">
-                        {contractDetails.unit.get_unit_type_display}
+                        {contractDetails.unit.unit_type.name}
                       </h1>
                     </div>
                     <div className="flex flex-row items-center justify-center bg-[#F2F2F2] mt-[4px] mx-2 py-[2px] px-3 rounded-sm max-h-[26px]">

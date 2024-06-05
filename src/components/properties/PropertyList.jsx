@@ -29,7 +29,7 @@ function PropertyList() {
         return property;
       } else if (
         property.name?.toLowerCase().includes(search.toLowerCase()) ||
-        property.area?.toLowerCase().includes(search.toLowerCase())
+        property.area?.name.toLowerCase().includes(search.toLowerCase())
       ) {
         return property;
       }
@@ -40,7 +40,7 @@ function PropertyList() {
           key={property.id}
           id={property.id}
           name={property.name}
-          area={property.area}
+          area={property.area.name}
           address={property.address}
           owner={property.owner_name[0]}
         />

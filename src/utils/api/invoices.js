@@ -6,6 +6,7 @@ export function getInvoices({
   invoice_status = null,
   uid = null,
 } = {}) {
+  console.log("Contract ID is :", contract_id);
   let url = "/api/invoices/";
   let queryParams = [];
 

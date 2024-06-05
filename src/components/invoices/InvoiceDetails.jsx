@@ -4,11 +4,12 @@ import { useNavigate, useParams } from "react-router";
 import Breadcrumb from "../../utils/Breadcrumb";
 import Button from "../../utils/Button";
 import { getInvoiceDetails } from "../../utils/api/invoices";
-import { changeDatesFormat, changeAmountFormat } from "../../utils/format";
-import { PhotoIcon } from "@heroicons/react/24/solid";
+import {
+  changeDatesFormat,
+  changeAmountFormat,
+  changeDateTimeFormat,
+} from "../../utils/format";
 import AttachmentItem from "./AttachmentItem";
-// import HesabeCrypt from "hesabe-crypt";
-// import aesjs from "aes-js";
 
 function InvoiceDetails() {
   const navigate = useNavigate();
@@ -134,7 +135,7 @@ function InvoiceDetails() {
               {invoiceDetails?.invoice_status == "Paid" ? (
                 <Button
                   color="#BD9A5F"
-                  text="Print Invoice"
+                  text="Print Receipt"
                   type="print"
                   onClick={handlePrintInvoice}
                 />
@@ -151,7 +152,7 @@ function InvoiceDetails() {
               <div className="flex flex-col items-start justify-center my-5 mx-2 pl-4">
                 <h1 className="text-[#AEB3C2] text-sm font-bold">Type</h1>
                 <h1 className="text-[#52555C] font-bold text-xl line-clamp-1 ">
-                  {invoiceDetails?.get_invoice_type_display}
+                  {invoiceDetails?.invoice_type}
                 </h1>
               </div>
               <div className="flex flex-col items-start justify-center my-5 mx-2 pl-5 border-l">
@@ -237,25 +238,35 @@ function InvoiceDetails() {
             <div className="flex justify-between text-[#52555C]">
               <h1 className="mx-2 py-2 font-bold">Payment Method</h1>
               <h1 className="mx-2 py-2 font-bold">
-                {invoiceDetails?.payment?.payment_method}
+                {(invoiceDetails?.invoice_status &&
+                  invoiceDetails?.payments?.[0]?.payment_method) ||
+                  ""}
               </h1>
             </div>
             <div className="flex justify-between text-[#52555C]">
               <h1 className="mx-2 py-2 font-bold">Reference ID</h1>
               <h1 className="mx-2 py-2 font-bold">
-                {invoiceDetails?.payment?.reference_id}
+                {(invoiceDetails?.invoice_status &&
+                  invoiceDetails?.payments?.[0]?.reference_id) ||
+                  ""}
               </h1>
             </div>
             <div className="flex justify-between text-[#52555C]">
               <h1 className="mx-2 py-2 font-bold">Reference Token</h1>
               <h1 className="mx-2 py-2 font-bold">
-                {invoiceDetails?.payment?.reference_token}
+                {(invoiceDetails?.invoice_status &&
+                  invoiceDetails?.payments?.[0]?.reference_token) ||
+                  ""}
               </h1>
             </div>
             <div className="flex justify-between text-[#52555C]">
               <h1 className="mx-2 py-2 font-bold">Payment Date & Time</h1>
               <h1 className="mx-2 py-2 font-bold">
-                {invoiceDetails?.payment?.payment_date}
+                {(invoiceDetails?.invoice_status &&
+                  changeDateTimeFormat(
+                    invoiceDetails?.payments?.[0]?.payment_date
+                  )) ||
+                  ""}
               </h1>
             </div>
           </div>
@@ -271,7 +282,7 @@ function InvoiceDetails() {
               </p>
             </div>
           )}
-          <div className="flex flex-col bg-white rounded-md p-5 mt-5">
+          {/* <div className="flex flex-col bg-white rounded-md p-5 mt-5">
             <h1 className="mx-2 text-3xl font-bold text-[#52555C]">
               Attachments
             </h1>
@@ -310,7 +321,7 @@ function InvoiceDetails() {
                 <div className="p-5 space-y-4">{documentsList}</div>
               </div>
             )}
-          </div>
+          </div> */}
         </div>
       </main>
     </div>

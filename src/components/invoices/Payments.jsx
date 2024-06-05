@@ -29,7 +29,6 @@ function Payments() {
     () => getPaymentsList(unique_payment_identifier)
   );
   const paymentItems = payments?.data;
-  console.log("Payments:", payments?.data);
 
   const columns = [
     {
