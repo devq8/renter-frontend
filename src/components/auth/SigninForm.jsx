@@ -132,7 +132,7 @@ function SigninForm() {
           <div className="flex items-center mb-6 -mt-4">
             <div className="flex ml-auto">
               <a
-                href="#"
+                href="/forget-password"
                 className="inline-flex text-sm font-light text-[#818FC2] sm:text-sm  hover:text-gray-700 "
               >
                 Forgot Your Password?

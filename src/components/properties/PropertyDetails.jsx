@@ -47,7 +47,7 @@ function PropertyDetails() {
           key={unit.id}
           id={unit.id}
           property={propertyId}
-          floor={unit.floor}
+          floor={unit.floor.short_name}
           number={unit.number}
           type={unit.unit_type.name}
           vacant={unit.vacant}

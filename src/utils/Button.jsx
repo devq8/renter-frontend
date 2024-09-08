@@ -4,11 +4,21 @@ import {
   AiFillEdit,
   AiFillBell,
   AiFillPrinter,
+  AiOutlineCloseCircle,
+  AiOutlineCheckCircle,
 } from "react-icons/ai";
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { IoLinkSharp } from "react-icons/io5";
 
-function Button({ color, text, type, className_, disabled, onClick }) {
+function Button({
+  color,
+  text,
+  type,
+  className_,
+  disabled,
+  onClick,
+  buttonType = "button",
+}) {
   const className = `flex items-center rounded-md bg-[${color}] mx-2 px-7 py-3 text-base font-medium text-white transition duration-200 hover:bg-[${color}] hover:opacity-80 active:bg-[${color}] ${className_}`;
 
   return (
@@ -17,11 +27,13 @@ function Button({ color, text, type, className_, disabled, onClick }) {
         className={className}
         onClick={onClick}
         disabled={disabled}
-        type="button"
+        type={buttonType}
       >
-        <span className="inline-block mr-2 ">
+        <span className="inline-block mr-2">
           {type === "add" && <AiFillPlusCircle className="w-6 h-6" />}
           {type === "edit" && <AiFillEdit className="w-6 h-6" />}
+          {type === "cancel" && <AiOutlineCloseCircle className="w-6 h-6" />}
+          {type === "activate" && <AiOutlineCheckCircle className="w-6 h-6" />}
           {type === "reminder" && <AiFillBell className="w-6 h-6" />}
           {type === "link" && <IoLinkSharp className="w-6 h-6" />}
           {type === "print" && <AiFillPrinter className="w-6 h-6" />}

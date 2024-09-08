@@ -379,6 +379,7 @@ function Checkout() {
                 : "bg-gray-400 text-gray-500 cursor-not-allowed"
             }`}
               disabled={
+                isCheckoutItemsLoading ||
                 totalAmount <= 0 ||
                 isSubmitting ||
                 totalOutstandingAmount == 0 ||

@@ -36,6 +36,8 @@ function UnitNewUpdate() {
     enabled: isUpdatingMode,
   });
 
+  console.log("unitData", unitData?.data);
+
   const addUnitMutation = useMutation((unit) => addUnit(unit, propertyId), {
     onSuccess: () => {
       queryClient.invalidateQueries(["units", propertyId]);
@@ -75,7 +77,13 @@ function UnitNewUpdate() {
     isLoading: typesLoading,
     // error: typesError,
   } = useQuery(["types"], () => getUnitTypes());
-  const typesList = types && types.data ? types.data.map((type) => type) : [];
+  const typesList =
+    types && types.data
+      ? types.data.map((type) => ({
+          value: type.id,
+          label: type.name,
+        }))
+      : [];
 
   const {
     data: floors,
@@ -83,7 +91,14 @@ function UnitNewUpdate() {
     // error: floorsError,
   } = useQuery(["floors"], () => getFloors());
   const floorsList =
-    floors && floors.data ? floors.data.map((floor) => floor) : [];
+    floors && floors.data
+      ? floors.data.map((floor) => ({
+          value: floor.id,
+          label: floor.name,
+        }))
+      : [];
+
+  console.log("FloorList", floorsList);
 
   function handleCancel() {
     navigate(-1);
@@ -93,8 +108,8 @@ function UnitNewUpdate() {
     initialValues: {
       number: isUpdatingMode && unitData?.data ? unitData.data.number : "",
       unit_type:
-        isUpdatingMode && unitData?.data ? unitData.data.unit_type : [],
-      floor: isUpdatingMode && unitData?.data ? unitData.data.floor : [],
+        isUpdatingMode && unitData?.data ? unitData.data.unit_type.id : "",
+      floor: isUpdatingMode && unitData?.data ? unitData.data.floor.id : "",
       area: isUpdatingMode && unitData?.data ? unitData.data.area : "",
     },
     enableReinitialize: true,
@@ -107,10 +122,12 @@ function UnitNewUpdate() {
     onSubmit: (values) => {
       const unitData = {
         number: values.number,
-        unit_type: values.unit_type,
-        floor: values.floor,
+        unit_type: isUpdatingMode ? { id: values.unit_type } : values.unit_type,
+        floor: isUpdatingMode ? { id: values.floor } : values.floor,
         area: values.area,
       };
+
+      console.log("Submit unitData", unitData);
 
       if (isUpdatingMode) {
         updateUnitMutation.mutate({ id: unitId, ...unitData });

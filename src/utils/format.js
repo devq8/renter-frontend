@@ -34,7 +34,7 @@ export function changeDateTimeFormat(date) {
   const dateObj = parseISO(date);
   const newDateFormat = format(dateObj, "dd/MM/yyyy");
   const newTimeFormat = format(dateObj, "hh:mm a");
-  return `${newDateFormat} ${newTimeFormat}`;
+  return `${newDateFormat} - ${newTimeFormat}`;
 }
 
 export function modulo(divident, divisor) {

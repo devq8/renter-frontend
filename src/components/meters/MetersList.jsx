@@ -96,9 +96,15 @@ function MetersList() {
                   </th>
                   <th
                     scope="col"
+                    className="px-6 py-4 font-medium text-gray-900 text-center"
+                  >
+                    %
+                  </th>
+                  <th
+                    scope="col"
                     className="px-6 py-4 font-medium text-gray-900"
                   >
-                    Tenant
+                    Units
                   </th>
                 </tr>
               </thead>

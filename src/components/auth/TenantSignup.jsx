@@ -20,6 +20,9 @@ import { IMaskInput } from "react-imask";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import CheckCircleOutlined from "@mui/icons-material/CheckCircleOutlined";
 import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
+import Radio from "@mui/joy/Radio";
+import RadioGroup from "@mui/joy/RadioGroup";
+
 import {
   sendOTPCode,
   verifyOTPCode,
@@ -104,6 +107,7 @@ export default function TenantSignupForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [managerName, setManagerName] = useState("");
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const [tenantType, setTenantType] = useState("individual");
 
   const queryClient = useQueryClient();
 
@@ -129,12 +133,11 @@ export default function TenantSignupForm() {
   const [mobile, setMobile] = useState("");
   const [otp, setOtp] = useState("");
   const [verificationResult, setVerificationResult] = useState(null);
-
+  const [loading, setLoading] = useState(false);
   const [isMobileVerified, setIsMobileVerified] = useState(false);
   const [otpRequested, setOtpRequested] = useState(false);
 
   const verifyOtp = async (otp) => {
-    console.log(`I'm inside verifyOtp function`);
     const verifyData = { phone: `+965${mobile}`, code: otp };
 
     setCheckingOTP(true);
@@ -174,9 +177,11 @@ export default function TenantSignupForm() {
 
   //   Get Manager name from UID
   useEffect(() => {
+    setLoading(true);
     if (uid) {
       fetchManagerName(uid);
     } else {
+      setLoading(false);
       setManagerName("");
     }
   }, []);
@@ -200,6 +205,8 @@ export default function TenantSignupForm() {
       }
     } catch (error) {
       setManagerName("");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -393,6 +400,8 @@ export default function TenantSignupForm() {
       address: "",
       sponsor: "",
       paci: "",
+      company_name_en: "",
+      company_name_ar: "",
     },
     validationSchema: Yup.object({
       english_name: Yup.string().required("Required"),
@@ -418,6 +427,14 @@ export default function TenantSignupForm() {
       address: Yup.string().required("Address is required"),
       sponsor: Yup.string(),
       paci: Yup.string(),
+      company_name_en: Yup.string().when("tenantType", {
+        is: "company",
+        then: Yup.string().required("Company name in English is required"),
+      }),
+      company_name_ar: Yup.string().when("tenantType", {
+        is: "company",
+        then: Yup.string().required("Company name in Arabic is required"),
+      }),
     }),
     onSubmit: (values) => {
       handleSubmit(values);
@@ -473,7 +490,18 @@ export default function TenantSignupForm() {
             </Box>
             {/* <Typography>Language Changer</Typography> */}
           </Box>
-          {managerName === "" || managerName === null ? (
+          {loading ? (
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                height: "100%",
+              }}
+            >
+              <CircularProgress />
+            </Box>
+          ) : managerName === "" || managerName === null ? (
             // Show an alert if the URL is invalid
             <Box
               sx={{
@@ -571,6 +599,92 @@ export default function TenantSignupForm() {
                   onSubmit={formik.handleSubmit}
                   encType="multipart/form-data"
                 >
+                  {/* Tenant Type Selection */}
+                  <FormControl>
+                    <FormLabel>Tenant Type</FormLabel>
+                    <FormHelperText>
+                      Choose the type of tenant you are.
+                    </FormHelperText>
+                    <RadioGroup
+                      defaultValue="individual"
+                      name="tenant-type-group"
+                      onChange={(e) => setTenantType(e.target.value)}
+                    >
+                      <Radio
+                        value="individual"
+                        label="Individual Tenant - تسجيل كمستأجر فردي"
+                        slotProps={{
+                          input: {
+                            "aria-describedby": "individual-helper-text",
+                          },
+                        }}
+                      />
+                      <FormHelperText id="individual-helper-text">
+                        Select this if you are signing up as an individual.
+                      </FormHelperText>
+                      <Radio
+                        value="company"
+                        label="Company Tenant - تسجيل كمستأجر شركة"
+                        slotProps={{
+                          input: { "aria-describedby": "company-helper-text" },
+                        }}
+                      />
+                      <FormHelperText id="company-helper-text">
+                        Select this if you are signing up as a company.
+                      </FormHelperText>
+                    </RadioGroup>
+                  </FormControl>
+
+                  {tenantType === "company" && (
+                    <>
+                      <FormControl
+                        required
+                        error={
+                          formik.touched.company_name_en &&
+                          Boolean(formik.errors.company_name_en)
+                        }
+                      >
+                        <FormLabel>Company Name (English)</FormLabel>
+                        <Input
+                          name="company_name_en"
+                          placeholder="This will be shown in all receipts"
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          value={formik.values.company_name_en}
+                        />
+                        {formik.touched.company_name_en &&
+                          formik.errors.company_name_en && (
+                            <FormHelperText>
+                              {formik.errors.company_name_en}
+                            </FormHelperText>
+                          )}
+                      </FormControl>
+
+                      <FormControl
+                        required
+                        error={
+                          formik.touched.company_name_ar &&
+                          Boolean(formik.errors.company_name_ar)
+                        }
+                      >
+                        <FormLabel>Company Name (Arabic)</FormLabel>
+                        <Input
+                          name="company_name_ar"
+                          placeholder="This will be shown in all receipts"
+                          onChange={formik.handleChange}
+                          onBlur={formik.handleBlur}
+                          value={formik.values.company_name_ar}
+                        />
+                        {formik.touched.company_name_ar &&
+                          formik.errors.company_name_ar && (
+                            <FormHelperText>
+                              {formik.errors.company_name_ar}
+                            </FormHelperText>
+                          )}
+                      </FormControl>
+                    </>
+                  )}
+
                   {/* Form Fields */}
                   <FormControl
                     required

@@ -13,4 +13,8 @@ export function addContract(contract) {
   return instance.post(`/api/contracts/add/`, contract);
 }
 
+export function endContract(contract, data) {
+  return instance.post(`/api/contracts/${contract}/ending/`, data);
+}
+
 // export default { getContracts, getContractDetails, addContract };

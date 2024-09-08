@@ -18,7 +18,9 @@ function Filter(props) {
   const propertiesOption =
     properties && properties.data
       ? properties.data.map((property) => (
-          <option value={property.name.toLowerCase()}>{property.name}</option>
+          <option key={property.id} value={property.name.toLowerCase()}>
+            {property.name}
+          </option>
         ))
       : [];
 
@@ -66,7 +68,6 @@ function Filter(props) {
             className="px-4 py-3 w-full rounded-md bg-gray-100 border-gray-200 focus:border-gray-500 focus:bg-white focus:ring-0 text-sm"
           >
             <option value="">Invoice Status</option>
-            <option value="new">New</option>
             <option value="upcoming">Upcoming</option>
             <option value="paid">Paid</option>
             <option value="cancelled">Cancelled</option>
@@ -79,23 +80,13 @@ function Filter(props) {
           >
             <option value="">Invoice Type</option>
             <option value="Rent">Rent</option>
-            <option value="Water">Water</option>
-            <option value="Electricity">Electricity</option>
+            <option value="Water Consumption">Water</option>
+            <option value="Electricity Consumption">Electricity</option>
             <option value="Internet">Internet</option>
             <option value="Insurance">Insurance</option>
             <option value="Admin">Admin Fees</option>
             <option value="Maintenance">Maintenance</option>
             <option value="Legal">Legal Fees</option>
-          </select>
-
-          <select
-            onChange={paymentMethodOnChange}
-            className="px-4 py-3 w-full rounded-md bg-gray-100 border-gray-200 focus:border-gray-500 focus:bg-white focus:ring-0 text-sm"
-          >
-            <option value="">Payment Method</option>
-            <option value="KNet">KNet</option>
-            <option value="CreditCard">CreditCard</option>
-            <option value="Cash">Cash</option>
           </select>
         </div>
       </div>

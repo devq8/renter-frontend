@@ -7,6 +7,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import Input from "../../utils/form/Input";
 import { addTenant, getTenants, updateTenant } from "../../utils/api/tenants";
+import FileInput from "../../utils/form/FileInput";
 
 // import { PhotoIcon } from "@heroicons/react/24/solid";
 

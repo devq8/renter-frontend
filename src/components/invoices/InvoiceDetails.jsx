@@ -1,20 +1,38 @@
 import React from "react";
-import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router";
 import Breadcrumb from "../../utils/Breadcrumb";
 import Button from "../../utils/Button";
-import { getInvoiceDetails } from "../../utils/api/invoices";
+import { cancelInvoice, getInvoiceDetails } from "../../utils/api/invoices";
 import {
   changeDatesFormat,
   changeAmountFormat,
   changeDateTimeFormat,
 } from "../../utils/format";
 import AttachmentItem from "./AttachmentItem";
+import { useFormik } from "formik";
+import { toast } from "react-toastify";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 function InvoiceDetails() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const { id: invoiceId } = useParams();
+
+  const cancelInvoiceMutation = useMutation(
+    (invoice) => cancelInvoice(invoice),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(["invoices"]);
+        toast.success("Invoice updated successfully");
+        navigate(-1);
+      },
+      onError: (error) => {
+        console.log(error.response.data.name[0]);
+        toast.error("Error updating invoice");
+      },
+    }
+  );
 
   const {
     data: invoice,
@@ -99,6 +117,22 @@ function InvoiceDetails() {
       );
     }) || [];
 
+  const formik = useFormik({
+    initialValues: {
+      id: invoiceId,
+      cancelled: !invoiceDetails?.cancelled,
+    },
+
+    onSubmit: (values) => {
+      const invoiceData = {
+        id: invoiceId,
+        cancelled: !invoiceDetails?.cancelled,
+      };
+      console.log("Submitted Data:", invoiceData);
+      cancelInvoiceMutation.mutate(invoiceData);
+    },
+  });
+
   return (
     <div className="h-[100%] pb-5">
       <header className="bg-transparent">
@@ -114,8 +148,28 @@ function InvoiceDetails() {
               Invoice No. {invoiceDetails?.id} Details
             </h1>
             <div
-            // onClick={() => navigate("/contract/new")}
+              className="flex"
+              // onClick={() => navigate("/contract/new")}
             >
+              {invoiceDetails && invoiceDetails.invoice_status !== "Paid" && (
+                <form onSubmit={formik.handleSubmit}>
+                  {invoiceDetails && invoiceDetails?.cancelled ? (
+                    <Button
+                      text="Activate"
+                      type="activate"
+                      buttonType="submit"
+                      className_={"bg-green-500"}
+                    />
+                  ) : (
+                    <Button
+                      text="Cancel"
+                      type="cancel"
+                      buttonType="submit"
+                      className_={"bg-red-800"}
+                    />
+                  )}
+                </form>
+              )}
               {invoiceDetails && invoiceDetails.invoice_status !== "Paid" && (
                 <Button
                   text="Send Reminder"

@@ -10,7 +10,7 @@ function SignupForm() {
   return (
     <div className="flex flex-col max-w-md px-4 py-8 bg-transparent rounded-lg sm:px-6 md:px-8 lg:px-10">
       <div className="self-start px-6 mb-1 text-3xl font-Bold text-[#1C1F2A] sm:text-3xl">
-        Create a new account
+        Create an owner account
       </div>
 
       <div className="p-6 mt-6">

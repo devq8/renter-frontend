@@ -33,18 +33,26 @@ import MetersList from "./meters/MetersList";
 import MeterBulkReadings from "./meters/MeterBulkReadings";
 import ContractEnd from "./contracts/ContractEnd";
 import PaymentList from "./payments/PaymentList";
+import PaymentDetail from "./payments/PaymentDetails";
+import { useEffect } from "react";
+import PrivacyPolicy from "./privacypolicy/PrivacyPolicy";
 
 export default function Layout() {
   const navigate = useNavigate();
-  const user = useUser();
+  const { data: user, isLoading } = useUser();
   const location = useLocation();
 
   // Check if the current route is the Checkout page
   const isCheckoutPage =
     location.pathname.startsWith("/checkout") ||
-    location.pathname.startsWith("/payments");
+    location.pathname.startsWith("/payments") ||
+    location.pathname.startsWith("/privecypolicy");
 
-  if (!user?.data && !isCheckoutPage) navigate("/signin");
+  useEffect(() => {
+    if (!isLoading && !user && !isCheckoutPage) {
+      navigate("/signin");
+    }
+  }, [user, isLoading, isCheckoutPage, navigate]);
 
   let { lan } = useParams();
   !lan ? (lan = "en") : (lan = lan);
@@ -89,6 +97,7 @@ export default function Layout() {
             <Route path="/contracts/:id" element={<ContractDetails />} />
             <Route path="/contracts/:id/new_invoice" element={<InvoiceNew />} />
             <Route path="/contracts/:id/end" element={<ContractEnd />} />
+            <Route path="/contracts/new_contract" element={<ContractNew />} />
             <Route
               path="/checkout/:unique_payment_identifier"
               element={<Checkout />}
@@ -101,7 +110,6 @@ export default function Layout() {
               path="/payments/:unique_payment_identifier/:payment_id"
               element={<PaymentDetails />}
             />
-            <Route path="/contracts/new_contract" element={<ContractNew />} />
             <Route path="/invoices" element={<InvoiceList />} />
             <Route path="/invoices/:id" element={<InvoiceDetails />} />
             <Route path="/invoices/mobile/:id" element={<InvoiceView />} />
@@ -109,6 +117,7 @@ export default function Layout() {
             <Route path="/invoices/:id/return" element={<PaymentReturn />} />
             <Route path="/invoices/:paymentid/receipt" element={<Receipt />} />
             <Route path="/payment" element={<PaymentList />} />
+            <Route path="/payment/:id" element={<PaymentDetail />} />
             <Route path="/meters" element={<MetersList />} />
             <Route
               path="/meters/bulk_readings"

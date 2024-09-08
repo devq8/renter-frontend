@@ -72,3 +72,14 @@ export function verifyOTPCode(values) {
   );
   return instance.post("/api/auth/verify_code/", values);
 }
+
+export function sendResetPasswordLink(email) {
+  return instance.post(`/api/auth/reset_password/`, { email: email });
+}
+
+export function resetPasswordLink(uid, reset_token, new_password) {
+  return instance.post(
+    `/api/auth/reset_password_confirm/${uid}/${reset_token}/`,
+    { new_password: new_password }
+  );
+}

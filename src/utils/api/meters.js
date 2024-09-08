@@ -17,6 +17,11 @@ export function getMeters({ contract = null } = {}) {
   return instance.get(url);
 }
 
+export function getMeterDetails(contractId) {
+  // console.log("ContractID in getMeterDetails:", contractId);
+  return instance.get(`/api/meters/list/${contractId}/`);
+}
+
 export function addBulkReadings(readings) {
   console.log("Readings in addBulkReadings function:", readings);
   return instance.post("/api/meters/bulk-meter-readings/", readings);

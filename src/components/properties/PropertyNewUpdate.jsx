@@ -97,14 +97,26 @@ function PropertyNewUpdate() {
     isLoading: areasLoading,
     // error: areasError,
   } = useQuery(["areas"], () => getAreas());
-  const areasList = areas && areas.data ? areas?.data.map((area) => area) : [];
+  const areasList =
+    areas && areas.data
+      ? areas?.data.map((area) => ({
+          value: area.id,
+          label: area.name,
+        }))
+      : [];
 
   const {
     data: banks,
     isLoading: banksLoading,
     // error: banksError,
   } = useQuery(["banks"], () => getBanks());
-  const banksList = banks && banks.data ? banks?.data.map((bank) => bank) : [];
+  const banksList =
+    banks && banks.data
+      ? banks?.data.map((bank) => ({
+          value: bank.id,
+          label: bank.name,
+        }))
+      : [];
 
   const {
     data: managers,
@@ -138,7 +150,8 @@ function PropertyNewUpdate() {
 
   const formik = useFormik({
     initialValues: {
-      area: isUpdatingMode && propertyData?.data ? propertyData.data.area : "",
+      area:
+        isUpdatingMode && propertyData?.data ? propertyData.data.area.id : "",
       name: isUpdatingMode && propertyData?.data ? propertyData.data.name : "",
       address:
         isUpdatingMode && propertyData?.data ? propertyData.data.address : "",
@@ -148,7 +161,9 @@ function PropertyNewUpdate() {
       owner:
         isUpdatingMode && propertyData?.data ? propertyData.data.owner : [],
       bank_name:
-        isUpdatingMode && propertyData?.data ? propertyData.data.bank_name : "",
+        isUpdatingMode && propertyData?.data
+          ? propertyData.data.bank_name.id
+          : "",
       beneficiary:
         isUpdatingMode && propertyData?.data
           ? propertyData.data.beneficiary
@@ -175,12 +190,12 @@ function PropertyNewUpdate() {
     onSubmit: (values) => {
       const propertyData = {
         name: values.name,
-        area: values.area,
+        area: values.area.id,
         address: values.address,
         PACI: values.PACI,
         manager: values.manager,
         owner: values.owner,
-        bank_name: values.bank_name,
+        bank_name: values.bank_name.id,
         beneficiary: values.beneficiary,
         IBAN: values.IBAN,
       };
@@ -329,12 +344,13 @@ function PropertyNewUpdate() {
                     isSearchable={true}
                     options={areasList}
                     placeholder="Select area ..."
-                    onChange={(selectedOption) =>
+                    onChange={(selectedOption) => {
                       formik.setFieldValue(
                         "area",
                         selectedOption ? selectedOption.value : null
-                      )
-                    }
+                      );
+                      console.log("Selected Area: ", selectedOption.value);
+                    }}
                     value={areasList?.find(
                       (option) => option.value === formik.values.area
                     )}

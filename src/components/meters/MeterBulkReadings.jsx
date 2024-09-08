@@ -32,8 +32,6 @@ function MeterBulkReadings() {
     error: metersError,
   } = useQuery(["meters"], () => getMeters({ contract: "not_null" }));
 
-  console.log("List of meters:", meters?.data);
-
   const metersList = meters?.data
     ? meters?.data.map((meter) => ({
         value: meter.id,
@@ -61,7 +59,7 @@ function MeterBulkReadings() {
         }
         setErrors(newErrors);
         setSuccess(newSuccess);
-        // navigate("/meters");
+        navigate(-1);
       },
       onError: (error) => {
         console.log("Error adding reading: ", error.response.data);

@@ -12,7 +12,7 @@ import Filter from "../../utils/Filter";
 // import { DataGrid } from "@mui/x-data-grid";
 
 function InvoiceList() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const [search, setSearch] = useState("");
 
@@ -54,6 +54,9 @@ function InvoiceList() {
         invoice.contract.tenant.user.english_name
           .toLowerCase()
           .includes(search.toLowerCase()) ||
+        invoice.contract.tenant.user.mobile
+          .toLowerCase()
+          .includes(search.toLowerCase()) ||
         invoice.id.toString().includes(search.toLowerCase()) ||
         invoice.contract.unit.property_fk.name
           .toLowerCase()
@@ -64,9 +67,7 @@ function InvoiceList() {
         invoice.contract.unit.number
           .toLowerCase()
           .includes(search.toLowerCase()) ||
-        invoice.get_invoice_type_display
-          .toLowerCase()
-          .includes(search.toLowerCase()) ||
+        invoice.invoice_type.toLowerCase().includes(search.toLowerCase()) ||
         invoice.invoice_status.toLowerCase().includes(search.toLowerCase())
       ) {
         return invoice;
@@ -76,8 +77,7 @@ function InvoiceList() {
       if (invoiceStatus === "") {
         return invoice;
       } else if (
-        invoice.get_invoice_status_display.toLowerCase() ===
-        invoiceStatus.toLowerCase()
+        invoice.invoice_status.toLowerCase() === invoiceStatus.toLowerCase()
       ) {
         return invoice;
       }
@@ -96,17 +96,7 @@ function InvoiceList() {
       if (invoiceType === "") {
         return invoice;
       } else if (
-        invoice.get_invoice_type_display.toLowerCase() ===
-        invoiceType.toLowerCase()
-      ) {
-        return invoice;
-      }
-    })
-    .filter((invoice) => {
-      if (paymentMethod === "") {
-        return invoice;
-      } else if (
-        invoice.method_of_payment.toLowerCase() === paymentMethod.toLowerCase()
+        invoice.invoice_type.toLowerCase() === invoiceType.toLowerCase()
       ) {
         return invoice;
       }
@@ -235,7 +225,7 @@ function InvoiceList() {
                       </th>
                       <th
                         scope="col"
-                        className="px-6 py-4 font-medium text-gray-900 text-center"
+                        className="px-6 py-4 font-medium text-gray-900 text-left"
                       >
                         Type
                       </th>

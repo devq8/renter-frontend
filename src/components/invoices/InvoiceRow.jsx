@@ -70,9 +70,9 @@ function InvoiceRow({
         {tenant.user.english_name}
       </th>
       <td className="px-4 py-4">{property.name}</td>
-      <td className="px-4 py-4">{floor}</td>
-      <td className="px-4 py-4">{unit}</td>
-      <td className="px-4 py-4 text-center">{type}</td>
+      <td className="px-4 py-4 text-center">{floor}</td>
+      <td className="px-4 py-4 text-center">{unit}</td>
+      <td className="px-4 py-4 text-left">{type}</td>
       <td className="px-4 py-4 text-center">{changeDatesFormat(date)}</td>
       <td className="px-4 py-4 text-gray-700 font-medium text-end">
         {amount && (

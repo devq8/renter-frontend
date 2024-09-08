@@ -6,7 +6,7 @@ export function getInvoices({
   invoice_status = null,
   uid = null,
 } = {}) {
-  console.log("Contract ID is :", contract_id);
+  // console.log("Contract ID is :", contract_id);
   let url = "/api/invoices/";
   let queryParams = [];
 
@@ -18,7 +18,6 @@ export function getInvoices({
     url += `?${queryParams.join("&")}`;
   }
 
-  console.log("URL:", url);
   return instance.get(url);
 }
 
@@ -30,6 +29,10 @@ export function addInvoice(invoice) {
   console.log(`Adding invoice`);
   console.log(invoice);
   return instance.post(`/api/invoices/add/`, invoice);
+}
+
+export function cancelInvoice(invoice) {
+  return instance.patch(`/api/invoices/${invoice.id}/update/`, invoice);
 }
 
 export function deleteInvoiceDocument(document_id) {

@@ -40,12 +40,15 @@ function NavBar() {
   }
 
   function handleNavigation(e) {
+    console.log("Target:", e.target.name);
     if (e.target.name === "signin") {
       navigate(`/signin`);
     } else if (e.target.name === "signup") {
       navigate(`/signup`);
     } else if (e.target.name === "dashboard") {
       navigate(`/dashboard`);
+    } else if (e.target.name === "privacy-policy") {
+      navigate(`/privacy-policy`);
     }
   }
 
