@@ -23,28 +23,23 @@ function ContractList() {
   );
   console.log("contracts", contracts);
 
-  const contractsList = contracts?.data
+  const contractsList = contracts
     ?.filter((contract) => {
       if (search === "") {
         return contract;
-      } else if (
-        contract.tenant.user.english_name
-          .toLowerCase()
-          .includes(search.toLowerCase()) ||
-        contract.tenant.user.mobile
-          .toLowerCase()
-          .includes(search.toLowerCase()) ||
-        contract.unit.number.toLowerCase().includes(search.toLowerCase()) ||
-        contract.unit.floor.toLowerCase().includes(search.toLowerCase()) ||
-        contract.unit.unit_type.name
-          .toLowerCase()
-          .includes(search.toLowerCase()) ||
-        contract.unit.property_fk.name
-          .toLowerCase()
-          .includes(search.toLowerCase())
-      ) {
-        return contract;
       }
+      const term = search.toLowerCase();
+      const fields = [
+        contract.tenant?.user?.english_name,
+        contract.tenant?.user?.mobile,
+        contract.unit?.number,
+        contract.unit?.floor,
+        contract.unit?.unit_type?.name,
+        contract.unit?.property_fk?.name,
+      ];
+      return fields.some((field) =>
+        field?.toLowerCase().includes(term)
+      );
     })
     .map((contract) => {
       return (

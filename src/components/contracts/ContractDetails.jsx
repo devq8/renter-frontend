@@ -36,7 +36,7 @@ function ContractDetails() {
 
   const contractDetails = contract?.data;
 
-  const invoicesList = invoices?.data
+  const invoicesList = invoices
     ?.sort((a, b) => {
       return new Date(b.invoice_date) - new Date(a.invoice_date);
     })

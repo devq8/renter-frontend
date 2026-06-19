@@ -5,26 +5,52 @@ import { changeAmountFormat, changeDatesFormat } from "../../utils/format";
 function MeterRow({ meter }) {
   console.log("Meter:", meter);
 
-  function last_reading(meter) {
-    if (meter.get_meter_type_display === "Water") {
-      if (meter.get_water_unit_display === "Cubic Meter") {
+  // function last_reading(meter) {
+  //   if (meter.get_meter_type_display === "Water") {
+  //     if (meter.get_water_unit_display === "Cubic Meter") {
+  //       return (
+  //         <>
+  //           {changeAmountFormat(meter.last_reading, 0)} m<sup>3</sup>
+  //         </>
+  //       );
+  //     } else if (meter.get_water_unit_display === "Imperial Gallon") {
+  //       return <>{changeAmountFormat(meter.last_reading, 0)} gal</>;
+  //     }
+  //   }
+  // }
+
+  // const tenantList =
+  //   meter.tenants.length > 1
+  //     ? `${meter.tenants.length} tenants`
+  //     : meter.tenants[0];
+
+  // const unitNumberList = meter.unit_number.join(" - ");
+
+  function renderLastReading(m) {
+    if (m.get_meter_type_display === "Water") {
+      if (m.get_water_unit_display === "Cubic Meter") {
         return (
           <>
-            {changeAmountFormat(meter.last_reading, 0)} m<sup>3</sup>
+            {changeAmountFormat(m.last_reading, 0)} m<sup>3</sup>
           </>
         );
-      } else if (meter.get_water_unit_display === "Imperial Gallon") {
-        return <>{changeAmountFormat(meter.last_reading, 0)} gal</>;
+      } else if (m.get_water_unit_display === "Imperial Gallon") {
+        return <>{changeAmountFormat(m.last_reading, 0)} gal</>;
+      } else {
+        // Fallback if water unit is missing
+        return <>{changeAmountFormat(m.last_reading, 0)}</>;
       }
+    } else if (m.get_meter_type_display === "Electric") {
+      return <>{changeAmountFormat(m.last_reading, 0)} kWh</>;
     }
+    // Generic fallback
+    return <>{changeAmountFormat(m.last_reading, 0)}</>;
   }
 
-  const tenantList =
-    meter.tenants.length > 1
-      ? `${meter.tenants.length} tenants`
-      : meter.tenants[0];
-
-  const unitNumberList = meter.unit_number.join(" - ");
+  const unitNumberList =
+    Array.isArray(meter.unit_number) && meter.unit_number.length
+      ? meter.unit_number.join(" - ")
+      : "";
 
   return (
     <tr
@@ -39,7 +65,7 @@ function MeterRow({ meter }) {
         {meter.meter_number}
       </th>
       <td className="px-4 py-4 text-center">{meter.get_meter_type_display}</td>
-      <td className="px-4 py-4 text-right">{last_reading(meter)}</td>
+      <td className="px-4 py-4 text-right">{renderLastReading(meter)}</td>
       <td className="px-4 py-4 text-center">
         {changeDatesFormat(meter.last_reading_date)}
       </td>

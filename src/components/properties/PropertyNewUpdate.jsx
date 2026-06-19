@@ -123,13 +123,12 @@ function PropertyNewUpdate() {
     isLoading: managersLoading,
     // error: managersError,
   } = useQuery(["managers"], () => getManagers());
-  const managersList =
-    managers && managers?.data
-      ? managers.data.map((manager) => ({
-          value: manager.id,
-          label: manager.legal_name ?? manager.user.english_name,
-        }))
-      : [];
+  const managersList = managers
+    ? managers.map((manager) => ({
+        value: manager.id,
+        label: manager.legal_name ?? manager.user.english_name,
+      }))
+    : [];
 
   console.log("Managers List: ", managersList);
 
@@ -138,13 +137,12 @@ function PropertyNewUpdate() {
     isLoading: ownersLoading,
     // error: ownersError,
   } = useQuery(["owners"], () => getOwners());
-  const ownersList =
-    owners && owners?.data
-      ? owners.data.map((owner) => ({
-          value: owner.id,
-          label: owner.user.english_name,
-        }))
-      : [];
+  const ownersList = owners
+    ? owners.map((owner) => ({
+        value: owner.id,
+        label: owner.user.english_name,
+      }))
+    : [];
 
   console.log("Owners List: ", ownersList);
 

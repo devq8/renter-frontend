@@ -1,12 +1,13 @@
 import instance from "./index";
+import { fetchAllPages } from "./_normalize";
 
 export function getTenants(tenant_id) {
   if (tenant_id) {
-    // if tenant id is provided, get the tenant details
-    return instance.get(`/api/tenants/${tenant_id}/`);
+    // if tenant id is provided, get the tenant details (single object)
+    return instance.get(`/api/tenants/${tenant_id}/`).then((res) => res.data);
   } else {
-    // if tenant id is not provided, get list of all tenants
-    return instance.get("/api/tenants/");
+    // paginated list endpoint — return a flat array of all tenants
+    return fetchAllPages("/api/tenants/");
   }
 }
 

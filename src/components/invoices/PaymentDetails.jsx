@@ -123,7 +123,11 @@ function PaymentDetails() {
                     Name
                   </Typography>
                   <Typography variant="h5" component="div">
-                    {paymentItems && paymentItems.payment.tenant_name}
+                    {paymentItems &&
+                      (paymentItems.payment.tenant_name_company_ar ||
+                        paymentItems.payment.tenant_name_company ||
+                        paymentItems.payment.tenant_name_ar ||
+                        paymentItems.payment.tenant_name)}
                   </Typography>
                 </CardContent>
               </Card>

@@ -68,26 +68,18 @@ function TenantNewUpdate() {
     }
   );
 
+  const user = tenantData?.user;
+
   const formik = useFormik({
     initialValues: {
-      english_name:
-        isUpdatingMode && tenantData?.data
-          ? tenantData.data.user.english_name
-          : "",
-      arabic_name:
-        isUpdatingMode && tenantData?.data
-          ? tenantData.data.user.arabic_name
-          : "",
-      email:
-        isUpdatingMode && tenantData?.data ? tenantData.data.user.email : "",
-      mobile:
-        isUpdatingMode && tenantData?.data ? tenantData.data.user.mobile : "",
-      cid: isUpdatingMode && tenantData?.data ? tenantData.data.cid : "",
-      address:
-        isUpdatingMode && tenantData?.data ? tenantData.data.address : "",
-      sponsor:
-        isUpdatingMode && tenantData?.data ? tenantData.data.sponsor : "",
-      paci: isUpdatingMode && tenantData?.data ? tenantData.data.paci : "",
+      english_name: isUpdatingMode ? user?.english_name ?? "" : "",
+      arabic_name: isUpdatingMode ? user?.arabic_name ?? "" : "",
+      email: isUpdatingMode ? user?.email ?? "" : "",
+      mobile: isUpdatingMode ? user?.mobile ?? "" : "",
+      cid: isUpdatingMode ? tenantData?.cid ?? "" : "",
+      address: isUpdatingMode ? tenantData?.address ?? "" : "",
+      sponsor: isUpdatingMode ? tenantData?.sponsor ?? "" : "",
+      paci: isUpdatingMode ? tenantData?.paci ?? "" : "",
     },
     enableReinitialize: true,
     validationSchema: Yup.object({
@@ -136,7 +128,7 @@ function TenantNewUpdate() {
               main={{ title: "Tenants", url: "/tenants" }}
               sub={[
                 {
-                  title: tenantData?.data?.user.english_name,
+                  title: user?.english_name || "Tenant",
                   url: "",
                 },
                 {
@@ -159,7 +151,7 @@ function TenantNewUpdate() {
           <div className="flex flex-row justify-between">
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
               {isUpdatingMode
-                ? `Update Tenant ${tenantData?.data.user.english_name}`
+                ? `Update Tenant ${user?.english_name || ""}`
                 : "Add New Tenant"}
             </h1>
           </div>

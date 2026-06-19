@@ -1,16 +1,18 @@
 // import axios from "axios";
 import instance from "./index";
+import { fetchAllPages } from "./_normalize";
 
 // ######################### Add ###########################
 export function addUnit(unit, propertyId) {
   return instance.post(`/api/units/${propertyId}/add/`, unit);
 }
 
+// Paginated list endpoint — return a flat array of all (optionally vacant) units.
 export function listUnit(vacant) {
   if (vacant) {
-    return instance.get(`/api/units/?vacant=${vacant}`);
+    return fetchAllPages(`/api/units/`, { params: { vacant } });
   } else {
-    return instance.get(`/api/units/`);
+    return fetchAllPages(`/api/units/`);
   }
 }
 

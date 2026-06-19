@@ -29,6 +29,7 @@ function Payments() {
     () => getPaymentsList(unique_payment_identifier)
   );
   const paymentItems = payments?.data;
+  console.log("paymentItems", paymentItems);
 
   const columns = [
     {
@@ -123,7 +124,11 @@ function Payments() {
                   Name
                 </Typography>
                 <Typography variant="h5" component="div">
-                  {paymentItems && paymentItems.tenant.user.english_name}
+                  {paymentItems &&
+                    (paymentItems.tenant.user.company_name_ar ||
+                      paymentItems.tenant.user.company_name_en ||
+                      paymentItems.tenant.user.arabic_name ||
+                      paymentItems.tenant.user.english_name)}
                 </Typography>
               </CardContent>
             </Card>

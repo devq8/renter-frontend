@@ -271,7 +271,10 @@ function Checkout() {
                     Name
                   </Typography>
                   <Typography variant="h5" component="div">
-                    {checkoutItems?.data?.tenant.user.english_name}
+                    {checkoutItems?.data?.tenant.user.company_name_ar ||
+                      checkoutItems?.data?.tenant.user.company_name_en ||
+                      checkoutItems?.data?.tenant.user.arabic_name ||
+                      checkoutItems?.data?.tenant.user.english_name}
                   </Typography>
                 </CardContent>
               </Card>

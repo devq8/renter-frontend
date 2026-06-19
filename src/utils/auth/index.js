@@ -42,12 +42,17 @@ const { useUser, useLogin, useRegister, useLogout, AuthLoader } = configureAuth(
       const response = await instance.post("api/auth/signin/", credentials);
       const newToken = response.data.token;
       storage.setToken(newToken);
+      // Return the decoded user so react-query-auth populates the user cache
+      // synchronously. Without this, useUser() serves a stale `null` on the
+      // first navigation and Layout bounces back to /signin.
+      return jwt_decode(newToken);
     },
     registerFn: async (credentials) => {
       // YOUR FUNCTION FOR SIGNUP HERE
       const response = await instance.post("api/auth/signup", credentials);
       const token = response.data.token;
       storage.setToken(token);
+      return jwt_decode(token);
     },
     logoutFn: () => {
       // YOUR FUNCTION FOR LOGOUT HERE

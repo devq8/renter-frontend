@@ -19,13 +19,11 @@ function TenantList() {
     // error,
   } = useQuery(["tenants"], () => getTenants());
 
-  console.log("Tenants Data:", tenants?.data);
-
   const handleSearch = (e) => {
     setSearch(e.target.value);
   };
 
-  const tenantsList = tenants?.data
+  const tenantsList = tenants
     ?.filter((tenant) => {
       if (search === "") {
         return tenant;

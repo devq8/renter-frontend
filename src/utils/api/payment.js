@@ -42,8 +42,22 @@ export function getPaymentsList(uid) {
   return instance.get(`/api/payments/?uid=${uid}`);
 }
 
-export function getAllPaymentsList() {
-  return instance.get(`/api/payments/all/`);
+// Server-side paginated fetch for the payments table. Returns the raw DRF page
+// body: { count, next, previous, results }. Filters applied on the backend
+// (see AllPaymentsListView).
+export function getAllPaymentsList({
+  page = 1,
+  pageSize = 20,
+  search = "",
+  status = "",
+  paymentMethod = "",
+} = {}) {
+  const params = { page, page_size: pageSize };
+  if (search) params.search = search;
+  if (status) params.status = status;
+  if (paymentMethod) params.payment_method = paymentMethod;
+
+  return instance.get(`/api/payments/all/`, { params }).then((res) => res.data);
 }
 
 export function getCheckoutDetails(unique_payment_identifier) {

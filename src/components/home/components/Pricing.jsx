@@ -53,10 +53,10 @@ function Pricing() {
             Comfortable Rates
           </h3>
 
-          <p className="text-slate-400 dark:text-slate-300 max-w-xl mx-auto">
+          {/* <p className="text-slate-400 dark:text-slate-300 max-w-xl mx-auto">
             Launch your campaign and benefit from our expertise on designing and
             managing conversion centered Tailwind CSS html page.
-          </p>
+          </p> */}
         </div>
 
         <div className="flex flex-wrap">

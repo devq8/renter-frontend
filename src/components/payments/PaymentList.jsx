@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Breadcrumb from "../../utils/Breadcrumb";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
@@ -353,8 +353,24 @@ function PaymentList() {
   //     },
   //   ];
 
-  const { data: payments } = useQuery(["payments"], () => getAllPaymentsList());
-  const paymentItems = payments?.data || [];
+  // DataGrid uses 0-indexed pages; the backend is 1-indexed.
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 10,
+  });
+
+  const { data, isFetching } = useQuery({
+    queryKey: ["payments", paginationModel],
+    queryFn: () =>
+      getAllPaymentsList({
+        page: paginationModel.page + 1,
+        pageSize: paginationModel.pageSize,
+      }),
+    keepPreviousData: true,
+  });
+
+  const paymentItems = data?.results ?? [];
+  const rowCount = data?.count ?? 0;
   //   console.log("Payments:", paymentItems);
   const handleRowClick = (params) => {
     // navigate(`/payments/${unique_payment_identifier}/${params.row.id}`);
@@ -749,14 +765,12 @@ function PaymentList() {
                 outliersFactor: 1,
                 expand: true,
               }}
+              paginationMode="server"
+              rowCount={rowCount}
+              loading={isFetching}
+              paginationModel={paginationModel}
+              onPaginationModelChange={setPaginationModel}
               pageSizeOptions={[10, 50, 100]}
-              initialState={{
-                pagination: {
-                  paginationModel: {
-                    pageSize: 10,
-                  },
-                },
-              }}
             />
           </Box>
         </div>

@@ -46,7 +46,7 @@ function ContractEnd() {
       getInvoices({ uid: null, contract_id: contractId, invoice_status: null })
   );
 
-  const outstandingInvoices = invoices?.data.filter((invoice) => {
+  const outstandingInvoices = invoices?.filter((invoice) => {
     if (
       invoice.invoice_status.toLowerCase() !== "paid" &&
       invoice.invoice_status.toLowerCase() !== "cancelled"

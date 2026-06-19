@@ -6,6 +6,7 @@ import RentCollectionsChart from "./RentCollectionsChart";
 import RentCollectionsBars from "./RentCollectionsBars";
 import LastTransactions from "./LastTransactions";
 import { getLastCollections, getLastInvoices } from "../../utils/api/dashboard";
+import { normalizeListResponse } from "../../utils/api/_normalize";
 
 export default function Dashboard() {
   const {
@@ -19,6 +20,7 @@ export default function Dashboard() {
     lastInvoicesIsLoading,
     lastInvoicesError,
   } = useQuery(["lastInvoices"], () => getLastInvoices());
+
 
   return (
     <>
@@ -35,12 +37,12 @@ export default function Dashboard() {
       <main>
         <div className="md:flex md:mx-auto md:max-w-7xl md:py-3 mt-4 p-2">
           <div className="flex flex-col space-y-4 md:w-[50%] md:me-1 mx-2 mb-4">
-            <RentCollectionsChart dashboardData={dashboard?.data} />
-            <RentCollectionsBars dashboardData={dashboard?.data} />
+            <RentCollectionsChart dashboardData={dashboard ?? []} />
+            <RentCollectionsBars dashboardData={dashboard ?? []} />
           </div>
           <div className="flex flex-col space-y-4 md:w-[50%] md:ms-1">
             <LastTransactions
-              lastInvoicesData={lastInvoices?.data}
+              lastInvoicesData={lastInvoices ?? []}
               isLoading={lastInvoicesIsLoading}
               error={lastInvoicesError}
             />

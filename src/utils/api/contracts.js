@@ -1,8 +1,11 @@
 // import axios from "axios";
 import instance from "./index";
+import { fetchAllPages } from "./_normalize";
 
+// The list endpoint is paginated (DRF PageNumberPagination, PAGE_SIZE 20).
+// Walk every page and return a flat array of all contracts.
 export function getContracts() {
-  return instance.get("/api/contracts/");
+  return fetchAllPages("/api/contracts/");
 }
 
 export function getContractDetails(contract_id) {

@@ -15,14 +15,13 @@ function Filter(props) {
     // isLoading: propertiesLoading,
     // error,
   } = useQuery(["properties"], () => getProperties());
-  const propertiesOption =
-    properties && properties.data
-      ? properties.data.map((property) => (
-          <option key={property.id} value={property.name.toLowerCase()}>
-            {property.name}
-          </option>
-        ))
-      : [];
+  const propertiesOption = properties
+    ? properties.map((property) => (
+        <option key={property.id} value={property.id}>
+          {property.name}
+        </option>
+      ))
+    : [];
 
   return (
     <div className="w-full md:w-2/3  px-5 py-1 rounded-lg  mt-3">

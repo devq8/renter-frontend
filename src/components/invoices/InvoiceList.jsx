@@ -1,8 +1,6 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router";
+import React, { useState, useEffect } from "react";
 import Breadcrumb from "../../utils/Breadcrumb";
-import Button from "../../utils/Button";
-import { getInvoices } from "../../utils/api/invoices";
+import { getInvoicesPage } from "../../utils/api/invoices";
 import { useQuery } from "@tanstack/react-query";
 import InvoiceRow from "./InvoiceRow";
 import Spinner from "../../utils/Spinner";
@@ -11,137 +9,81 @@ import Filter from "../../utils/Filter";
 // import Box from "@mui/material/Box";
 // import { DataGrid } from "@mui/x-data-grid";
 
+const PAGE_SIZE = 20;
+
 function InvoiceList() {
-  // const navigate = useNavigate();
-
+  // Raw search input vs the debounced term that actually hits the backend.
+  const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
-
   const [invoiceStatus, setInvoiceStatus] = useState("");
+  const [property, setProperty] = useState("");
+  const [invoiceType, setInvoiceType] = useState("");
+  const [page, setPage] = useState(1);
+
+  // Debounce the search box so we don't fire a request on every keystroke.
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setSearch(searchInput);
+      setPage(1);
+    }, 350);
+    return () => clearTimeout(t);
+  }, [searchInput]);
+
+  const handleSearch = (e) => setSearchInput(e.target.value);
+
   function invoiceStatusOnChange(e) {
     setInvoiceStatus(e.target.value);
+    setPage(1);
   }
-
-  const [property, setProperty] = useState("");
   function propertyOnChange(e) {
     setProperty(e.target.value);
+    setPage(1);
   }
-
-  const [invoiceType, setInvoiceType] = useState("");
   function invoiceTypeOnChange(e) {
     setInvoiceType(e.target.value);
+    setPage(1);
   }
+  // Payment-method filter isn't supported by the invoices endpoint.
+  function paymentMethodOnChange() {}
 
-  const [paymentMethod, setPaymentMethod] = useState("");
-  function paymentMethodOnChange(e) {
-    setPaymentMethod(e.target.value);
-  }
+  const { data, isLoading, isFetching, error } = useQuery({
+    queryKey: [
+      "invoices",
+      { page, search, invoiceStatus, property, invoiceType, pageSize: PAGE_SIZE },
+    ],
+    queryFn: () =>
+      getInvoicesPage({
+        page,
+        pageSize: PAGE_SIZE,
+        search,
+        status: invoiceStatus,
+        property,
+        invoiceType,
+      }),
+    keepPreviousData: true,
+  });
 
-  const {
-    data: invoices,
-    isLoading,
-    error,
-  } = useQuery(["invoices"], () => getInvoices());
+  const items = data?.results ?? [];
+  const count = data?.count ?? 0;
+  const totalPages = Math.max(1, Math.ceil(count / PAGE_SIZE));
 
-  const handleSearch = (e) => {
-    setSearch(e.target.value);
-  };
-
-  const invoicesList = invoices?.data
-    ?.filter((invoice) => {
-      if (search === "") {
-        return invoice;
-      } else if (
-        invoice.contract.tenant.user.english_name
-          .toLowerCase()
-          .includes(search.toLowerCase()) ||
-        invoice.contract.tenant.user.mobile
-          .toLowerCase()
-          .includes(search.toLowerCase()) ||
-        invoice.id.toString().includes(search.toLowerCase()) ||
-        invoice.contract.unit.property_fk.name
-          .toLowerCase()
-          .includes(search.toLowerCase()) ||
-        invoice.contract.unit.floor
-          .toLowerCase()
-          .includes(search.toLowerCase()) ||
-        invoice.contract.unit.number
-          .toLowerCase()
-          .includes(search.toLowerCase()) ||
-        invoice.invoice_type.toLowerCase().includes(search.toLowerCase()) ||
-        invoice.invoice_status.toLowerCase().includes(search.toLowerCase())
-      ) {
-        return invoice;
-      }
-    })
-    .filter((invoice) => {
-      if (invoiceStatus === "") {
-        return invoice;
-      } else if (
-        invoice.invoice_status.toLowerCase() === invoiceStatus.toLowerCase()
-      ) {
-        return invoice;
-      }
-    })
-    .filter((invoice) => {
-      if (property === "") {
-        return invoice;
-      } else if (
-        invoice.contract.unit.property_fk.name.toLowerCase() ===
-        property.toLowerCase()
-      ) {
-        return invoice;
-      }
-    })
-    .filter((invoice) => {
-      if (invoiceType === "") {
-        return invoice;
-      } else if (
-        invoice.invoice_type.toLowerCase() === invoiceType.toLowerCase()
-      ) {
-        return invoice;
-      }
-    })
-    .map((invoice) => {
-      return (
-        <InvoiceRow
-          key={invoice.id}
-          id={invoice.id}
-          tenant={invoice.contract.tenant}
-          property={invoice.contract.unit.property_fk}
-          floor={invoice.contract.unit.floor}
-          unit={invoice.contract.unit.number}
-          type={invoice.invoice_type}
-          amount={invoice.payable_amount}
-          status={invoice.invoice_status}
-          date={invoice.due_date}
-          paymentDate={invoice.payment_date}
-        />
-      );
-    });
-
-  // const columns = [
-  //   { field: "id", headerName: "Invoice No" },
-  //   { field: "tenant", headerName: "Tenant", width: 150 },
-  //   { field: "property", headerName: "Property", width: 150 },
-  //   { field: "floor", headerName: "Floor" },
-  //   { field: "unit", headerName: "Unit" },
-  //   { field: "type", headerName: "Type", width: 150 },
-  //   { field: "due", headerName: "Due", width: 150 },
-  //   { field: "amount", headerName: "Amount", width: 150 },
-  //   { field: "status", headerName: "Status", width: 150 },
-  // ];
-
-  // const transformedInvoices = invoices?.data?.map((invoice) => ({
-  //   id: invoice.id,
-  //   tenant: `${invoice.contract.tenant.user.first_name} ${invoice.contract.tenant.user.last_name}`,
-  //   property: invoice.contract.unit.property_fk.name,
-  //   floor: invoice.contract.unit.floor,
-  //   unit: invoice.contract.unit.number,
-  //   type: invoice.get_invoice_type_display,
-  //   due: invoice.invoice_date,
-  //   amount: invoice.invoice_amount,
-  //   status: invoice.invoice_status,
-  // }));
+  const invoicesList = items.map((invoice) => {
+    return (
+      <InvoiceRow
+        key={invoice.id}
+        id={invoice.id}
+        tenant={invoice.contract.tenant}
+        property={invoice.contract.unit.property_fk}
+        floor={invoice.contract.unit.floor}
+        unit={invoice.contract.unit.number}
+        type={invoice.invoice_type}
+        amount={invoice.payable_amount}
+        status={invoice.invoice_status}
+        date={invoice.due_date}
+        paymentDate={invoice.payment_date}
+      />
+    );
+  });
 
   return (
     <div className="">
@@ -162,9 +104,10 @@ function InvoiceList() {
         <div className="mx-auto max-w-7xl py-3 sm:px-6 lg:px-8">
           <SearchBox
             placeholder={
-              "Search invoice by tenant name, mobile, property, floor, unit, invoice type, or status"
+              "Search invoice by tenant name, mobile, property, floor, unit, or invoice type"
             }
             onChange={handleSearch}
+            value={searchInput}
           />
 
           <Filter
@@ -173,21 +116,17 @@ function InvoiceList() {
             invoiceTypeOnChange={invoiceTypeOnChange}
             paymentMethodOnChange={paymentMethodOnChange}
           />
+          {error && (
+            <div className="m-5 p-4 rounded border border-red-200 bg-red-50 text-red-700">
+              Failed to load invoices.
+            </div>
+          )}
           {isLoading ? (
             <div className="flex justify-center items-center h-[50vh]">
               <Spinner />
             </div>
           ) : (
             <div>
-              {/* <Box sx={{ height: 400, width: "100%" }}>
-                <DataGrid
-                  rows={transformedInvoices}
-                  columns={columns}
-                  pageSize={5}
-                  rowsPerPageOptions={[5]}
-                  checkboxSelection={false}
-                />
-              </Box> */}
               <div className="overflow-hidden rounded-lg border border-gray-200 shadow-md m-5">
                 <table className="w-full border-collapse bg-white text-left text-sm text-gray-500">
                   {/* Table Header */}
@@ -250,9 +189,46 @@ function InvoiceList() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100 border-t border-gray-100">
-                    {invoicesList}
+                    {items.length === 0 ? (
+                      <tr>
+                        <td className="px-6 py-6" colSpan={9}>
+                          No invoices found.
+                        </td>
+                      </tr>
+                    ) : (
+                      invoicesList
+                    )}
                   </tbody>
                 </table>
+              </div>
+
+              {/* Pagination controls */}
+              <div className="flex items-center justify-between mx-5 mb-5 text-sm text-gray-600">
+                <span>
+                  {count} invoice{count === 1 ? "" : "s"}
+                  {isFetching ? " · updating…" : ""}
+                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page <= 1}
+                    className="px-3 py-1.5 rounded-md border border-gray-200 bg-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50"
+                  >
+                    Previous
+                  </button>
+                  <span>
+                    Page {page} of {totalPages}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={page >= totalPages}
+                    className="px-3 py-1.5 rounded-md border border-gray-200 bg-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50"
+                  >
+                    Next
+                  </button>
+                </div>
               </div>
             </div>
           )}

@@ -1,11 +1,13 @@
 import instance from "./index";
+import { fetchAllPages } from "./_normalize";
 
+// Paginated list endpoints — return flat arrays.
 export function getManagers() {
-  return instance.get("/api/managers/");
+  return fetchAllPages("/api/managers/");
 }
 
 export function getOwners() {
-  return instance.get("/api/owners/");
+  return fetchAllPages("/api/owners/");
 }
 
 export function getBanks(language) {

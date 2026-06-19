@@ -22,17 +22,16 @@ function PropertyList() {
     isLoading,
     // error,
   } = useQuery(["properties"], () => getProperties());
-  console.log("Properties: ", properties?.data);
-  const propertiesList = properties?.data
-    ?.filter((property) => {
-      if (search === "") {
-        return property;
-      } else if (
-        property.name?.toLowerCase().includes(search.toLowerCase()) ||
-        property.area?.name.toLowerCase().includes(search.toLowerCase())
-      ) {
-        return property;
-      }
+
+  const items = properties ?? [];
+
+  const propertiesList = items
+    .filter((property) => {
+      if (!search) return true;
+      const q = search.toLowerCase();
+      const name = property.name?.toLowerCase() || "";
+      const area = property.area?.name?.toLowerCase() || "";
+      return name.includes(q) || area.includes(q);
     })
     .map((property) => {
       return (
@@ -40,9 +39,9 @@ function PropertyList() {
           key={property.id}
           id={property.id}
           name={property.name}
-          area={property.area.name}
-          address={property.address}
-          owner={property.owner_name[0]}
+          area={property.area.name ?? "-"}
+          address={property.address ?? ""}
+          owner={property.owner_name[0] ?? "-"}
         />
       );
     });

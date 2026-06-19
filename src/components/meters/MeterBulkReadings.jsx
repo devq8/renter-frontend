@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import Breadcrumb from "../../utils/Breadcrumb";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useInfiniteQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -27,50 +31,90 @@ function MeterBulkReadings() {
   }
 
   const {
-    data: meters,
+    data: metersPages,
     isLoading: metersLoading,
     error: metersError,
-  } = useQuery(["meters"], () => getMeters({ contract: "not_null" }));
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery(
+    ["meters", { contract: "not_null" }],
+    ({ pageParam = 1 }) => getMeters({ contract: "not_null", page: pageParam }),
+    {
+      getNextPageParam: (lastPage) => {
+        if (!lastPage?.next) return undefined;
+        try {
+          const url = new URL(lastPage.next);
+          const page = url.searchParams.get("page");
+          return page ? Number(page) : undefined;
+        } catch {
+          return undefined;
+        }
+      },
+    }
+  );
 
-  const metersList = meters?.data
-    ? meters?.data.map((meter) => ({
-        value: meter.id,
-        label: meter.meter_number,
-      }))
+  useEffect(() => {
+    if (!hasNextPage || isFetchingNextPage) return;
+    // Keep fetching until we've got them all
+    fetchNextPage();
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+
+  const meterItems = metersPages
+    ? metersPages.pages.flatMap((p) => p?.results ?? [])
     : [];
+
+  const metersList = meterItems.map((meter) => ({
+    value: meter.id,
+    label: meter.meter_number,
+  }));
 
   const addReadingsMutation = useMutation(
     (readings) => addBulkReadings(readings),
     {
-      onSuccess: (response) => {
+      onSuccess: () => {
         queryClient.invalidateQueries(["meters"]);
         toast.success("Readings added successfully");
-        const newErrors = {};
-        const newSuccess = {};
-        if (response.errors) {
-          response.errors.forEach((error) => {
-            newErrors[error.meter_id] = error.error;
-          });
-        }
-        if (response.success) {
-          response.success.forEach((success) => {
-            newSuccess[success.meter_id] = true;
-          });
-        }
-        setErrors(newErrors);
-        setSuccess(newSuccess);
+        setErrors({});
+        setSuccess({});
         navigate(-1);
       },
       onError: (error) => {
-        console.log("Error adding reading: ", error.response.data);
-        const newErrors = {};
-        if (error.response.data.errors) {
-          error.response.data.errors.forEach((error) => {
-            newErrors[error.meter_id] = error.error;
-          });
+        const data = error?.response?.data ?? {};
+        console.log("Error adding reading: ", data);
+
+        const succeededIds = new Set(
+          (data.success ?? []).map((s) => s.meter_id)
+        );
+        const failedByMeter = {};
+        (data.errors ?? []).forEach((e) => {
+          failedByMeter[e.meter_id] = e.error;
+        });
+
+        if (succeededIds.size > 0) {
+          queryClient.invalidateQueries(["meters"]);
+          const remaining = formik.values.readings.filter(
+            (r) => !succeededIds.has(r.meter)
+          );
+          formik.setFieldValue(
+            "readings",
+            remaining.length
+              ? remaining
+              : [{ meter: "", reading: "", municipality_fee: null }]
+          );
+          toast.warn(
+            `${succeededIds.size} reading(s) saved. Please fix the remaining ${
+              Object.keys(failedByMeter).length
+            } and resubmit.`
+          );
+        } else if (Object.keys(failedByMeter).length > 0) {
+          toast.error("Error adding reading");
+        } else {
+          toast.error(data.detail || "Error adding reading");
         }
-        setErrors(newErrors);
-        toast.error("Error adding reading");
+
+        setErrors(failedByMeter);
+        setSuccess({});
       },
     }
   );
@@ -81,19 +125,29 @@ function MeterBulkReadings() {
         Yup.object().shape({
           meter: Yup.string().required("Meter is required"),
           reading: Yup.string().required("Reading is required"),
+          municipality_fee: Yup.number()
+            .transform((value) => (isNaN(value) ? undefined : value))
+            .min(0, "Municipality fee cannot be negative")
+            .notRequired(),
         })
       )
       .required("You must provide readings")
       .min(1, "At least one reading is required"),
+    municipality_fee: Yup.number()
+      .transform((value, originalValue) => {
+        return originalValue === "" ? undefined : Number(originalValue);
+      })
+      .min(0, "Municipality fee cannot be negative")
+      .notRequired(),
   });
 
   const formik = useFormik({
     initialValues: {
-      readings: [{ meter: "", reading: "" }],
+      readings: [{ meter: "", reading: "", municipality_fee: null }],
     },
     enableReinitialize: true,
     validationSchema: validationSchema,
-    validateOnChange: false,
+    validateOnChange: true,
     validateOnBlur: true,
     onSubmit: (values) => {
       const hasEmptyReadings = values.readings.some(
@@ -130,6 +184,7 @@ function MeterBulkReadings() {
       const readingsData = uniqueReadings.map((reading) => ({
         meter_id: reading.meter,
         reading: reading.reading,
+        municipality_fee: reading.municipality_fee ?? "0.000", // Default to "0.000" if not provided
       }));
 
       console.log("Submit data: ", readingsData);
@@ -152,7 +207,7 @@ function MeterBulkReadings() {
     if (formik.values.readings.length < metersList.length) {
       formik.setFieldValue("readings", [
         ...formik.values.readings,
-        { meter: "", reading: "" },
+        { meter: "", reading: "", municipality_fee: null },
       ]);
     } else {
       toast.warn(
@@ -163,7 +218,7 @@ function MeterBulkReadings() {
 
   const handleMeterChange = (index, selectedOption) => {
     const selectedMeter = selectedOption
-      ? meters?.data.find((meter) => meter.id === selectedOption.value)
+      ? meterItems.find((meter) => meter.id === selectedOption.value)
       : null;
     const newReadings = formik.values.readings.map((reading, i) =>
       i === index
@@ -175,43 +230,46 @@ function MeterBulkReadings() {
 
     if (selectedMeter) {
       const today = new Date().toISOString().split("T")[0];
-      if (selectedMeter.last_reading_date >= today) {
+      if (new Date(selectedMeter.last_reading_date) >= new Date(today)) {
         setErrors((prevErrors) => ({
           ...prevErrors,
           [selectedMeter.id]: `There's a new reading for this meter already.`,
         }));
       } else {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          [selectedMeter.id]: "",
-        }));
+        setErrors((prevErrors) => {
+          const newErrors = { ...prevErrors };
+          delete newErrors[selectedMeter.id];
+          return newErrors;
+        });
       }
     } else {
-      setErrors((prevErrors) => ({
-        ...prevErrors,
-        [formik.values.readings[index].meter]: "",
-      }));
+      setErrors((prevErrors) => {
+        const newErrors = { ...prevErrors };
+        delete newErrors[formik.values.readings[index].meter];
+        return newErrors;
+      });
     }
   };
 
   const handleReadingBlur = (index, event) => {
-    const selectedMeter = meters?.data.find(
+    const selectedMeter = meterItems.find(
       (meter) => meter.id === formik.values.readings[index].meter
     );
 
     if (selectedMeter) {
-      const newReading = parseInt(event.target.value);
+      const newReading = Number(event.target.value);
 
-      if (newReading <= selectedMeter.last_reading) {
+      if (newReading <= Number(selectedMeter.last_reading)) {
         setErrors((prevErrors) => ({
           ...prevErrors,
           [selectedMeter.id]: `The new reading must be greater than the last reading of ${selectedMeter.last_reading}.`,
         }));
       } else {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          [selectedMeter.id]: "",
-        }));
+        setErrors((prev) => {
+          const next = { ...prev };
+          delete next[selectedMeter.id];
+          return next;
+        });
       }
     }
   };
@@ -222,20 +280,75 @@ function MeterBulkReadings() {
     );
 
     formik.setFieldValue("readings", newReadings);
+
+    const meterId = formik.values.readings[index]?.meter;
+    if (meterId && errors[meterId]) {
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next[meterId];
+        return next;
+      });
+    }
   };
 
   const handleRemoveRow = (index) => {
+    const removedMeter = formik.values.readings[index]?.meter;
     const newReadings = formik.values.readings.filter((_, i) => i !== index);
     formik.setFieldValue("readings", newReadings);
+    if (removedMeter) {
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next[removedMeter];
+        return next;
+      });
+      setSuccess((prev) => {
+        const next = { ...prev };
+        delete next[removedMeter];
+        return next;
+      });
+    }
+  };
+
+  const handleMunicipalityFeeChange = (index, event) => {
+    const newReadings = formik.values.readings.map((reading, i) =>
+      i === index
+        ? { ...reading, municipality_fee: event.target.value }
+        : reading
+    );
+    formik.setFieldValue("readings", newReadings);
+  };
+
+  const handleMunicipalityFeeBlur = (index, event) => {
+    // const value = event.target.value;
+    // if (value && parseFloat(value) < 0) {
+    //   formik.setFieldError(
+    //     `readings[${index}].municipality_fee`,
+    //     "Municipality fee cannot be negative"
+    //   );
+    //   setErrors((prevErrors) => ({
+    //     ...prevErrors,
+    //     [`municipality_fee_${index}`]: "Municipality fee cannot be negative",
+    //   }));
+    // } else {
+    //   formik.setFieldError(`readings[${index}].municipality_fee`, "");
+    //   setErrors((prevErrors) => {
+    //     const newErrors = { ...prevErrors };
+    //     delete newErrors[`municipality_fee_${index}`];
+    //     return newErrors;
+    //   });
+    // }
   };
 
   useEffect(() => {
     console.log("In useEffect");
-    console.log("errors updated: ", errors);
-    console.log("success updated: ", success);
-    const hasErrors = Object.values(errors).some((error) => error);
+    console.log("errors state: ", errors);
+    console.log("Formik errors: ", formik.errors);
+    console.log("Formik isValid: ", formik.isValid);
+    const hasErrors = Object.keys(errors).length > 0;
+    console.log("Custom hasErrors: ", hasErrors);
+    console.log("Setting isSubmitDisabled to: ", hasErrors || !formik.isValid);
     setIsSubmitDisabled(hasErrors || !formik.isValid);
-  }, [errors, success, formik.isValid]);
+  }, [errors, formik.isValid]);
 
   return (
     <div className="">
@@ -297,10 +410,11 @@ function MeterBulkReadings() {
                         )}
                         onBlur={formik.handleBlur}
                         isMulti={false}
-                        // errorMessage={
-                        //   formik.errors.readings?.[index]?.meter ||
-                        //   errors[reading.meter]
-                        // }
+                        errorMessage={
+                          formik.touched.readings?.[index]?.meter
+                            ? formik.errors.readings?.[index]?.meter
+                            : undefined
+                        }
                         isLoading={metersLoading}
                       />
                       <Input
@@ -314,6 +428,19 @@ function MeterBulkReadings() {
                         value={reading.reading}
                         placeholder="Enter reading"
                         errorMessage={formik.errors.readings?.[index]?.reading}
+                      />
+                      <Input
+                        name={`readings[${index}].municipality_fee`}
+                        type="number"
+                        label="Municipality Fee"
+                        index={index}
+                        onChange={(e) => handleMunicipalityFeeChange(index, e)}
+                        onBlur={(e) => handleMunicipalityFeeBlur(index, e)}
+                        value={reading.municipality_fee}
+                        placeholder="Enter municipality fee"
+                        errorMessage={
+                          formik.errors.readings?.[index]?.municipality_fee
+                        }
                         onRemoveRow={
                           index > 0 && (() => handleRemoveRow(index))
                         }

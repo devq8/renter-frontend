@@ -39,7 +39,7 @@ import PrivacyPolicy from "./privacypolicy/PrivacyPolicy";
 
 export default function Layout() {
   const navigate = useNavigate();
-  const { data: user, isLoading } = useUser();
+  const { data: user, isLoading, isFetching } = useUser();
   const location = useLocation();
 
   // Check if the current route is the Checkout page
@@ -49,10 +49,14 @@ export default function Layout() {
     location.pathname.startsWith("/privecypolicy");
 
   useEffect(() => {
-    if (!isLoading && !user && !isCheckoutPage) {
+    // Only redirect once the user query has actually settled. After login,
+    // useUser() can briefly serve a stale cached `null` while it refetches in
+    // the background — guarding on isFetching prevents bouncing back to
+    // /signin during that window (the "have to sign in twice" bug).
+    if (!isLoading && !isFetching && !user && !isCheckoutPage) {
       navigate("/signin");
     }
-  }, [user, isLoading, isCheckoutPage, navigate]);
+  }, [user, isLoading, isFetching, isCheckoutPage, navigate]);
 
   let { lan } = useParams();
   !lan ? (lan = "en") : (lan = lan);

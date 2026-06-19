@@ -44,15 +44,12 @@ function ContractNew() {
     // error: propertiesError,
   } = useQuery(["properties"], () => getProperties());
 
-  console.log("Properties:", properties?.data);
-
-  const propertiesList =
-    properties && properties.data
-      ? properties.data.map((property) => ({
-          value: property.id,
-          label: property.name,
-        }))
-      : [];
+  const propertiesList = properties
+    ? properties.map((property) => ({
+        value: property.id,
+        label: property.name,
+      }))
+    : [];
 
   const {
     data: units,
@@ -60,17 +57,14 @@ function ContractNew() {
     // error: unitsError,
   } = useQuery(["units"], () => listUnit(true)); // List all vacant units
 
-  console.log("Units:", units?.data);
-
-  const unitsList =
-    units && units.data
-      ? units.data.map((unit) => ({
-          value: unit.id,
-          property_fk: unit.property_fk.id, // Extracting the property ID
-          label: unit.number,
-          vacant: unit.vacant, // Ensure to include the vacant status
-        }))
-      : [];
+  const unitsList = units
+    ? units.map((unit) => ({
+        value: unit.id,
+        property_fk: unit.property_fk.id, // Extracting the property ID
+        label: unit.number,
+        vacant: unit.vacant, // Ensure to include the vacant status
+      }))
+    : [];
 
   const filteredUnits = unitsList.filter(
     (unit) => unit.property_fk === SelectedProperty && unit.vacant === true
@@ -86,15 +80,12 @@ function ContractNew() {
     // error: tenantsError,
   } = useQuery(["tenants"], () => getTenants());
 
-  // console.log("Tenants Data:", tenants?.data);
-
-  const tenantsList =
-    tenants && tenants.data
-      ? tenants.data.map((tenant) => ({
-          value: tenant.user.id,
-          label: tenant.user.english_name,
-        }))
-      : [];
+  const tenantsList = tenants
+    ? tenants.map((tenant) => ({
+        value: tenant.user.id,
+        label: tenant.user.english_name,
+      }))
+    : [];
 
   function handleCancel() {
     navigate(`/contracts`);

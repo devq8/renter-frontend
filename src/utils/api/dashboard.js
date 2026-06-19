@@ -1,9 +1,10 @@
-import instance from "./index";
+import { fetchAllPages } from "./_normalize";
 
+// Both are paginated list endpoints — return flat arrays.
 export function getLastCollections() {
-  return instance.get("/api/dashboard/last_collections/");
+  return fetchAllPages("/api/dashboard/last_collections/");
 }
 
 export function getLastInvoices() {
-  return instance.get("/api/dashboard/last_invoices/");
+  return fetchAllPages("/api/dashboard/last_invoices/");
 }

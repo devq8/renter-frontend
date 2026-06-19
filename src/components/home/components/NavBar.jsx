@@ -189,7 +189,7 @@ function NavBar() {
             >
               <span className="nav-link">Services</span>
             </Link>
-            <Link
+            {/* <Link
               className="nav-item"
               to="pricing"
               activeclassname="active"
@@ -199,7 +199,7 @@ function NavBar() {
               onClick={handleClick}
             >
               <span className="nav-link">Pricing</span>
-            </Link>
+            </Link> */}
             <Link
               className="nav-item"
               to="contact"

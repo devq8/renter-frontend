@@ -17,7 +17,7 @@ function PropertyDetails() {
     getPropertyOverview(propertyId)
   );
 
-  const propertyDetails = property?.data;
+  const propertyDetails = property;
 
   const handleSearch = (e) => {
     setSearch(e.target.value);
@@ -26,20 +26,26 @@ function PropertyDetails() {
     getUnitsList(propertyId)
   );
   console.log("Units:", units?.data);
-  const unitsList = units?.data
-    ?.filter((unit) => {
-      if (search === "") {
-        return unit;
-      } else if (
-        unit.number.toLowerCase().includes(search.toLowerCase()) ||
-        unit.unit_type.name.toLowerCase().includes(search.toLowerCase()) ||
-        unit.floor.toLowerCase().includes(search.toLowerCase()) ||
-        unit.active_contract?.tenant.user.mobile
-          .toLowerCase()
-          .includes(search.toLowerCase())
-      ) {
-        return unit;
-      }
+  const unitItems = Array.isArray(units) ? units : units?.results ?? []; // safe either way
+
+  const unitsList = unitItems
+    .filter((unit) => {
+      if (!search) return true;
+
+      const q = search.toLowerCase();
+      const number = unit.number?.toLowerCase() || "";
+      const type = unit.unit_type?.name?.toLowerCase() || "";
+      const floor = (unit.floor ?? unit.floor_name ?? "")
+        .toString()
+        .toLowerCase();
+      const tenantMobile =
+        unit.active_contract?.tenant?.user?.mobile?.toLowerCase() || "";
+      return (
+        number.includes(q) ||
+        type.includes(q) ||
+        floor.includes(q) ||
+        tenantMobile.includes(q)
+      );
     })
     .map((unit) => {
       return (
@@ -47,7 +53,7 @@ function PropertyDetails() {
           key={unit.id}
           id={unit.id}
           property={propertyId}
-          floor={unit.floor.short_name}
+          floor={unit.floor.short_name || unit.floor || "-"}
           number={unit.number}
           type={unit.unit_type.name}
           vacant={unit.vacant}

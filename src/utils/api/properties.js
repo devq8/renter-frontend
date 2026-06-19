@@ -1,20 +1,25 @@
 // import axios from "axios";
 import instance from "./index";
+import { fetchAllPages } from "./_normalize";
 
+// Paginated list endpoint — return a flat array of all properties.
 export function getProperties() {
-  return instance.get("/api/properties/");
+  return fetchAllPages("/api/properties/");
 }
 
+// Paginated list endpoint — return a flat array of all units for a property.
 export function getUnitsList(property_id, vacant) {
   // if (vacant) {
-  //   return instance.get(`/api/units/${property_id}/?vacant=${vacant}`);
+  //   return fetchAllPages(`/api/units/${property_id}/`, { params: { vacant } });
   // } else {
-  return instance.get(`/api/units/${property_id}/`);
+  return fetchAllPages(`/api/units/${property_id}/`);
   // }
 }
 
 export function getPropertyOverview(property_id) {
-  return instance.get(`/api/properties/${property_id}/`);
+  return instance
+    .get(`/api/properties/${property_id}/`)
+    .then((res) => res.data);
 }
 
 export function addProperty(property) {

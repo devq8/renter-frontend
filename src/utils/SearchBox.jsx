@@ -1,6 +1,6 @@
 import React from "react";
 
-function SearchBox({ placeholder, onChange = () => {} }) {
+function SearchBox({ placeholder, onChange = () => {}, value }) {
   return (
     <>
       <link
@@ -35,6 +35,7 @@ function SearchBox({ placeholder, onChange = () => {} }) {
             </div>
             <input
               onChange={onChange}
+              {...(value !== undefined ? { value } : {})}
               type="search"
               id="default-search"
               className="block p-4 pl-10 w-full text-sm text-gray-900 bg-transparent rounded-lg border border-none focus:ring-[#BD9A5F] focus:border-[#BD9A5F] "
