@@ -29,6 +29,24 @@ function Checkout() {
   const [totalDiscount, setTotalDiscount] = useState(0);
   const [selectedInvoices, setSelectedInvoices] = useState([]);
 
+  // Apple Pay button is rendered only when the browser advertises support.
+  // ApplePaySession is available on Safari (macOS + iOS) when the device can
+  // present an Apple Pay sheet. Any other browser hides the button.
+  const [applePayAvailable, setApplePayAvailable] = useState(false);
+  useEffect(() => {
+    if (
+      typeof window !== "undefined" &&
+      window.ApplePaySession &&
+      typeof window.ApplePaySession.canMakePayments === "function"
+    ) {
+      try {
+        setApplePayAvailable(window.ApplePaySession.canMakePayments());
+      } catch (e) {
+        setApplePayAvailable(false);
+      }
+    }
+  }, []);
+
   // Retreive Checkout Items details from backend
   const { data: checkoutItems, isLoading: isCheckoutItemsLoading } = useQuery(
     ["CheckoutItems", unique_payment_identifier],
@@ -237,6 +255,15 @@ function Checkout() {
     window.location.href = link;
   }
 
+  // Submit the form with a specific Hesabe paymentType.
+  //   1  = KNet (default Pay Now button)
+  //   11 = KNET Debit Apple Pay (Apple Pay button)
+  // See Hesabe direct integration docs for the full paymentType table.
+  async function submitWithPaymentType(paymentType) {
+    await formik.setFieldValue("paymentType", paymentType);
+    formik.submitForm();
+  }
+
   return (
     <div className="min-h-[100vh] bg-[#F7F6F2]">
       <Header uid={unique_payment_identifier} />
@@ -372,10 +399,12 @@ function Checkout() {
         </div>
         {/* Payment Button */}
         <div className="mx-auto max-w-sm px-6 sm:px-6 lg:px-8 flex flex-col justify-between space-y-3 my-5">
-          <div className="flex justify-center items-center mx-auto w-full">
+          <div className="flex flex-col items-center mx-auto w-full space-y-3">
+            {/* KNet button (paymentType=1) */}
             <button
-              type="submit"
-              className={`rounded-md px-7 py-3 w-full text-xl font-extrabold transition duration-200 
+              type="button"
+              onClick={() => submitWithPaymentType(1)}
+              className={`rounded-md px-7 py-3 w-full text-xl font-extrabold transition duration-200
             ${
               totalAmount > 0
                 ? "bg-primary hover:bg-[52555C] hover:opacity-80 active:bg-[52555C] text-white"
@@ -393,11 +422,55 @@ function Checkout() {
                 <span>Redirecting...</span>
               ) : (
                 <div className="flex items-center justify-center space-x-5">
-                  <img src={KNetLogo} className={`w-10`} />
+                  <img src={KNetLogo} className={`w-10`} alt="KNet" />
                   <span>Pay Now!</span>
                 </div>
               )}
             </button>
+
+            {/* Apple Pay button — only rendered when the browser supports it.
+                Uses paymentType=11 (KNET Debit Apple Pay) per Hesabe direct
+                integration. The customer authenticates via Touch/Face ID on
+                Hesabe's hosted payment page. */}
+            {applePayAvailable && (
+              <button
+                type="button"
+                onClick={() => submitWithPaymentType(11)}
+                className={`rounded-md px-7 py-3 w-full text-xl font-extrabold transition duration-200
+              ${
+                totalAmount > 0
+                  ? "bg-black hover:opacity-80 active:opacity-70 text-white"
+                  : "bg-gray-400 text-gray-500 cursor-not-allowed"
+              }`}
+                disabled={
+                  isCheckoutItemsLoading ||
+                  totalAmount <= 0 ||
+                  isSubmitting ||
+                  totalOutstandingAmount == 0 ||
+                  checkoutItems?.status != 200
+                }
+                aria-label="Pay with Apple Pay"
+              >
+                {isSubmitting ? (
+                  <span>Redirecting...</span>
+                ) : (
+                  <div className="flex items-center justify-center space-x-3">
+                    {/* Apple logo (SVG) + "Pay" — minimalist Apple Pay button.
+                        Full Apple Pay button assets can be substituted later. */}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 384 512"
+                      className="w-6 h-6 fill-current"
+                      aria-hidden="true"
+                    >
+                      <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" />
+                    </svg>
+                    <span>Pay</span>
+                  </div>
+                )}
+              </button>
+            )}
+
             {formik.touched.invoices && formik.errors.invoices ? (
               <div className="error">{formik.errors.invoices}</div>
             ) : null}
