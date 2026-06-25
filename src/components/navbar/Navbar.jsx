@@ -3,7 +3,7 @@ import { Fragment } from "react";
 import { Disclosure, Menu, Transition } from "@headlessui/react";
 import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import DarkLogo from "../../assets/dark-logo.png";
-import LightLogo from "../../assets/logo.png";
+import LightLogo from "../../assets/images/logo.png";
 import { useNavigate, useLocation } from "react-router";
 import { useLogout } from "../../utils/auth";
 import { IoIosStats, IoIosPerson, IoIosCash } from "react-icons/io";
