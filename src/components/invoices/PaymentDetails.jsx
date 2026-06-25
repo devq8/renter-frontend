@@ -1,6 +1,6 @@
 import React from "react";
 import { Header } from "../navbar/Header";
-import { useNavigate } from "react-router";
+import { useParams, useNavigate } from "react-router";
 import { useSearchParams } from "react-router-dom";
 import { paymentResponse } from "../../utils/api/payment";
 import { useQuery } from "@tanstack/react-query";
@@ -20,13 +20,18 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 function PaymentDetails() {
   const navigate = useNavigate();
+  // This component is mounted at TWO routes:
+  //   /payments/:uid/:payment_id        -> payment_id is a path param
+  //   /checkout/response?payment_id=N   -> payment_id is a query string param
+  //                                        (MyFatoorah appends paymentId/Id too;
+  //                                        we read OUR id from payment_id)
+  // For the Hesabe redirect path, only the encrypted `data` query param is
+  // present and the backend decrypts it to find the Payment row.
+  const routeParams = useParams();
   let [searchParams] = useSearchParams();
   const data = searchParams.get("data");
-  // payment_id arrives as a query param: Hesabe stuffs the order ref inside
-  // its encrypted `data` payload, but MyFatoorah redirects back with
-  // ?payment_id=<our id>&paymentId=<MF id>&Id=<MF invoice id>, so we read
-  // it from the query string here.
-  const payment_id = searchParams.get("payment_id");
+  const payment_id =
+    routeParams.payment_id || searchParams.get("payment_id");
 
   const {
     data: payments,
