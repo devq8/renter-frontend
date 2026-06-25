@@ -1,6 +1,6 @@
 import React from "react";
 import { Header } from "../navbar/Header";
-import { useParams, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { useSearchParams } from "react-router-dom";
 import { paymentResponse } from "../../utils/api/payment";
 import { useQuery } from "@tanstack/react-query";
@@ -19,10 +19,14 @@ import PrintIcon from "@mui/icons-material/Print";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 function PaymentDetails() {
-  const { payment_id } = useParams();
   const navigate = useNavigate();
   let [searchParams] = useSearchParams();
   const data = searchParams.get("data");
+  // payment_id arrives as a query param: Hesabe stuffs the order ref inside
+  // its encrypted `data` payload, but MyFatoorah redirects back with
+  // ?payment_id=<our id>&paymentId=<MF id>&Id=<MF invoice id>, so we read
+  // it from the query string here.
+  const payment_id = searchParams.get("payment_id");
 
   const {
     data: payments,
