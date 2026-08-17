@@ -29,9 +29,8 @@ function Checkout() {
   const [totalDiscount, setTotalDiscount] = useState(0);
   const [selectedInvoices, setSelectedInvoices] = useState([]);
 
-  // Apple Pay button is rendered only when the browser advertises support.
-  // ApplePaySession is available on Safari (macOS + iOS) when the device can
-  // present an Apple Pay sheet. Any other browser hides the button.
+  // Apple Pay button is rendered only when the browser advertises support AND
+  // the selected gateway is Hesabe. MyFatoorah does not support Apple Pay.
   const [applePayAvailable, setApplePayAvailable] = useState(false);
   useEffect(() => {
     if (
@@ -58,6 +57,14 @@ function Checkout() {
     0
   );
 
+  // Mirror the backend gateway-selection logic so we know which gateway will
+  // be used for the current total. Derived (not state) so it re-evaluates on
+  // every render as the user selects/deselects invoices.
+  const gatewayConfig = checkoutItems?.data?.gateway_config;
+  const usingMyfatoorah =
+    !!gatewayConfig?.myfatoorah_enabled &&
+    totalAmount >= parseFloat(gatewayConfig?.myfatoorah_threshold_kwd ?? "999999");
+
   // On mount, select all invoices and calculate the initial total amount
   useEffect(() => {
     if (!checkoutItems) return; // Return if checkoutItems is not available
@@ -71,17 +78,19 @@ function Checkout() {
     // Calculate the initial total amount
     let initialSubTotal = 0;
     let initialDiscount = 0;
+    let payableAmount = 0;
 
     checkoutItems?.data?.contracts.forEach((contract) => {
       contract.invoices.forEach((invoice) => {
         initialSubTotal += Number(invoice.invoice_amount);
         initialDiscount += Number(invoice.discount_value || 0);
+        payableAmount += Number(invoice.remaining_amount);
       });
     });
 
     setSubTotalAmount(initialSubTotal);
     setTotalDiscount(initialDiscount);
-    setTotalAmount(initialSubTotal - initialDiscount);
+    setTotalAmount(payableAmount);
   }, [checkoutItems]);
 
   // On every change in selectedInvoices, recalculate the total amount
@@ -91,19 +100,21 @@ function Checkout() {
     // Calculate the new total amount based on the selected invoices
     let subTotalAmount = 0;
     let totalDiscount = 0;
+    let payableAmount = 0;
 
     checkoutItems?.data?.contracts.forEach((contract) => {
       contract.invoices.forEach((invoice) => {
         if (selectedInvoices.includes(invoice.id)) {
           subTotalAmount += Number(invoice.invoice_amount);
           totalDiscount += Number(invoice.discount_value || 0);
+          payableAmount += Number(invoice.remaining_amount);
         }
       });
     });
 
     setSubTotalAmount(subTotalAmount);
     setTotalDiscount(totalDiscount);
-    setTotalAmount(subTotalAmount - totalDiscount);
+    setTotalAmount(payableAmount);
   }, [selectedInvoices, checkoutItems]);
 
   // Handle checkbox changes
@@ -432,7 +443,7 @@ function Checkout() {
                 Uses paymentType=11 (KNET Debit Apple Pay) per Hesabe direct
                 integration. The customer authenticates via Touch/Face ID on
                 Hesabe's hosted payment page. */}
-            {applePayAvailable && (
+            {applePayAvailable && !usingMyfatoorah && (
               <button
                 type="button"
                 onClick={() => submitWithPaymentType(11)}
