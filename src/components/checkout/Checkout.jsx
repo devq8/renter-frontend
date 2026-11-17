@@ -15,6 +15,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import Alert from "@mui/material/Alert";
 import CheckIcon from "@mui/icons-material/Check";
+import BlockIcon from "@mui/icons-material/Block";
 import { Divider } from "@mui/material";
 import { Header } from "../navbar/Header";
 import Person from "@mui/icons-material/Person";
@@ -51,6 +52,16 @@ function Checkout() {
     ["CheckoutItems", unique_payment_identifier],
     () => getCheckoutDetails(unique_payment_identifier)
   );
+
+  // Late payment: when any of the tenant's contracts is BLOCKED the backend
+  // refuses payment, so the page shows a message and disables the Pay buttons.
+  const isBlocked = !!checkoutItems?.data?.is_blocked;
+  const blockedMessage =
+    checkoutItems?.data?.blocked_message ||
+    "Your contract is blocked due to late payment and your file has been transferred to our Legal team for action. Kindly contact the property owner.";
+  const blockedMessageAr =
+    checkoutItems?.data?.blocked_message_ar ||
+    "تم إيقاف عقدك بسبب التأخر في السداد وتمت إحالة ملفك إلى الإدارة القانونية لاتخاذ الإجراءات اللازمة. يرجى التواصل مع مالك العقار.";
 
   const totalOutstandingAmount = checkoutItems?.data?.contracts?.reduce(
     (acc, contract) => acc + contract.total_pending_amount,
@@ -256,7 +267,17 @@ function Checkout() {
         }
       } catch (error) {
         console.error("Error sending payment:", error);
-        toast.error("Please try again later.");
+        const data = error?.response?.data;
+        if (data?.error) {
+          toast.error(
+            <div>
+              <div>{data.error}</div>
+              {data.error_ar && <div dir="rtl">{data.error_ar}</div>}
+            </div>
+          );
+        } else {
+          toast.error("Please try again later.");
+        }
         setIsSubmitting(false); // Set isSubmitting to false when submission on failure
       }
     },
@@ -319,7 +340,18 @@ function Checkout() {
             </div>
 
             <div className="flex-col pt-3 justify-between items-center">
-              {totalOutstandingAmount == 0 ? (
+              {isBlocked ? (
+                <Alert
+                  sx={{ mb: 2, fontSize: 15 }}
+                  icon={<BlockIcon fontSize="inherit" />}
+                  severity="error"
+                >
+                  <div className="font-medium">{blockedMessage}</div>
+                  <div dir="rtl" className="font-medium mt-2 text-right">
+                    {blockedMessageAr}
+                  </div>
+                </Alert>
+              ) : totalOutstandingAmount == 0 ? (
                 <Alert
                   sx={{ mb: 2 }}
                   icon={<CheckIcon fontSize="inherit" />}
@@ -417,7 +449,7 @@ function Checkout() {
               onClick={() => submitWithPaymentType(1)}
               className={`rounded-md px-7 py-3 w-full text-xl font-extrabold transition duration-200
             ${
-              totalAmount > 0
+              totalAmount > 0 && !isBlocked
                 ? "bg-primary hover:bg-[52555C] hover:opacity-80 active:bg-[52555C] text-white"
                 : "bg-gray-400 text-gray-500 cursor-not-allowed"
             }`}
@@ -426,7 +458,8 @@ function Checkout() {
                 totalAmount <= 0 ||
                 isSubmitting ||
                 totalOutstandingAmount == 0 ||
-                checkoutItems?.status != 200
+                checkoutItems?.status != 200 ||
+                isBlocked
               }
             >
               {isSubmitting ? (
@@ -449,7 +482,7 @@ function Checkout() {
                 onClick={() => submitWithPaymentType(11)}
                 className={`rounded-md px-7 py-3 w-full text-xl font-extrabold transition duration-200
               ${
-                totalAmount > 0
+                totalAmount > 0 && !isBlocked
                   ? "bg-black hover:opacity-80 active:opacity-70 text-white"
                   : "bg-gray-400 text-gray-500 cursor-not-allowed"
               }`}
@@ -458,7 +491,8 @@ function Checkout() {
                   totalAmount <= 0 ||
                   isSubmitting ||
                   totalOutstandingAmount == 0 ||
-                  checkoutItems?.status != 200
+                  checkoutItems?.status != 200 ||
+                  isBlocked
                 }
                 aria-label="Pay with Apple Pay"
               >

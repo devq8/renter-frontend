@@ -68,7 +68,10 @@ const Navbar = (first_name, email) => {
   ];
   const userNavigation = [
     { name: "Your Profile" },
-    { name: "Settings" },
+    {
+      name: "Late Payment Policy",
+      onClick: () => navigate("/settings/late-payment"),
+    },
     {
       name: "Sign out",
       onClick: () => {
