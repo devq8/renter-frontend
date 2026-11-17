@@ -342,12 +342,16 @@ function Checkout() {
             <div className="flex-col pt-3 justify-between items-center">
               {isBlocked ? (
                 <Alert
-                  sx={{ mb: 2 }}
+                  sx={{
+                    mb: 2,
+                    fontFamily:
+                      '"Loew Next Arabic", Poppins, "Helvetica Neue", Arial, sans-serif',
+                  }}
                   icon={<BlockIcon fontSize="inherit" />}
                   severity="error"
                 >
-                  <div className="font-bold">{blockedMessage}</div>
-                  <div dir="rtl" className="font-bold mt-2 text-right">
+                  <div className="font-brand font-bold">{blockedMessage}</div>
+                  <div dir="rtl" className="font-brand font-bold mt-2 text-right">
                     {blockedMessageAr}
                   </div>
                 </Alert>
