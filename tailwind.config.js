@@ -24,7 +24,6 @@ module.exports = withMT({
     },
     fontFamily: {
       "noto-sans": ['"Noto Sans"', "sans-serif"],
-      brand: ['"Loew Next Arabic"', "Poppins", '"Helvetica Neue"', "Arial", "sans-serif"],
     },
 
     container: {

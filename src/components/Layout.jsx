@@ -36,6 +36,7 @@ import PaymentList from "./payments/PaymentList";
 import PaymentDetail from "./payments/PaymentDetails";
 import { useEffect } from "react";
 import PrivacyPolicy from "./privacypolicy/PrivacyPolicy";
+import LatePaymentPolicy from "./settings/LatePaymentPolicy";
 
 export default function Layout() {
   const navigate = useNavigate();
@@ -123,6 +124,10 @@ export default function Layout() {
             <Route path="/payment" element={<PaymentList />} />
             <Route path="/payment/:id" element={<PaymentDetail />} />
             <Route path="/meters" element={<MetersList />} />
+            <Route
+              path="/settings/late-payment"
+              element={<LatePaymentPolicy />}
+            />
             <Route
               path="/meters/bulk_readings"
               element={<MeterBulkReadings />}
