@@ -58,10 +58,10 @@ function Checkout() {
   const isBlocked = !!checkoutItems?.data?.is_blocked;
   const blockedMessage =
     checkoutItems?.data?.blocked_message ||
-    "Your contract is blocked due to late payment and your file has been transferred to our Legal team for action. Kindly contact the property owner.";
+    "Your contract has been blocked and transferred to the legal team to take action. Kindly contact the management for more information.";
   const blockedMessageAr =
     checkoutItems?.data?.blocked_message_ar ||
-    "تم إيقاف عقدك بسبب التأخر في السداد وتمت إحالة ملفك إلى الإدارة القانونية لاتخاذ الإجراءات اللازمة. يرجى التواصل مع مالك العقار.";
+    "تم إيقاف عقدك وتحويله إلى الإدارة القانونية لاتخاذ الإجراءات اللازمة. يرجى التواصل مع الإدارة للمزيد من المعلومات.";
 
   const totalOutstandingAmount = checkoutItems?.data?.contracts?.reduce(
     (acc, contract) => acc + contract.total_pending_amount,
