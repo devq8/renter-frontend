@@ -1,6 +1,6 @@
 import instance from "./index";
 
-export function paymentResponse(data = null, payment_id = null) {
+export function paymentResponse(data = null, payment_id = null, uid = null) {
   // console.log("Fn data:", data);
   // console.log("Fn Payment ID:", payment_id);
   let url = "/api/checkout/response/";
@@ -10,6 +10,8 @@ export function paymentResponse(data = null, payment_id = null) {
     queryParams.push(`data=${data}`);
   } else if (payment_id) {
     queryParams.push(`payment_id=${payment_id}`);
+    // The backend only serves a payment id together with the tenant's payment-link uid.
+    if (uid) queryParams.push(`uid=${encodeURIComponent(uid)}`);
   }
 
   if (queryParams.length > 0) {
@@ -34,8 +36,10 @@ export function sendPayment(data) {
   });
 }
 
-export function getPaymentDetails(paymentId) {
-  return instance.get(`/api/checkout/receipt/${paymentId}/`);
+export function getPaymentDetails(paymentId, uid = null) {
+  return instance.get(`/api/checkout/receipt/${paymentId}/`, {
+    params: uid ? { uid } : {},
+  });
 }
 
 export function getPaymentsList(uid) {

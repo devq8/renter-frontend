@@ -32,13 +32,15 @@ function PaymentDetails() {
   const data = searchParams.get("data");
   const payment_id =
     routeParams.payment_id || searchParams.get("payment_id");
+  const uid =
+    routeParams.unique_payment_identifier || searchParams.get("uid");
 
   const {
     data: payments,
     isLoading,
     error,
   } = useQuery(["payments", payment_id], () =>
-    paymentResponse(data, payment_id)
+    paymentResponse(data, payment_id, uid)
   );
   const paymentItems = payments?.data;
   const upi = paymentItems?.payment?.unique_payment_identifier;
